@@ -1,0 +1,54 @@
+# Teach — мобильный клиент
+
+React Native + Expo (SDK 57), Expo Router, TypeScript. iOS-first, Android поддерживается той же кодовой базой.
+
+## Почему React Native + Expo, а не SwiftUI
+
+- **Android обязателен.** SwiftUI дал бы вторую кодовую базу на Kotlin/Compose для всех девяти экранов и всей офлайн-логики. Один код на обе платформы — главный аргумент.
+- **Дизайн уже описан в веб-терминах** (CSS-переменные, flex, px). Токены и вёрстка переносятся в RN почти один в один; SwiftUI потребовал бы переосмысления каждого размера.
+- **Экосистема закрывает все требования брифа:** `expo-sqlite` (офлайн-first БД), `expo-secure-store` (токен отдельно от БД), `expo-apple-authentication` + `expo-auth-session` (Apple/Google), `expo-speech-recognition` (платформенный STT: SFSpeechRecognizer / Android SpeechRecognizer), `ts-fsrs` (FSRS без собственной реализации).
+- **Скорость итераций:** hot reload, web-превью для проверки токенов, EAS для сборок. Бриф §5.2 сам склоняется к этому варианту при .NET-бэкенде.
+- Цена: нативные модули (STT, Apple Sign-In) требуют dev-build, а не Expo Go. Это разовая настройка.
+
+## Структура
+
+```
+mobile/
+  app/                      # маршруты Expo Router (файл = экран)
+    _layout.tsx             # шрифты, тема, Stack
+    (auth)/sign-in.tsx      # авторизация
+    (tabs)/                 # Сегодня · Повторы · Справочники · Предметы
+    session/[id].tsx        # сессия урока / повторов
+    recap.tsx               # разбор
+    setup.tsx               # новый предмет (4 шага)
+    subject/[id].tsx        # настройки предмета
+    profile.tsx             # профиль
+    ref/[id].tsx            # детальный справочник
+  src/
+    theme/                  # tokens.ts (DESIGN.md §2–3), typography.ts, ThemeProvider
+    ui/                     # примитивы: Txt, Screen, Logo, Button, Card, Pill, Segment, Toggle…
+    i18n/                   # словарь ru/en (из прототипа), типизированные ключи
+    store/                  # zustand: settings (g), session, auth
+    db/                     # expo-sqlite: схема, миграции, репозитории
+    domain/                 # типы (Subject, Lesson, LearningRecord, ReviewItem, Reference) и FSRS
+    features/               # логика экранов: session, reviews, refs, subjects
+    voice/                  # STT-адаптер: push-to-talk / hands-free
+  assets/
+```
+
+Правило: `app/` содержит только маршруты и композицию; всё, что можно протестировать без навигации, живёт в `src/`.
+
+## Токены
+
+`src/theme/tokens.ts` — палитра light/dark с именами CSS-переменных прототипа (`--mintInk` → `c.mintInk`), радиусы, отступы, размеры хит-таргетов. `src/theme/typography.ts` — Golos Text (400–700) и IBM Plex Mono (400–500) через `@expo-google-fonts/*`, именованные стили (`h1`, `question`, `kicker`, `chip`…). Доступ через `useTheme()`; текст — `<Txt t="h1" color="ink">`.
+
+Тема выбирается в Профиле; до выбора следует системной.
+
+## Запуск
+
+```bash
+npm install
+npx expo start          # Expo Go / dev-build
+npx expo start --web    # быстрый просмотр токенов
+npm run typecheck
+```
