@@ -1,0 +1,49 @@
+mobile/app/(tabs)/subjects.tsx
+  s_a2145daee18e40::t_04309dde06cbf3 2-4,8,10,12-92,98-101,106-110
+mobile/app/_layout.tsx
+  s_a2145daee18e40::t_06b637d03ca717 30
+mobile/app/subject/[id].tsx
+  s_a2145daee18e40::t_c2b924ca43af10 1-89
+mobile/src/db/DbGate.tsx
+  s_a2145daee18e40::t_e8917c2755074c 4-6,28,34-37,43
+mobile/src/db/database.ts
+  s_a2145daee18e40::t_55f20a62024e64 3,10,19,28-31,33,37,43
+mobile/src/db/kv.ts
+  s_a2145daee18e40::t_fc57ffaa5b7950 1-31
+mobile/src/features/subjects/__tests__/voiceLangOptions.test.ts
+  s_a2145daee18e40::t_36c91326f5c428 1-18
+mobile/src/features/subjects/deleteSubject.ts
+  s_a2145daee18e40::t_3c6108e7352fa1 1-8
+mobile/src/features/subjects/voiceLangOptions.ts
+  s_a2145daee18e40::t_892b2effa34983 1-26
+mobile/src/store/__tests__/persist.test.ts
+  s_a2145daee18e40::t_7776134199217b 1-42
+mobile/src/store/persist.ts
+  s_a2145daee18e40::t_3dc584bd44f15a 1-34
+mobile/src/store/progress.ts
+  s_a2145daee18e40::t_c168c03e0f39ee 54-58
+mobile/src/ui/Pill.tsx
+  s_a2145daee18e40::t_6fbd97febc8695 1-33
+mobile/src/ui/Toggle.tsx
+  s_a2145daee18e40::t_6903828c8661da 1-29
+mobile/src/ui/TwoStepConfirm.tsx
+  s_a2145daee18e40::t_3ad946ea280aec 1-34
+mobile/src/ui/index.ts
+  s_a2145daee18e40::t_c253a796cf65c3 14-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "610fb18d91929d3ae4fffeb73d15c2e01972abef",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
