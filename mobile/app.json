@@ -40,9 +40,13 @@
           "backgroundColor": "#FAF6EE",
           "image": "./assets/splash-icon.png",
           "imageWidth": 120,
-          "dark": { "backgroundColor": "#0F1B15" }
+          "dark": {
+            "backgroundColor": "#0F1B15"
+          }
         }
-      ]
+      ],
+      "expo-web-browser",
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true
