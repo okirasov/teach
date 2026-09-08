@@ -65,6 +65,17 @@ describe('reviews store', () => {
     expect((await repo.all()).find((c) => c.id === 'seed-en-1')!.fsrs.reps).toBe(2);
   });
 
+  it('stats count answers this month and today', async () => {
+    const repo = memoryReviewsRepo(prototypeQueue(now));
+    await useReviews.getState().attach(repo);
+    await useReviews.getState().refreshStats(now);
+    expect(useReviews.getState().stats).toEqual({ month: 0, today: 0 });
+    await useReviews.getState().applyResults([{ cardId: 'seed-en-1', ok: true }, { cardId: 'seed-qa-1', ok: false }], now);
+    expect(useReviews.getState().stats).toEqual({ month: 2, today: 2 });
+    await useReviews.getState().refreshStats(new Date(2026, 8, 9, 12));
+    expect(useReviews.getState().stats).toEqual({ month: 2, today: 0 });
+  });
+
   it('removeSubject drops the subject cards everywhere', async () => {
     const repo = memoryReviewsRepo(prototypeQueue(now));
     await useReviews.getState().attach(repo);

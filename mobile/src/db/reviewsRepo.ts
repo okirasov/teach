@@ -13,6 +13,8 @@ export interface ReviewsRepo {
   addLogs(entries: ReviewLogEntry[]): Promise<void>;
   removeBySubject(subjectId: string): Promise<void>;
   count(): Promise<number>;
+  /** Сколько ответов записано начиная с момента `since` (карточка аккаунта: за месяц / сегодня). */
+  countLogsSince(since: Date): Promise<number>;
 }
 
 export function memoryReviewsRepo(initial: ReviewCard[] = []): ReviewsRepo & { logs: ReviewLogEntry[] } {
@@ -34,6 +36,9 @@ export function memoryReviewsRepo(initial: ReviewCard[] = []): ReviewsRepo & { l
     },
     async count() {
       return map.size;
+    },
+    async countLogsSince(since) {
+      return logs.filter((e) => e.log.review.getTime() >= since.getTime()).length;
     },
   };
 }

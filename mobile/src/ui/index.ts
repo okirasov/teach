@@ -14,3 +14,4 @@ export { MicButton } from './MicButton';
 export { Toggle } from './Toggle';
 export { PillGroup, type PillOption } from './Pill';
 export { TwoStepConfirm } from './TwoStepConfirm';
+export { Segment } from './Segment';

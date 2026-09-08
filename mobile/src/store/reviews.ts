@@ -29,10 +29,18 @@ export function newCardId(now: Date): string {
  * Очередь повторов. Источник истины — репозиторий (SQLite); в памяти — копия для UI.
  * Все записи проходят через FSRS: сроками владеет алгоритм.
  */
+export interface ReviewStats {
+  month: number;
+  today: number;
+}
+
 export interface ReviewsState {
   repo: ReviewsRepo | null;
   cards: ReviewCard[];
   ready: boolean;
+  /** Закрыто карточек за месяц / сегодня — для карточки аккаунта. */
+  stats: ReviewStats;
+  refreshStats: (now?: Date) => Promise<void>;
   attach: (repo: ReviewsRepo) => Promise<void>;
   detach: () => void;
   /**
@@ -49,11 +57,21 @@ export const useReviews = create<ReviewsState>((set, get) => ({
   repo: null,
   cards: [],
   ready: false,
+  stats: { month: 0, today: 0 },
+  refreshStats: async (now = new Date()) => {
+    const { repo } = get();
+    if (!repo) return;
+    const dayStart = new Date(now); dayStart.setHours(0, 0, 0, 0);
+    const monthStart = new Date(now); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+    const [month, today] = await Promise.all([repo.countLogsSince(monthStart), repo.countLogsSince(dayStart)]);
+    set({ stats: { month, today } });
+  },
   attach: async (repo) => {
     const cards = await repo.all();
     set({ repo, cards, ready: true });
+    await get().refreshStats();
   },
-  detach: () => set({ repo: null, cards: [], ready: false }),
+  detach: () => set({ repo: null, cards: [], ready: false, stats: { month: 0, today: 0 } }),
   addRecords: async (records, now = new Date()) => {
     const { repo, cards } = get();
     const existingByRef = new Map(cards.filter((c) => c.ref).map((c) => [`${c.ref!.subjectId}:${c.ref!.step}`, c]));
@@ -79,6 +97,7 @@ export const useReviews = create<ReviewsState>((set, get) => ({
     }
     const upd = new Map(updated.map((c) => [c.id, c]));
     set((s) => ({ cards: [...s.cards.map((c) => upd.get(c.id) ?? c), ...created] }));
+    await get().refreshStats(now);
     return [...updated, ...created];
   },
   applyResults: async (results, now = new Date()) => {
@@ -99,6 +118,7 @@ export const useReviews = create<ReviewsState>((set, get) => ({
     }
     const upd = new Map(updated.map((c) => [c.id, c]));
     set((s) => ({ cards: s.cards.map((c) => upd.get(c.id) ?? c) }));
+    await get().refreshStats(now);
   },
   removeSubject: async (subjectId) => {
     const { repo } = get();

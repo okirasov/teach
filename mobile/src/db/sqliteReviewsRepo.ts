@@ -129,5 +129,9 @@ export function sqliteReviewsRepo(db: SQLiteDatabase): ReviewsRepo {
       const row = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM review_cards');
       return row?.n ?? 0;
     },
+    async countLogsSince(since) {
+      const row = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM review_log WHERE reviewed_at >= ?', since.getTime());
+      return row?.n ?? 0;
+    },
   };
 }
