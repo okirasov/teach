@@ -1,0 +1,51 @@
+mobile/app/_layout.tsx
+  s_a2145daee18e40::t_7a806e6c0db489 27
+mobile/app/recap.tsx
+  s_a2145daee18e40::t_4574de23e88f5f 1-36
+mobile/app/session/[id].tsx
+  s_a2145daee18e40::t_cb16260cdaafa3 2-3,5-8,10-14,16,21-84,87-118
+mobile/src/features/session/StepViews.tsx
+  s_a2145daee18e40::t_225b0aede22aa4 1-238
+mobile/src/features/session/__tests__/engine.test.ts
+  s_a2145daee18e40::t_bcad955a6bd1e0 1-107
+mobile/src/features/session/__tests__/voiceLang.test.ts
+  s_a2145daee18e40::t_d070fc4cd87c01 1-12
+mobile/src/features/session/engine.ts
+  s_a2145daee18e40::t_02e51e82441304 1-119
+mobile/src/features/session/useVoiceInput.ts
+  s_a2145daee18e40::t_65aa44e096fb2e 1-47
+mobile/src/features/session/voiceLang.ts
+  s_a2145daee18e40::t_df3f24f69db296 1-21
+mobile/src/store/session.ts
+  s_a2145daee18e40::t_ca071b56d72eee 1-43
+mobile/src/ui/MicButton.tsx
+  s_a2145daee18e40::t_c054e4bba7d1ea 1-44
+mobile/src/ui/Screen.tsx
+  s_a2145daee18e40::t_b6baab45cb4856 8
+mobile/src/ui/SessionHeader.tsx
+  s_a2145daee18e40::t_e368fa2e18b6e4 1-50
+mobile/src/ui/index.ts
+  s_a2145daee18e40::t_dc5a9c60ec95d9 12-13
+mobile/src/voice/index.ts
+  s_a2145daee18e40::t_0a7285c7964cac 1-10
+mobile/src/voice/simulated.ts
+  s_a2145daee18e40::t_ccceccfb46f7c5 1-33
+mobile/src/voice/types.ts
+  s_a2145daee18e40::t_607d609d94f578 1-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "d67d6ce91085ae2ddb007fd8f1de0def9c565f4c",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
