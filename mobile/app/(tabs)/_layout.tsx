@@ -1,6 +1,17 @@
 import { Tabs } from 'expo-router';
 
-/** Таб-бар по DESIGN.md §3 появится вместе с экраном «Сегодня»; пока — системный. */
+import { useT } from '@/i18n';
+import { TabBar } from '@/ui';
+
+/** 4 вкладки: Сегодня · Повторы · Справочники · Предметы. */
 export default function TabsLayout() {
-  return <Tabs screenOptions={{ headerShown: false, tabBarStyle: { display: 'none' } }} />;
+  const t = useT();
+  return (
+    <Tabs screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: 'transparent' } }} tabBar={(props) => <TabBar {...props} />}>
+      <Tabs.Screen name="today" options={{ title: t.today }} />
+      <Tabs.Screen name="reviews" options={{ title: t.reviews }} />
+      <Tabs.Screen name="refs" options={{ title: t.refs }} />
+      <Tabs.Screen name="subjects" options={{ title: t.mission }} />
+    </Tabs>
+  );
 }

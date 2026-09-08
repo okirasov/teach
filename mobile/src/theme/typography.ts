@@ -84,7 +84,7 @@ export const type = {
   kicker: { ...mono(10.5, 500, 1.05), textTransform: 'uppercase' as const },
   kickerSm: { ...mono(10, 500, 1.0), textTransform: 'uppercase' as const },
   /** Чип-статус. */
-  chip: { ...mono(11, 500, 0.66), textTransform: 'uppercase' as const },
+  chip: mono(11, 500, 0.66),
   chipSm: mono(10, 500, 0.5),
   chipTag: mono(10.5, 500, 0),
   /** Дата в шапке, счётчик n/N, уровень. */

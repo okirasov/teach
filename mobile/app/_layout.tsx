@@ -22,6 +22,8 @@ function RootStack() {
         </Stack.Protected>
         <Stack.Protected guard={signedIn}>
           <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
+          <Stack.Screen name="profile" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="session/[id]" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
         </Stack.Protected>
       </Stack>
     </>
