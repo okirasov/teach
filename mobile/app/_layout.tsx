@@ -26,6 +26,7 @@ function RootStack() {
           <Stack.Screen name="profile" options={{ presentation: 'modal' }} />
           <Stack.Screen name="session/[id]" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
           <Stack.Screen name="recap" options={{ presentation: 'fullScreenModal', gestureEnabled: false, animation: 'fade' }} />
+          <Stack.Screen name="setup" options={{ presentation: 'fullScreenModal' }} />
         </Stack.Protected>
       </Stack>
     </>

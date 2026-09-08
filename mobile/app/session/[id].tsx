@@ -20,10 +20,11 @@ export default function SessionScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const custom = useProgress((s) => s.custom);
+  const customLesson = useProgress((s) => s.customLesson);
   const plan = useReviewPlan();
   const lesson = useMemo(
-    () => (id === REVIEW_ID ? plan.lesson : getLesson({ custom }, id, t.reviewName)),
-    [custom, id, t, plan],
+    () => (id === REVIEW_ID ? plan.lesson : getLesson({ custom, customLesson }, id, t.reviewName)),
+    [custom, customLesson, id, t, plan],
   );
   const cardIds = id === REVIEW_ID ? plan.cardIds : undefined;
   const cfg = useProgress(useShallow((s) => subjectConfig(s, id)));

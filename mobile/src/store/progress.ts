@@ -9,7 +9,6 @@ export const REVIEW_ID: SubjectId = 'review';
 
 /** Этапы фоновой подготовки первого урока (t.prepSteps). */
 export const PREP_STAGES = 3;
-export const PREP_STAGE_MS = 1800;
 
 /**
  * Прогресс и данные обучения (`done, added, custom, removed, missions, cfg` прототипа).
@@ -29,8 +28,11 @@ export interface ProgressState {
   markDone: (id: SubjectId, records: { t: string; s: string }[]) => void;
   removeSubject: (id: SubjectId) => void;
   createCustom: (c: Omit<CustomSubject, 'ready'>) => void;
-  /** Шаг фоновой подготовки; при достижении PREP_STAGES урок готов. */
-  advancePrep: () => void;
+  /** Этап фоновой подготовки первого урока. */
+  setPrepStage: (stage: number) => void;
+  /** Первый урок готов (сохраняется, чтобы сессия брала именно его). */
+  setCustomReady: (lesson: Lesson) => void;
+  customLesson: Lesson | null;
   setMission: (id: SubjectId, text: string) => void;
   setCfg: (id: SubjectId, patch: Partial<SubjectConfig>) => void;
 }
@@ -40,6 +42,7 @@ export const useProgress = create<ProgressState>((set, get) => ({
   removed: {},
   added: 0,
   custom: null,
+  customLesson: null,
   prepStage: 0,
   missions: { ...seedMissions },
   cfg: {},
@@ -48,22 +51,19 @@ export const useProgress = create<ProgressState>((set, get) => ({
   markDone: (id, records) =>
     set((s) => ({ done: { ...s.done, [id]: true }, added: s.added + records.length, reviewLog: [...s.reviewLog, ...records] })),
   removeSubject: (id) =>
-    set((s) => ({ removed: { ...s.removed, [id]: true }, custom: id === CUSTOM_ID ? null : s.custom })),
+    set((s) => ({ removed: { ...s.removed, [id]: true }, custom: id === CUSTOM_ID ? null : s.custom, customLesson: id === CUSTOM_ID ? null : s.customLesson })),
   createCustom: (c) =>
     set((s) => ({
       custom: { ...c, ready: false },
+      customLesson: null,
       prepStage: 0,
       missions: { ...s.missions, [CUSTOM_ID]: { cur: c.mission, hist: [] } },
       removed: { ...s.removed, [CUSTOM_ID]: false },
       done: { ...s.done, [CUSTOM_ID]: false },
     })),
-  advancePrep: () => {
-    const s = get();
-    if (!s.custom || s.custom.ready) return;
-    const next = s.prepStage + 1;
-    if (next >= PREP_STAGES) set({ prepStage: PREP_STAGES, custom: { ...s.custom, ready: true } });
-    else set({ prepStage: next });
-  },
+  setPrepStage: (stage) => set({ prepStage: stage }),
+  setCustomReady: (lesson) =>
+    set((s) => (s.custom ? { custom: { ...s.custom, ready: true }, customLesson: lesson, prepStage: PREP_STAGES } : s)),
   setMission: (id, text) =>
     set((s) => {
       const m = s.missions[id] ?? { cur: '', hist: [] };
@@ -89,8 +89,8 @@ export function subjectConfig(s: Pick<ProgressState, 'cfg'>, id: SubjectId): Sub
   return { ...defaultSubjectConfig, ...s.cfg[id] };
 }
 
-export function getLesson(s: Pick<ProgressState, 'custom'>, id: SubjectId, reviewName: string): Lesson | null {
+export function getLesson(s: Pick<ProgressState, 'custom' | 'customLesson'>, id: SubjectId, reviewName: string): Lesson | null {
   if (id === REVIEW_ID) return reviewLesson(reviewName);
-  if (id === CUSTOM_ID) return s.custom ? customLesson(s.custom.topic, s.custom.mission) : null;
+  if (id === CUSTOM_ID) return s.customLesson ?? (s.custom ? customLesson(s.custom.topic, s.custom.mission) : null);
   return seedLessons[id] ?? null;
 }

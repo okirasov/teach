@@ -29,10 +29,10 @@ describe('progress store', () => {
     useProgress.getState().createCustom({ topic: 'SQL', focus: 'Основы и синтаксис', mission: 'писать отчёты' });
     expect(activeSubjectIds(useProgress.getState())).toContain(CUSTOM_ID);
     expect(useProgress.getState().custom?.ready).toBe(false);
-    for (let i = 0; i < PREP_STAGES; i++) useProgress.getState().advancePrep();
+    useProgress.getState().setPrepStage(1);
+    expect(useProgress.getState().prepStage).toBe(1);
+    useProgress.getState().setCustomReady({ name: 'SQL', level: 'старт', steps: [] });
     expect(useProgress.getState().custom?.ready).toBe(true);
-    expect(useProgress.getState().prepStage).toBe(PREP_STAGES);
-    useProgress.getState().advancePrep();
     expect(useProgress.getState().prepStage).toBe(PREP_STAGES);
     expect(getLesson(useProgress.getState(), CUSTOM_ID, 'Повторы')?.name).toBe('SQL');
   });
