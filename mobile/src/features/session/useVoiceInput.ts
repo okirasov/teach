@@ -42,12 +42,17 @@ export function useVoiceInput(lang: string, hint: string | undefined, continuous
     active.current = recognizer.start(
       { lang, hint, continuous },
       {
-        onResult: (text) => setInput(text),
+        onResult: (text, isFinal) => {
+          if (__DEV__) console.log(`[voice] result final=${isFinal}: "${text}"`);
+          setInput(text);
+        },
         onEnd: () => {
+          if (__DEV__) console.log('[voice] end');
           active.current = null;
           setRec(false);
         },
-        onError: () => {
+        onError: (message) => {
+          if (__DEV__) console.log(`[voice] error: ${message}`);
           active.current = null;
           setRec(false);
         },

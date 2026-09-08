@@ -76,4 +76,16 @@ cd ios && xcodebuild -workspace Teach.xcworkspace -scheme Teach -configuration D
 xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/Teach.app && xcrun simctl launch booted app.teach.mobile
 ```
 
+### Сборка на iPhone
+
+Команда `PW7867VU3L` прописана в `app.json` (`ios.appleTeamId`). На телефоне должен быть включён Developer Mode (Настройки → Конфиденциальность и безопасность), Mac и iPhone в одной Wi‑Fi сети (Debug-сборка грузит JS с Metro по адресу из `ip.txt`).
+
+```bash
+cd ios && xcodebuild -workspace Teach.xcworkspace -scheme Teach -configuration Debug -sdk iphoneos -destination 'id=<UDID>' -derivedDataPath build-device -allowProvisioningUpdates -allowProvisioningDeviceRegistration DEVELOPMENT_TEAM=PW7867VU3L build
+xcrun devicectl device install app --device <UDID> build-device/Build/Products/Debug-iphoneos/Teach.app
+xcrun devicectl device process launch --terminate-existing --device <UDID> app.teach.mobile
+```
+
+UDID телефона: `xcrun devicectl list devices`. Проверено 2026-09-09: нативный STT на iPhone 16 Pro Max отдаёт промежуточные результаты по словам и финальную фразу.
+
 Metro без watchman не видит правок — после изменения кода перезапускать `expo start --clear`. Разрешение на распознавание речи `simctl privacy` не выдаёт; в симуляторе его можно проставить в `~/Library/Developer/CoreSimulator/Devices/<UDID>/data/Library/TCC/TCC.db` (`kTCCServiceSpeechRecognition`, `auth_value=2`).

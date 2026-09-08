@@ -13,7 +13,8 @@
       "bundleIdentifier": "app.teach.mobile",
       "infoPlist": {
         "CFBundleAllowMixedLocalizations": true
-      }
+      },
+      "appleTeamId": "PW7867VU3L"
     },
     "android": {
       "package": "app.teach.mobile",
