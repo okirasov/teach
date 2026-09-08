@@ -1,0 +1,25 @@
+mobile/app/profile.tsx
+  s_a2145daee18e40::t_bc301134191b9d 9,44-45
+mobile/app/recap.tsx
+  s_a2145daee18e40::t_c379f758df097d 59
+mobile/app/subject/[id].tsx
+  s_a2145daee18e40::t_e5f36ece20ff38 11,43-44
+mobile/src/ui/SessionHeader.tsx
+  s_a2145daee18e40::t_201112d58902e6 11-12,15-16,20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "e21b4bea3d962770a651608a2a152df0348a091c",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
