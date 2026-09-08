@@ -1,0 +1,63 @@
+mobile/app/(tabs)/_layout.tsx
+  s_a2145daee18e40::t_ba5eca94802ae8 3-6,8-16
+mobile/app/(tabs)/refs.tsx
+  s_a2145daee18e40::t_5a83d18f2b9b5a 1-18
+mobile/app/(tabs)/reviews.tsx
+  s_a2145daee18e40::t_7993df44e4ebde 1-20
+mobile/app/(tabs)/subjects.tsx
+  s_a2145daee18e40::t_24c25115be1159 1-18
+mobile/app/(tabs)/today.tsx
+  s_a2145daee18e40::t_be831fd4eb88fa 1-2,4-7,9-21,24-38
+mobile/app/_layout.tsx
+  s_a2145daee18e40::t_0d96f1cc5672b0 25-26
+mobile/app/profile.tsx
+  s_a2145daee18e40::t_c769a29036d525 1-22
+mobile/app/session/[id].tsx
+  s_a2145daee18e40::t_494105c2635215 1-24
+mobile/src/domain/seed.ts
+  s_a2145daee18e40::t_d96a8e5fc95c76 1-115
+mobile/src/domain/types.ts
+  s_a2145daee18e40::t_7ea378089c2077 1-87
+mobile/src/features/today/HeroCard.tsx
+  s_a2145daee18e40::t_dfe44699a04530 1-38
+mobile/src/features/today/SubjectCard.tsx
+  s_a2145daee18e40::t_08dc420f296f01 1-56
+mobile/src/features/today/useTodaySubjects.ts
+  s_a2145daee18e40::t_aef191674aa319 1-32
+mobile/src/store/__tests__/progress.test.ts
+  s_a2145daee18e40::t_46586405beebe8 1-61
+mobile/src/store/progress.ts
+  s_a2145daee18e40::t_9582414639cf02 1-100
+mobile/src/theme/typography.ts
+  s_a2145daee18e40::t_e9618d271d75e7 87
+mobile/src/ui/AppHeader.tsx
+  s_a2145daee18e40::t_c825120b00b8ed 1-53
+mobile/src/ui/Avatar.tsx
+  s_a2145daee18e40::t_b33a9a036f0920 1-26
+mobile/src/ui/Card.tsx
+  s_a2145daee18e40::t_912b9a1ea307e4 1-31
+mobile/src/ui/Chip.tsx
+  s_a2145daee18e40::t_1b41f85b72605a 1-33
+mobile/src/ui/TabBar.tsx
+  s_a2145daee18e40::t_66ce03abddef46 1-51
+mobile/src/ui/TabTitle.tsx
+  s_a2145daee18e40::t_5efc33c099f719 1-18
+mobile/src/ui/index.ts
+  s_a2145daee18e40::t_caa75078431dda 6-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "387c79fa649a04bcaccd3fcbba1c343c18945e71",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
