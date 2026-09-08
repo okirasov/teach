@@ -24,11 +24,11 @@ function RootStack() {
         </Stack.Protected>
         <Stack.Protected guard={signedIn}>
           <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
-          <Stack.Screen name="profile" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="profile" options={{ presentation: 'fullScreenModal' }} />
           <Stack.Screen name="session/[id]" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
           <Stack.Screen name="recap" options={{ presentation: 'fullScreenModal', gestureEnabled: false, animation: 'fade' }} />
           <Stack.Screen name="setup" options={{ presentation: 'fullScreenModal' }} />
-          <Stack.Screen name="subject/[id]" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="subject/[id]" options={{ presentation: 'fullScreenModal' }} />
           <Stack.Screen name="ref/[id]" />
         </Stack.Protected>
       </Stack>
