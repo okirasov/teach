@@ -13,16 +13,19 @@ export interface SubjectCardModel {
   done: boolean;
   /** Готовится в фоне: индекс текущего этапа (0..PREP_STAGES-1); undefined — готов. */
   prepStage?: number;
+  /** Подготовка сорвалась — показываем «Повторить». */
+  prepFailed?: boolean;
 }
 
 /** Карточка предмета на «Сегодня» (DESIGN.md §4.2): имя + уровень, урок, чип-статус, CTA. */
 export function SubjectCard({ m, onPress }: { m: SubjectCardModel; onPress: () => void }) {
   const t = useT();
   const { c, fonts } = useTheme();
-  const preparing = m.prepStage !== undefined;
-  const status = m.done ? t.doneToday : preparing ? t.prepSteps[Math.min(m.prepStage ?? 0, t.prepSteps.length - 1)] : t.ready;
-  const cta = preparing ? t.inBg : m.done ? t.more : t.start;
-  const chipTone = !preparing && !m.done ? 'dark' : 'mint';
+  const failed = !!m.prepFailed;
+  const preparing = m.prepStage !== undefined && !failed;
+  const status = failed ? t.prepFailed : m.done ? t.doneToday : preparing ? t.prepSteps[Math.min(m.prepStage ?? 0, t.prepSteps.length - 1)] : t.ready;
+  const cta = failed ? t.retry : preparing ? t.inBg : m.done ? t.more : t.start;
+  const chipTone = failed ? 'amber' : !preparing && !m.done ? 'dark' : 'mint';
 
   return (
     <Card large onPress={preparing ? undefined : onPress}>

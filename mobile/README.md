@@ -60,7 +60,7 @@ npm run typecheck
 npm test
 ```
 
-Dev-переменные: `EXPO_PUBLIC_AUTH_LOCAL=1` — вход локальной сессией без провайдера (симулятор, автотесты); `EXPO_PUBLIC_GOOGLE_{IOS,ANDROID,WEB}_CLIENT_ID` — Google-вход; `EXPO_PUBLIC_VOICE_SIM=1` — симуляция STT вместо платформенного; `EXPO_PUBLIC_VOICE_SMOKE=1` — дымовая проверка нативного STT при старте (лог `[voice]`).
+Dev-переменные: `EXPO_PUBLIC_AUTH_LOCAL=1` — вход локальной сессией без провайдера (симулятор, автотесты); `EXPO_PUBLIC_GOOGLE_{IOS,ANDROID,WEB}_CLIENT_ID` — Google-вход; `EXPO_PUBLIC_CONTENT_URL=http://<host>:5180` — сервер-оркестратор (`server/`), без него мастер работает на локальной заглушке; `EXPO_PUBLIC_VOICE_SIM=1` — симуляция STT вместо платформенного; `EXPO_PUBLIC_VOICE_SMOKE=1` — дымовая проверка нативного STT при старте (лог `[voice]`).
 
 ## Голос
 

@@ -73,6 +73,8 @@ export interface CustomSubject {
   focus: string;
   mission: string;
   ready: boolean;
+  /** Выбранные источники — нужны, чтобы повторить подготовку после сбоя. */
+  sourceIds?: string[];
 }
 
 export interface SubjectConfig {

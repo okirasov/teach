@@ -33,6 +33,9 @@ export interface ProgressState {
   /** Первый урок готов (сохраняется, чтобы сессия брала именно его). */
   setCustomReady: (lesson: Lesson) => void;
   customLesson: Lesson | null;
+  /** Подготовка первого урока не удалась (сервер недоступен и т. п.) — карточка предлагает повторить. */
+  prepError: string | null;
+  setPrepError: (message: string | null) => void;
   setMission: (id: SubjectId, text: string) => void;
   setCfg: (id: SubjectId, patch: Partial<SubjectConfig>) => void;
 }
@@ -43,6 +46,7 @@ export const useProgress = create<ProgressState>((set, get) => ({
   added: 0,
   custom: null,
   customLesson: null,
+  prepError: null,
   prepStage: 0,
   missions: { ...seedMissions },
   cfg: {},
@@ -60,12 +64,14 @@ export const useProgress = create<ProgressState>((set, get) => ({
     set((s) => ({
       custom: { ...c, ready: false },
       customLesson: null,
+      prepError: null,
       prepStage: 0,
       missions: { ...s.missions, [CUSTOM_ID]: { cur: c.mission, hist: [] } },
       removed: { ...s.removed, [CUSTOM_ID]: false },
       done: { ...s.done, [CUSTOM_ID]: false },
     })),
-  setPrepStage: (stage) => set({ prepStage: stage }),
+  setPrepStage: (stage) => set({ prepStage: stage, prepError: null }),
+  setPrepError: (message) => set({ prepError: message }),
   setCustomReady: (lesson) =>
     set((s) => (s.custom ? { custom: { ...s.custom, ready: true }, customLesson: lesson, prepStage: PREP_STAGES } : s)),
   setMission: (id, text) =>

@@ -1,6 +1,8 @@
 import { useRouter } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 
+import { content } from '@/content';
+import { retryPrepare } from '@/features/subjects/prepare';
 import { HeroCard } from '@/features/today/HeroCard';
 import { SubjectCard } from '@/features/today/SubjectCard';
 import { useTodaySubjects } from '@/features/today/useTodaySubjects';
@@ -35,7 +37,11 @@ export default function TodayScreen() {
         <Txt t="kicker" color="mut" style={{ marginTop: 24 }}>{t.subjects}</Txt>
         <View style={{ gap: 10, marginTop: 12 }}>
           {subjects.map((m) => (
-            <SubjectCard key={m.id} m={m} onPress={() => router.push({ pathname: '/session/[id]', params: { id: m.id } })} />
+            <SubjectCard
+              key={m.id}
+              m={m}
+              onPress={() => (m.prepFailed ? void retryPrepare(content) : router.push({ pathname: '/session/[id]', params: { id: m.id } }))}
+            />
           ))}
         </View>
       </ScrollView>

@@ -12,6 +12,7 @@ export function useTodaySubjects(): SubjectCardModel[] {
   const removed = useProgress((s) => s.removed);
   const custom = useProgress((s) => s.custom);
   const prepStage = useProgress((s) => s.prepStage);
+  const prepError = useProgress((s) => s.prepError);
 
   return useMemo(() => {
     return activeSubjectIds({ removed, custom }).map((id): SubjectCardModel => {
@@ -23,10 +24,11 @@ export function useTodaySubjects(): SubjectCardModel[] {
           lessonTitle: custom.ready ? t.diag : t.bgLesson,
           done: !!done[id],
           prepStage: custom.ready ? undefined : prepStage,
+          prepFailed: !custom.ready && prepError !== null,
         };
       }
       const l = seedLessons[id];
       return { id, name: l.name, level: l.level, lessonTitle: l.lessonTitle ?? '', done: !!done[id] };
     });
-  }, [t, done, removed, custom, prepStage]);
+  }, [t, done, removed, custom, prepStage, prepError]);
 }
