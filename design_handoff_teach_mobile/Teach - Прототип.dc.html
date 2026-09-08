@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EFEBE0;font-family:'Golos Text',sans-serif}
+a{color:var(--mintInk)}a:hover{color:var(--ink)}
+input:focus,textarea:focus{outline:none}
+*{scrollbar-width:none;-ms-overflow-style:none}
+*::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<div style="{{ pageStyle }}">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ isDark }}" hint-size="402px,874px">
+<div style="height:100%;box-sizing:border-box;display:flex;flex-direction:column;background:var(--bg);padding:64px 20px 30px;font-family:'Golos Text',sans-serif;overflow:hidden">
+
+<sc-if value="{{ isAuth }}" hint-placeholder-val="{{ true }}">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
+    <svg width="64" height="64" viewBox="0 0 96 96" fill="none"><rect x="16" y="14" width="9" height="64" rx="4.5" fill="var(--mintInk)"/><circle cx="20.5" cy="30" r="5" fill="var(--mintInk)"/><circle cx="37" cy="30" r="5" fill="var(--mintInk)"/><circle cx="56" cy="30" r="5" fill="var(--mintInk)"/><circle cx="79" cy="30" r="5.5" stroke="#DFA032" stroke-width="3"/></svg>
+    <div style="font:600 40px/1 'Golos Text',sans-serif;color:var(--ink);letter-spacing:-.5px">teach</div>
+    <div style="font:400 14px/1.5 'Golos Text',sans-serif;color:var(--mut);text-align:center;max-width:250px">{{ tAuthSub }}</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div onClick="{{ loginApple }}" style="background:var(--chipDk);color:var(--btnInk);font:600 15px/1 'Golos Text',sans-serif;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer">
+      <svg width="18" height="20" viewBox="0 0 170 200" fill="currentColor" style="flex:none;display:block"><path d="M141.6 106.3c.2 32.7 28.7 43.6 29 43.7-.2.8-4.5 15.5-15 30.7-9 13.1-18.4 26.2-33.1 26.5-14.5.3-19.2-8.6-35.7-8.6-16.6 0-21.8 8.3-35.5 8.9-14.2.5-25.1-14.2-34.2-27.3C-1.4 153.5-14.2 104.8 4.9 71.5c9.5-16.5 26.4-27 44.8-27.3 14-.3 27.2 9.4 35.7 9.4 8.5 0 24.6-11.6 41.5-9.9 7.1.3 26.9 2.9 39.6 21.6-1 .6-23.7 13.8-23.4 41zM114 26.9c7.5-9.1 12.6-21.8 11.2-34.4-10.8.4-23.9 7.2-31.7 16.3-7 8.1-13.1 21-11.4 33.4 12.1.9 24.4-6.2 31.9-15.3z"/></svg>
+      <span>{{ tAuthApple }}</span>
+    </div>
+    <div onClick="{{ loginGoogle }}" style="background:var(--card);border:1.5px solid var(--line2);color:var(--ink);font:600 15px/1 'Golos Text',sans-serif;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer">
+      <svg width="18" height="18" viewBox="0 0 48 48" style="flex:none;display:block"><path fill="#EA4335" d="M24 9.5c3.5 0 6.7 1.2 9.2 3.6l6.9-6.9C35.9 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l8 6.2C12.5 13.7 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.7 6c4.5-4.2 6.9-10.3 6.9-17.7z"/><path fill="#FBBC05" d="M10.6 28.6A14.6 14.6 0 0 1 9.8 24c0-1.6.3-3.2.8-4.6l-8-6.2A24 24 0 0 0 0 24c0 3.9.9 7.5 2.6 10.8l8-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.7-6c-2.1 1.4-4.9 2.3-8.2 2.3-6.2 0-11.5-4.2-13.4-9.9l-8 6.2C6.5 42.6 14.6 48 24 48z"/></svg>
+      <span>{{ tAuthGoogle }}</span>
+    </div>
+    <div style="font:400 11.5px/1.5 'Golos Text',sans-serif;color:var(--mut);text-align:center;margin-top:6px">{{ tAuthNote }}</div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isMain }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex:none">
+    <div style="display:flex;align-items:center;gap:9px">
+      <svg width="26" height="26" viewBox="0 0 96 96" fill="none"><rect x="16" y="14" width="9" height="64" rx="4.5" fill="var(--mintInk)"/><circle cx="20.5" cy="30" r="5" fill="var(--mintInk)"/><circle cx="37" cy="30" r="5" fill="var(--mintInk)"/><circle cx="56" cy="30" r="5" fill="var(--mintInk)"/><circle cx="79" cy="30" r="5.5" stroke="#DFA032" stroke-width="3"/></svg>
+      <span style="font:600 21px/1 'Golos Text',sans-serif;color:var(--ink);letter-spacing:-.3px">teach</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font:500 11px/1 'IBM Plex Mono',monospace;color:var(--mut)">{{ tDate }}</span>
+      <div onClick="{{ openProfile }}" style="width:34px;height:34px;border-radius:50%;background:var(--mintInk);color:var(--btnInk);display:flex;align-items:center;justify-content:center;font:600 13px/1 'Golos Text',sans-serif;cursor:pointer">{{ initials }}</div>
+    </div>
+  </div>
+  <sc-if value="{{ tabToday }}" hint-placeholder-val="{{ true }}">
+    <div onClick="{{ goReviews }}" style="background:var(--heroBg);border-radius:16px;padding:18px;margin-top:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer">
+      <div>
+        <div style="font:500 10px/1 'IBM Plex Mono',monospace;color:#9FD6B4;letter-spacing:.1em">{{ tQueueKicker }}</div>
+        <div style="font:600 22px/1.2 'Golos Text',sans-serif;color:var(--heroInk);margin-top:8px">{{ queueLine }}</div>
+        <div style="font:400 12.5px/1.4 'Golos Text',sans-serif;color:var(--heroSub);margin-top:4px">{{ tQueueNote }}</div>
+      </div>
+      <div style="width:40px;height:40px;border-radius:50%;background:var(--mint);display:flex;align-items:center;justify-content:center;flex:none;font:400 18px/1 'Golos Text',sans-serif;color:var(--mintInk)">→</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:10px;padding:0 4px">
+      <span style="flex:none;width:8px;height:8px;border-radius:50%;background:var(--mintInk)"></span>
+      <span style="font:400 13px/1.4 'Golos Text',sans-serif;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ weekLine }}</span>
+    </div>
+    <div style="font:500 10.5px/1 'IBM Plex Mono',monospace;color:var(--mut);letter-spacing:.1em;margin-top:24px">{{ tSubjects }}</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+      <sc-for list="{{ subjects }}" as="c" hint-placeholder-count="2">
+        <div onClick="{{ c.open }}" style="background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;cursor:pointer">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <span style="font:600 16.5px/1.3 'Golos Text',sans-serif;color:var(--ink)">{{ c.name }}</span>
+            <span style="font:500 11px/1 'IBM Plex Mono',monospace;color:var(--mut)">{{ c.level }}</span>
+          </div>
+          <div style="font:400 13px/1.45 'Golos Text',sans-serif;color:var(--mut);margin-top:6px">{{ c.lessonTitle }}</div>
+          <sc-if value="{{ c.preparing }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px">
+              <sc-for list="{{ c.prepSteps }}" as="ps" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span style="{{ ps.dot }}"></span>
+                  <span style="{{ ps.txt }}">{{ ps.t }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
+            <span style="{{ c.chipStyle }}">{{ c.status }}</span>
+            <span style="font:500 13px/1 'Golos Text',sans-serif;color:var(--mintInk)">{{ c.cta }} →</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="flex:1"></div>
+  </sc-if>
+
+  <sc-if value="{{ tabReviews }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:baseline;gap:10px;margin-top:22px;min-width:0">
+      <h1 style="margin:0;font:600 26px/1.2 'Golos Text',sans-serif;color:var(--ink);letter-spacing:-.3px;flex:none">{{ tReviews }}</h1>
+      <span style="font:400 13px/1.3 'Golos Text',sans-serif;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">{{ reviewsSummary }}</span>
+    </div>
+    <div style="flex:1;min-height:0;overflow-y:auto;margin:0 -4px;padding:0 4px 8px">
+      <div style="font:500 10.5px/1 'IBM Plex Mono',monospace;color:var(--mut);letter-spacing:.1em;margin-top:18px">{{ tDueToday }}</div>
+      <div style="display:flex;flex-direction:column;gap:9px;margin-top:10px">
+        <sc-for list="{{ dueToday }}" as="r" hint-placeholder-count="2">
+          <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:10px">
+            <div style="flex:1;min-width:0">
+              <div style="font:500 14px/1.4 'Golos Text',sans-serif;color:var(--ink)">{{ r.t }}</div>
+              <div style="font:400 12px/1.4 'Golos Text',sans-serif;color:var(--mut);margin-top:3px">{{ r.s }}</div>
+            </div>
+            <span style="font:500 10px/1 'IBM Plex Mono',monospace;background:var(--amberBg);color:var(--amber);padding:6px 9px;border-radius:7px;white-space:nowrap;flex:none">{{ r.due }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="font:500 10.5px/1 'IBM Plex Mono',monospace;color:var(--mut);letter-spacing:.1em;margin-top:18px">{{ tDueLater }}</div>
+      <div style="display:flex;flex-direction:column;gap:9px;margin-top:10px">
+        <sc-for list="{{ dueLater }}" as="r" hint-placeholder-count="2">
+          <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:10px;opacity:.75">
+            <div style="flex:1;min-width:0">
+              <div style="font:500 14px/1.4 'Golos Text',sans-serif;color:var(--ink)">{{ r.t }}</div>
+              <div style="font:400 12px/1.4 'Golos Text',sans-serif;color:var(--mut);margin-top:3px">{{ r.s }}</div>
+            </div>
+            <span style="font:500 10px/1 'IBM Plex Mono',monospace;background:var(--mint);color:var(--mintInk);padding:6px 9px;border-radius:7px;white-space:nowrap;flex:none">{{ r.due }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div onClick="{{ startReviews }}" style="background:var(--mintInk);color:var(--btnInk);font:600 16px/1 'Golos Text',sans-serif;height:54px;min-height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;margin-bottom:6px">{{ tStartReviews }}</div>
+  </sc-if>
+
+  <sc-if value="{{ tabRefs }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:baseline;gap:10px;margin-top:22px;min-width:0">
+      <h1 style="margin:0;font:600 26px/1.2 'Golos Text',sans-serif;color:var(--ink);letter-spacing:-.3px;flex:none">{{ tRefs }}</h1>
+      <span style="font:400 13px/1.3 'Golos Text',sans-serif;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">{{ tRefsNote }}</span>
+    </div>
+    <div style="position:relative;margin:14px -20px 0">
+      <div style="display:flex;gap:8px;overflow-x:auto;padding:0 20px 0;scrollbar-width:none;-ms-overflow-style:none">
+        <sc-for list="{{ refSubjTabs }}" as="st" hint-placeholder-count="3">
+          <div onClick="{{ st.pick }}" style="{{ st.style }}">{{ st.label }}</div>
+        </sc-for>
+      </div>
+      <div style="position:absolute;top:0;right:0;bottom:1px;width:36px;background:linear-gradient(90deg, transparent, var(--bg));pointer-events:none"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+      <input value="{{ searchVal }}" onChange="{{ onSearch }}" placeholder="{{ tSearchPh }}" style="flex:1;min-width:0;box-sizing:border-box;height:42px;background:var(--card);border:1px solid var(--line2);border-radius:10px;padding:0 14px;font:400 13.5px/1.4 'Golos Text',sans-serif;color:var(--ink)">
+      <div onClick="{{ toggleWeak }}" style="{{ weakChipStyle }}">{{ tWeakF }}</div>
+    </div>
+    <div style="flex:1;min-height:0;overflow-y:auto;margin:0 -4px;padding:0 4px 8px">
+      <sc-for list="{{ refGroups }}" as="grp" hint-placeholder-count="3">
+        <div style="font:500 10.5px/1 'IBM Plex Mono',monospace;color:var(--mut);letter-spacing:.1em;margin-top:18px">{{ grp.g }}</div>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-top:10px">
+          <sc-for list="{{ grp.items }}" as="rf" hint-placeholder-count="2">
+            <div onClick="{{ rf.open }}" style="background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;cursor:pointer">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="flex:1;min-width:0;font:600 14.5px/1.35 'Golos Text',sans-serif;color:var(--ink)">{{ rf.t }}</div>
+                <sc-if value="{{ rf.hasWeak }}" hint-placeholder-val="{{ false }}">
+                  <span style="font:500 10px/1 'IBM Plex Mono',monospace;background:var(--amberBg);color:var(--amber);padding:6px 9px;border-radius:7px;flex:none">{{ rf.weakChip }}</span>
+                </sc-if>
+              </div>
+              <div style="font:400 12px/1.4 'Golos Text',sans-serif;color:var(--mut);margin-top:5px">{{ rf.m }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ tabMission }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:baseline;gap:10px;margin-top:22px;min-width:0">
+      <h1 style="margin:0;font:600 26px/1.2 'Golos Text',sans-serif;color:var(--ink);letter-spacing:-.3px;flex:none">{{ tMission }}</h1>
+      <span style="font:400 13px/1.3 'Golos Text',sans-serif;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">{{ tMissionNote }}</span>
+    </div>
+    <div style="flex:1;min-height:0;overflow-y:auto;margin:0 -4px;padding:0 4px 8px">
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:18px">
+        <sc-for list="{{ missionCards }}" as="m" hint-placeholder-count="2">
+          <div style="background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <span style="font:600 15px/1.3 'Golos Text',sans-serif;color:var(--ink)">{{ m.name }}</span>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font:500 10px/1 'IBM Plex Mono',monospace;background:var(--sand);color:var(--sandInk);padding:6px 9px;border-radius:7px">{{ m.ver }}</span>
+                <span onClick="{{ m.settings }}" style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--mint);cursor:pointer">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--mintInk)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"></circle><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M18.5 5.5l-2.1 2.1M7.6 16.4l-2.1 2.1"></path></svg>
+                </span>
+              </div>
+            </div>
+            <sc-if value="{{ m.editing }}" hint-placeholder-val="{{ false }}">
+              <input value="{{ m.draft }}" onChange="{{ m.onDraft }}" maxLength="{{ 100 }}" style="width:100%;box-sizing:border-box;background:var(--bg);border:1.5px solid var(--mintInk);border-radius:12px;padding:12px 14px;margin-top:10px;font:400 14px/1.5 'Golos Text',sans-serif;color:var(--ink)">
+              <div style="display:flex;gap:8px;margin-top:10px">
+                <div onClick="{{ m.save }}" style="background:var(--mintInk);color:var(--btnInk);font:600 13px/1 'Golos Text',sans-serif;padding:11px 16px;border-radius:10px;cursor:pointer">{{ tSave }}</div>
+                <div onClick="{{ m.cancel }}" style="background:var(--mint);color:var(--mintInk);font:600 13px/1 'Golos Text',sans-serif;padding:11px 16px;border-radius:10px;cursor:pointer">{{ tCancel }}</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ m.notEditing }}" hint-placeholder-val="{{ true }}">
+              <div style="font:500 15px/1.5 'Golos Text',sans-serif;color:var(--ink);margin-top:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ m.cur }}</div>
+              <sc-for list="{{ m.hist }}" as="h" hint-placeholder-count="1">
+                <div style="font:400 12.5px/1.5 'Golos Text',sans-serif;color:var(--mut2);margin-top:6px;text-decoration:line-through">{{ h }}</div>
+              </sc-for>
+              <div onClick="{{ m.startEdit }}" style="font:500 13px/1 'Golos Text',sans-serif;color:var(--mintInk);margin-top:12px;cursor:pointer">{{ tEdit }} →</div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div onClick="{{ onNewSubject }}" style="flex:none;border:1.5px dashed var(--line2);border-radius:16px;padding:15px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;margin-bottom:6px">
+      <span style="font:400 18px/1 'Golos Text',sans-serif;color:var(--mintInk)">+</span>
+      <span style="font:500 14px/1 'Golos Text',sans-serif;color:var(--mintInk)">{{ tNewSubj }}</span>
+    </div>
+  </sc-if>
+
+  <div style="display:flex;border-top:1px solid var(--lineSoft);padding-top:12px;margin:0 -4px;flex:none">
+    <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="4">
+      <div onClick="{{ tb.go }}" style="{{ tb.style }}">{{ tb.label }}</div>
+    </sc-for>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex:none">
+    <div style="display:flex;align-items:center;gap:9px">
+      <div onClick="{{ onExit }}" style="width:26px;height:26px;border-radius:50%;background:var(--mint);display:flex;align-items:center;justify-content:center;font:400 16px/1 'Golos Text',sans-serif;color:var(--mintInk);cursor:pointer;flex:none">×</div>
+      <span style="font:600 21px/1 'Golos Text',sans-serif;color:var(--ink);letter-spacing:-.3px">teach</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font:500 11px/1 'IBM Plex Mono',monospace;color:var(--mut)">{{ tDate }}</span>
+      <div style="width:34px;height:34px;border-radius:50%;background:var(--mintInk);color:var(--btnInk);display:flex;align-items:center;justify-content:center;font:600 13px/1 'Golos Text',sans-serif">{{ initials }}</div>
+    </div>
+  </div>
+  <h1 style="margin:16px 0 0;font:600 26px/1.2 'Golos Text',sans-serif;color:var(--ink);letter-spacing:-.3px;flex:none">{{ tProfileTitle }}</h1>
+  <div style="flex:1;min-height:0;display:flex;flex-direction:column">
+  <div style="background:var(--card);border:1px solid var(--line);border-radius:16px;margin-top:12px;padding:12px 16px;display:flex;align-items:center;gap:14px">
+    <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--mintInk);color:var(--btnInk);display:flex;align-items:center;justify-content:center;font:600 17px/1 'Golos Text',sans-serif;flex:none">{{ initials }}</div>
+      <div style="min-width:0">
+        <div style="font:600 16px/1.2 'Golos Text',sans-serif;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ userName }}</div>
+        <div style="font:400 12px/1.4 'Golos Text',sans-serif;color:var(--mut);margin-top:2px;white-space:nowrap">{{ viaLine }}</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:16px;flex:none">
+      <sc-for list="{{ stats }}" as="stx" hint-placeholder-count="2">
+        <div style="text-align:right">
+          <div style="font:600 19px/1 'Golos Text',sans-serif;color:var(--ink);letter-spacing:-.3px">{{ stx.v }}</div>
+          <div style="font:400 11px/1.3 'Golos Text',sans-serif;color:var(--mut);margin-top:4px;white-space:nowrap">{{ stx.l }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="font:500 13px/1 'Golos Text',sans-serif;color:var(--mut);margin:16px 0 6px 4px">{{ tRemG }}</div>
+  <div style="background:var(--card);border:1px solid var(--line);border-radius:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;min-height:46px;box-sizing:border-box;border-bottom:1px solid var(--lineSoft)">
+      <span style="font:400 14.5px/1.3 'Golos Text',sans-serif;color:var(--ink)">{{ tRemTime }}</span>
+      <div style="{{ segBox }}"><sc-for list="{{ remOpts }}" as="p" hint-placeholder-count="2"><div onClick="{{ p.pick }}" style="{{ p.style }}">{{ p.label }}</div></sc-for></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;min-height:46px;box-sizing:border-box">
+      <span style="font:400 14.5px/1.3 'Golos Text',sans-serif;color:var(--ink)">{{ tWeekendOff }}</span>
+      <div onClick="{{ toggleWeekend }}" style="{{ weekendTrack }}"><div style="width:22px;height:22px;border-radius:50%;background:#fdfdfd;box-shadow:0 1px 2px rgba(0,0,0,.2)"></div></div>
+    </div>
+  </div>
+
+  <div style="font:500 13px/1 'Golos Text',sans-serif;color:var(--mut);margin:14px 0 6px 4px">{{ tReviewsG }}</div>
+  <div style="background:var(--card);border:1px solid var(--line);border-radius:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;min-height:46px;box-sizing:border-box">
+      <span style="font:400 14.5px/1.3 'Golos Text',sans-serif;color:var(--ink)">{{ tCapG }}</span>
+      <div style="{{ segBox }}"><sc-for list="{{ capOpts }}" as="p" hint-placeholder-count="4"><div onClick="{{ p.pick }}" style="{{ p.style }}">{{ p.label }}</div></sc-for></div>
+    </div>
+  </div>
+
+  <div style="font:500 13px/1 'Golos Text',sans-serif;color:var(--mut);margin:14px 0 6px 4px">{{ tVoiceG }}</div>
+  <div style="background:var(--card);border:1px solid var(--line);border-radius:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;min-height:46px;box-sizing:border-box">
+      <span style="font:400 14.5px/1.3 'Golos Text',sans-serif;color:var(--ink)">{{ tRecMode }}</span>
+      <div style="{{ segBox }}"><sc-for list="{{ modeOpts }}" as="p" hint-placeholder-count="2"><div onClick="{{ p.pick }}" style="{{ p.style }}">{{ p.label }}</div></sc-for></div>
+    </div>
+  </div>
+
+  <div style="font:500 13px/1 'Golos Text',sans-serif;color:var(--mut);margin:14px 0 6px 4px">{{ tAppG }}</div>
+  <div style="background:var(--card);border:1px solid var(--line);border-radius:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;min-height:46px;box-sizing:border-box;border-bottom:1px solid var(--lineSoft)">
+      <span style="font:400 14.5px/1.3 'Golos Text',sans-serif;color:var(--ink)">{{ tLanguage }}</span>
+      <div style="{{ segBox }}"><div onClick="{{ setRu }}" style="{{ ruStyle }}">Русский</div><div onClick="{{ setEn }}" style="{{ enStyle }}">English</div></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;min-height:46px;box-sizing:border-box">
+      <span style="font:400 14.5px/1.3 'Golos Text',sans-serif;color:var(--ink)">{{ tTheme }}</span>
+      <div style="{{ segBox }}"><div onClick="{{ setLight }}" style="{{ lightStyle }}">{{ tLight }}</div><div onClick="{{ setDark }}" style="{{ darkStyle }}">{{ tDark }}</div></div>
+    </div>
+  </div>
+  <div style="flex:1"></div>
+  </div>
+  <sc-if value="{{ notConfirmOut }}" hint-placeholder-val="{{ true }}">
+    <div onClick="{{ askLogout }}" style="flex:none;border:1.5px solid var(--errLine);color:var(--err);font:600 15px/1 'Golos Text',sans-serif;height:52px;min-height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:6px">{{ tLogout }}</div>
+  </sc-if>
+  <sc-if value="{{ confirmOut }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none;background:var(--errBg);border-radius:14px;padding:14px 16px;font:500 13.5px/1.5 'Golos Text',sans-serif;color:var(--errInk)">{{ tLogoutConfirm }}</div>
+    <div style="flex:none;display:flex;gap:8px;margin-top:10px;margin-bottom:6px">
+      <div onClick="{{ logout }}" style="flex:1;background:var(--err);color:var(--onAccent);font:600 14px/1 'Golos Text',sans-serif;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer">{{ tLogoutYes }}</div>
+      <div onClick="{{ cancelLogout }}" style="flex:1;background:var(--mint);color:var(--mintInk);font:600 14px/1 'Golos Text',sans-serif;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer">{{ tLogoutNo }}</div>
+    </div>
+  </sc-if>
+</sc-if>
+
+<sc-if value="{{ isManage }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex:none">
+    <div style="display:flex;align-items:center;gap:9px">
+      <div onClick="{{ onExit }}" style="width:26px;height:26px;border-radius:50%;background:var(--mint);display:flex;align-items:center;justify-content:center;font:400 16px/1 'Golos Text',sans-serif;color:var(--mintInk);cursor:pointer;flex:none">×</div>
+      <span style="font:600 21px/1 'Golos Text',sans-serif;color:var(--ink);letter-spacing:-.3px">teach</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font:500 11px/1 'IBM Plex Mono',monospace;color:var(--mut)">{{ tDate }}</span>
+      <div style="width:34px;height:34px;border-radius:50%;background:var(--mintInk);color:var(--btnInk);display:flex;align-items:center;justify-content:center;font:600 13px/1 'Golos Text',sans-serif">{{ initials }}</div>
+    </div>
+  </div>
+  <h1 style="margin:16px 0 0;font:600 26px/1.2 'Golos Text',sans-serif;color:var(--ink);letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:none">{{ manageName }}</h1>
+  <div style="flex:1;min-height:0;overflow-y:auto;margin:0 -4px;padding:0 4px 8px">
+  <div style="font:400 13px/1.5 'Golos Text',sans-serif;color:var(--mut);margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ manageMission }}</div>
+  <div style="background:var(--card);border:1px solid var(--line);border-radius:16px;margin-top:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px">
+      <div>
+        <div style="font:500 14.5px/1.3 'Golos Text',sans-serif;color:var(--ink)">{{ tPause }}</div>
+        <div style="font:400 12px/1.4 'Golos Text',sans-serif;color:var(--mut);margin-top:3px">{{ tPauseD }}</div>
+      </div>
+      <div onClick="{{ togglePause }}" style="{{ pauseTrack }}"><div style="width:22px;height:22px;border-radius:50%;background:#fdfdfd;box-shadow:0 1px 2px rgba(0,0,0,.2)"></div></div>
+    </div>
+  </div>
+  <div style="background:var(--card);border:1px solid var(--line);border-radius:16px;margin-top:10px">
+    <div style="padding:15px 16px;border-bottom:1px solid var(--lineSoft)">
+      <div style="font:500 14.5px/1.3 'Golos Text',sans-serif;color:var(--ink)">{{ tDur }}</div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <sc-for list="{{ durOpts }}" as="p" hint-placeholder-count="3"><div onClick="{{ p.pick }}" style="{{ p.style }}">{{ p.label }}</div></sc-for>
+      </div>
+    </div>
+    <div style="padding:15px 16px;border-bottom:1px solid var(--lineSoft)">
+      <div style="font:500 14.5px/1.3 'Golos Text',sans-serif;color:var(--ink)">{{ tLimit }}</div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <sc-for list="{{ limOpts }}" as="p" hint-placeholder-count="3"><div onClick="{{ p.pick }}" style="{{ p.style }}">{{ p.label }}</div></sc-for>
+      </div>
+    </div>
+    <div style="padding:15px 16px;border-bottom:1px solid var(--lineSoft)">
+      <div style="font:500 14.5px/1.3 'Golos Text',sans-serif;color:var(--ink)">{{ tDiff }}</div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <sc-for list="{{ diffOpts }}" as="p" hint-placeholder-count="2"><div onClick="{{ p.pick }}" style="{{ p.style }}">{{ p.label }}</div></sc-for>
+      </div>
+    </div>
+    <div style="padding:15px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div>
+          <div style="font:500 14.5px/1.3 'Golos Text',sans-serif;color:var(--ink)">{{ tVoice }}</div>
+          <div style="font:400 12px/1.4 'Golos Text',sans-serif;color:var(--mut);margin-top:3px">{{ tVoiceD }}</div>
+        </div>
+        <div onClick="{{ toggleVoice }}" style="{{ voiceTrack }}"><div style="width:22px;height:22px;border-radius:50%;background:#fdfdfd;box-shadow:0 1px 2px rgba(0,0,0,.2)"></div></div>
+      </div>
+      <sc-if value="{{ voiceOn }}" hint-placeholder-val="{{ true }}">
+        <div style="font:500 14.5px/1.3 'Golos Text',sans-serif;color:var(--ink);margin-top:14px">{{ tVoiceLang }}</div>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+          <sc-for list="{{ voiceLangOpts }}" as="p" hint-placeholder-count="2"><div onClick="{{ p.pick }}" style="{{ p.style }}">{{ p.label }}</div></sc-for>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+  </div>
+  <sc-if value="{{ notConfirmDel }}" hint-placeholder-val="{{ true }}">
+    <div onClick="{{ askDelete }}" style="flex:none;border:1.5px solid var(--errLine);color:var(--err);font:600 15px/1 'Golos Text',sans-serif;height:52px;min-height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:6px">{{ tDel }}</div>
+  </sc-if>
+  <sc-if value="{{ confirmDel }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none;background:var(--errBg);border-radius:14px;padding:14px 16px;font:500 13.5px/1.5 'Golos Text',sans-serif;color:var(--errInk)">{{ tDelConfirm }}</div>
+    <div style="flex:none;display:flex;gap:8px;margin-top:10px;margin-bottom:6px">
+      <div onClick="{{ doDelete }}" style="flex:1;background:var(--err);color:var(--onAccent);font:600 14px/1 'Golos Text',sans-serif;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer">{{ tDelYes }}</div>
+      <div onClick="{{ cancelDelete }}" style="flex:1;background:var(--mint);color:var(--mintInk);font:600 14px/1 'Golos Text',sans-serif;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer">{{ tDelNo }}</div>
+    </div>
+  </sc-if>
+</sc-if>
+
+<sc-if value="{{ isRefDetail }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div onClick="{{ backToRefs }}" style="width:36px;height:36px;border-radius:50%;background:var(--mint);display:flex;align-items:center;justify-content:center;font:400 16px/1 'Golos Text',sans-serif;color:var(--mintInk);cursor:pointer">←</div>
+    <div style="flex:1;display:flex;justify-content:center"><div style="background:var(--mint);color:var(--mintInk);font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;padding:8px 14px;border-radius:7px">{{ tRefChip }}</div></div>
+    <div style="width:36px"></div>
+  </div>
+  <h1 style="margin:20px 0 0;font:600 23px/1.25 'Golos Text',sans-serif;color:var(--ink);letter-spacing:-.3px">{{ refTitle }}</h1>
+  <div style="font:400 12.5px/1.5 'Golos Text',sans-serif;color:var(--mut);margin-top:4px">{{ refMeta }}</div>
+  <input value="{{ refDQVal }}" onChange="{{ onRefDQ }}" placeholder="{{ tSearchInPh }}" style="width:100%;box-sizing:border-box;background:var(--card);border:1px solid var(--line2);border-radius:12px;padding:11px 14px;margin-top:12px;font:400 13.5px/1.4 'Golos Text',sans-serif;color:var(--ink)">
+  <div style="flex:1;min-height:0;overflow-y:auto;margin:6px -4px 0;padding:0 4px 8px">
+    <sc-for list="{{ refSecs }}" as="sec" hint-placeholder-count="2">
+      <sc-if value="{{ sec.hasSec }}" hint-placeholder-val="{{ false }}">
+        <div style="font:500 10.5px/1 'IBM Plex Mono',monospace;color:var(--mut);letter-spacing:.1em;margin:16px 0 4px">{{ sec.sec }}</div>
+      </sc-if>
+      <sc-for list="{{ sec.rows }}" as="row" hint-placeholder-count="4">
+        <div style="display:flex;gap:10px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--lineSoft)">
+          <div style="flex:none;width:126px;font:600 13px/1.45 'Golos Text',sans-serif;color:var(--mintInk)">{{ row.k }}</div>
+          <div style="flex:1;min-width:0;font:400 13px/1.5 'Golos Text',sans-serif;color:var(--ink2)">{{ row.v }}</div>
+          <sc-if value="{{ row.weak }}" hint-placeholder-val="{{ false }}">
+            <span style="font:500 9px/1 'IBM Plex Mono',monospace;background:var(--amberBg);color:var(--amber);padding:4px 7px;border-radius:7px;flex:none;letter-spacing:.05em">{{ tWeakBadge }}</span>
+          </sc-if>
+        </div>
+      </sc-for>
+    </sc-for>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isSession }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div onClick="{{ onExit }}" style="width:36px;height:36px;border-radius:50%;background:var(--mint);display:flex;align-items:center;justify-content:center;font:400 18px/1 'Golos Text',sans-serif;color:var(--mintInk);cursor:pointer">×</div>
+    <div style="flex:1;display:flex;justify-content:center"><div style="background:var(--mint);color:var(--mintInk);font:500 12.5px/1 'Golos Text',sans-serif;padding:8px 14px;border-radius:7px">{{ subjName }}</div></div>
+    <div style="font:500 12px/1 'IBM Plex Mono',monospace;color:var(--mut);width:36px;text-align:right">{{ stepLabel }}</div>
+  </div>
+  <div style="display:flex;gap:5px;margin-top:14px">
+    <sc-for list="{{ segs }}" as="g" hint-placeholder-count="3">
+      <div style="flex:1;height:4px;border-radius:2px;background:{{ g.bg }}"></div>
+    </sc-for>
+  </div>
+  <div style="flex:1;min-height:0;overflow-y:auto;margin:0 -4px;padding:0 4px 8px">
+    <sc-if value="{{ isExplain }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;align-items:baseline;gap:8px;margin-top:20px">
+        <span style="font:500 10.5px/1 'IBM Plex Mono',monospace;color:var(--amber);letter-spacing:.08em">{{ tWhy }}</span>
+        <span style="font:400 12.5px/1.4 'Golos Text',sans-serif;color:var(--mut)">{{ why }}</span>
+      </div>
+      <h1 style="margin:12px 0 0;font:600 23px/1.25 'Golos Text',sans-serif;color:var(--ink);letter-spacing:-.3px;text-wrap:pretty">{{ title }}</h1>
+      <sc-for list="{{ paras }}" as="p" hint-placeholder-count="2">
+        <p style="margin:12px 0 0;font:400 15px/1.62 'Golos Text',sans-serif;color:var(--ink2)">{{ p }}</p>
+      </sc-for>
+      <div style="background:var(--mint);border-radius:14px;padding:14px 16px;margin-top:16px">
+        <div style="font:500 10px/1 'IBM Plex Mono',monospace;color:var(--mintInk);letter-spacing:.1em">{{ tExample }}</div>
+        <div style="font:400 14px/1.55 'Golos Text',sans-serif;color:var(--ink);margin-top:7px">{{ example }}</div>
+      </div>
+      <sc-if value="{{ showSources }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:center;gap:8px;margin-top:14px">
+          <div style="width:18px;height:18px;border-radius:5px;background:var(--sand);display:flex;align-items:center;justify-content:center;font:500 10px/1 'IBM Plex Mono',monospace;color:var(--sandInk);flex:none">1</div>
+          <span style="font:400 12px/1.4 'Golos Text',sans-serif;color:var(--mut)">{{ source }}</span>
+        </div>
+      </sc-if>
+    </sc-if>
+    <sc-if value="{{ isChoice }}" hint-placeholder-val="{{ false }}">
+      <div style="font:600 19px/1.45 'Golos Text',sans-serif;color:var(--ink);margin-top:20px;text-wrap:pretty">{{ prompt }}</div>
+      <div style="display:flex;flex-direction:column;gap:9px;margin-top:16px">
+        <sc-for list="{{ opts }}" as="o" hint-placeholder-count="3">
+          <div onClick="{{ o.pick }}" style="{{ o.style }}">
+            <span>{{ o.label }}</span>
+            <span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.06em">{{ o.badge }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isOrder }}" hint-placeholder-val="{{ false }}">
+      <div style="font:600 19px/1.45 'Golos Text',sans-serif;color:var(--ink);margin-top:20px;text-wrap:pretty">{{ prompt }}</div>
+      <div style="font:400 12.5px/1.45 'Golos Text',sans-serif;color:var(--mut);margin-top:6px">{{ tOrderHint }}</div>
+      <div style="display:flex;flex-direction:column;gap:9px;margin-top:14px">
+        <sc-for list="{{ ordItems }}" as="oi" hint-placeholder-count="4">
+          <div onClick="{{ oi.pick }}" style="{{ oi.style }}">
+            <span style="{{ oi.numStyle }}">{{ oi.badge }}</span>
+            <span style="flex:1;min-width:0">{{ oi.label }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isInput }}" hint-placeholder-val="{{ false }}">
+      <div style="font:600 19px/1.45 'Golos Text',sans-serif;color:var(--ink);margin-top:20px;text-wrap:pretty">{{ prompt }}</div>
+      <sc-if value="{{ isSingleLine }}" hint-placeholder-val="{{ true }}">
+        <input value="{{ inputVal }}" onChange="{{ onInput }}" placeholder="{{ placeholder }}" style="width:100%;box-sizing:border-box;background:var(--card);border:1.5px solid var(--mintInk);border-radius:14px;padding:15px 16px;margin-top:16px;font:400 15px/1.5 'Golos Text',sans-serif;color:var(--ink)">
+      </sc-if>
+      <sc-if value="{{ isMultiLine }}" hint-placeholder-val="{{ false }}">
+        <textarea value="{{ inputVal }}" onChange="{{ onInput }}" placeholder="{{ placeholder }}" rows="{{ 5 }}" style="width:100%;box-sizing:border-box;resize:none;background:var(--card);border:1.5px solid var(--mintInk);border-radius:14px;padding:14px 16px;margin-top:16px;font:400 15px/1.55 'Golos Text',sans-serif;color:var(--ink);outline:none"></textarea>
+      </sc-if>
+      <sc-if value="{{ notChecked }}" hint-placeholder-val="{{ true }}">
+        <sc-if value="{{ showMic }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:center;gap:14px;margin-top:16px">
+          <div onClick="{{ toggleMic }}" style="{{ micStyle }}">
+            <sc-if value="{{ rec }}" hint-placeholder-val="{{ false }}"><div style="width:17px;height:17px;border-radius:7px;background:var(--onAccent)"></div></sc-if>
+            <sc-if value="{{ notRec }}" hint-placeholder-val="{{ true }}">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="11" rx="3" fill="var(--btnInk)"/><path d="M5 11 a7 7 0 0 0 14 0" stroke="var(--btnInk)" stroke-width="2" stroke-linecap="round"/><path d="M12 18 v3" stroke="var(--btnInk)" stroke-width="2" stroke-linecap="round"/></svg>
+            </sc-if>
+          </div>
+          <span style="font:400 13px/1.45 'Golos Text',sans-serif;color:var(--mut)">{{ micHint }}</span>
+        </div>
+        </sc-if>
+        <div style="font:400 12px/1.45 'Golos Text',sans-serif;color:var(--mut);margin-top:12px">{{ tNoHints }}</div>
+      </sc-if>
+    </sc-if>
+    <sc-if value="{{ checked }}" hint-placeholder-val="{{ false }}">
+      <div style="{{ fbStyle }}">
+        <div style="font:600 15px/1.3 'Golos Text',sans-serif;color:var(--ink)">{{ fbTitle }}</div>
+        <div style="font:400 14px/1.55 'Golos Text',sans-serif;color:var(--ink2);margin-top:6px">{{ fbText }}</div>
+        <sc-if value="{{ showAnswer }}" hint-placeholder-val="{{ false }}">
+          <div style="font:500 10px/1 'IBM Plex Mono',monospace;color:var(--mintInk);letter-spacing:.1em;margin-top:12px">{{ tHowRight }}</div>
+          <div style="font:400 14px/1.5 'Golos Text',sans-serif;color:var(--ink);margin-top:6px">{{ answer }}</div>
+        </sc-if>
+        <sc-if value="{{ isFree }}" hint-placeholder-val="{{ false }}">
+          <div style="font:500 10px/1 'IBM Plex Mono',monospace;color:var(--mintInk);letter-spacing:.1em;margin-top:14px">{{ tCriteria }}</div>
+          <div style="margin-top:4px">
+            <sc-for list="{{ criteria }}" as="cr" hint-placeholder-count="3">
+              <div style="{{ cr.style }}">
+                <sc-if value="{{ cr.hit }}" hint-placeholder-val="{{ true }}"><span style="flex:none;width:20px;height:20px;border-radius:50%;background:var(--mintInk);color:var(--btnInk);display:flex;align-items:center;justify-content:center;font:600 11px/1 'Golos Text',sans-serif">✓</span></sc-if>
+                <sc-if value="{{ cr.miss }}" hint-placeholder-val="{{ false }}"><span style="flex:none;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--err);color:var(--err);display:flex;align-items:center;justify-content:center;font:600 11px/1 'Golos Text',sans-serif">–</span></sc-if>
+                <span style="flex:1;min-width:0">{{ cr.t }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+  </div>
+  <div onClick="{{ onPrimary }}" style="{{ primaryStyle }}">{{ primaryLabel }}</div>
+</sc-if>
+
+<sc-if value="{{ isSetup }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div onClick="{{ onExit }}" style="width:36px;height:36px;border-radius:50%;background:var(--mint);display:flex;align-items:center;justify-content:center;font:400 18px/1 'Golos Text',sans-serif;color:var(--mintInk);cursor:pointer">×</div>
+    <div style="flex:1;display:flex;justify-content:center"><div style="background:var(--chipDk);color:var(--btnInk);font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;padding:8px 14px;border-radius:7px">{{ tNewSubjChip }}</div></div>
+    <div style="font:500 12px/1 'IBM Plex Mono',monospace;color:var(--mut);width:36px;text-align:right">{{ setupLabel }}</div>
+  </div>
+  <div style="display:flex;gap:5px;margin-top:14px">
+    <sc-for list="{{ setupSegs }}" as="g" hint-placeholder-count="4">
+      <div style="flex:1;height:4px;border-radius:2px;background:{{ g.bg }}"></div>
+    </sc-for>
+  </div>
+  <div style="flex:1;min-height:0;overflow-y:auto;margin:0 -4px;padding:0 4px 8px">
+    <sc-if value="{{ su1 }}" hint-placeholder-val="{{ true }}">
+      <h1 style="margin:22px 0 0;font:600 23px/1.25 'Golos Text',sans-serif;color:var(--ink);letter-spacing:-.3px">Что хотите освоить?</h1>
+      <input value="{{ topicVal }}" onChange="{{ onTopicInput }}" placeholder="Тема, навык, область…" style="width:100%;box-sizing:border-box;background:var(--card);border:1.5px solid var(--mintInk);border-radius:14px;padding:15px 16px;margin-top:16px;font:400 15px/1.5 'Golos Text',sans-serif;color:var(--ink)">
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px">
+        <sc-for list="{{ topicChips }}" as="t" hint-placeholder-count="3">
+          <div onClick="{{ t.pick }}" style="background:var(--mint);color:var(--mintInk);font:500 13px/1 'Golos Text',sans-serif;padding:10px 14px;border-radius:7px;cursor:pointer">{{ t.label }}</div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ suNarrow }}" hint-placeholder-val="{{ false }}">
+      <div style="font:500 10.5px/1 'IBM Plex Mono',monospace;color:var(--amber);letter-spacing:.08em;margin-top:22px">СУЖЕНИЕ</div>
+      <h1 style="margin:10px 0 0;font:600 23px/1.25 'Golos Text',sans-serif;color:var(--ink);letter-spacing:-.3px;text-wrap:pretty">«{{ topicName }}» — тема широкая. Что именно?</h1>
+      <p style="margin:10px 0 0;font:400 13.5px/1.55 'Golos Text',sans-serif;color:var(--mut)">Один урок не может быть «про историю». Выберите фокус — план соберётся под него, остальное добавится позже.</p>
+      <div style="display:flex;flex-direction:column;gap:9px;margin-top:14px">
+        <sc-for list="{{ narrowOpts }}" as="no" hint-placeholder-count="3">
+          <div onClick="{{ no.pick }}" style="{{ no.style }}">
+            <div style="font:500 14.5px/1.4 'Golos Text',sans-serif">{{ no.t }}</div>
+            <div style="font:400 12px/1.4 'Golos Text',sans-serif;color:var(--mut);margin-top:3px">{{ no.d }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <input value="{{ narrowVal }}" onChange="{{ onNarrowInput }}" placeholder="или свой фокус…" style="width:100%;box-sizing:border-box;background:var(--card);border:1px solid var(--line2);border-radius:12px;padding:12px 14px;margin-top:10px;font:400 14px/1.5 'Golos Text',sans-serif;color:var(--ink)">
+    </sc-if>
+    <sc-if value="{{ su2 }}" hint-placeholder-val="{{ false }}">
+      <div style="font:500 10.5px/1 'IBM Plex Mono',monospace;color:var(--amber);letter-spacing:.08em;margin-top:22px">МИССИЯ</div>
+      <h1 style="margin:10px 0 0;font:600 23px/1.25 'Golos Text',sans-serif;color:var(--ink);letter-spacing:-.3px;text-wrap:pretty">Зачем вам {{ topicName }}?</h1>
+      <input value="{{ missionVal }}" onChange="{{ onMissionInput }}" placeholder="например: читать документацию без переводчика" maxLength="{{ 100 }}" style="width:100%;box-sizing:border-box;background:var(--card);border:1.5px solid var(--mintInk);border-radius:14px;padding:15px 16px;margin-top:16px;font:400 15px/1.5 'Golos Text',sans-serif;color:var(--ink)">
+      <div style="background:var(--mint);border-radius:14px;padding:14px 16px;margin-top:14px;font:400 13.5px/1.55 'Golos Text',sans-serif;color:var(--ink)">Миссия — якорь: каждый урок ответит, зачем он вам, ссылкой на её пункт. Менять можно — осознанно, с фиксацией изменения.</div>
+    </sc-if>
+    <sc-if value="{{ su3 }}" hint-placeholder-val="{{ false }}">
+      <h1 style="margin:22px 0 0;font:600 23px/1.25 'Golos Text',sans-serif;color:var(--ink);letter-spacing:-.3px">Сначала источники, потом уроки</h1>
+      <p style="margin:10px 0 0;font:400 13.5px/1.55 'Golos Text',sans-serif;color:var(--mut)">Модель — не источник истины: уроки строятся на материалах по теме «{{ focusName }}», каждое утверждение получит ссылку. Нажмите, чтобы исключить.</p>
+      <div style="display:flex;flex-direction:column;gap:9px;margin-top:14px">
+        <sc-for list="{{ sources }}" as="src" hint-placeholder-count="4">
+          <div onClick="{{ src.toggle }}" style="{{ src.style }}">
+            <div style="flex:1;min-width:0">
+              <div style="font:500 14px/1.4 'Golos Text',sans-serif;color:var(--ink)">{{ src.t }}</div>
+              <div style="font:400 12px/1.4 'Golos Text',sans-serif;color:var(--mut);margin-top:3px">{{ src.m }}</div>
+            </div>
+            <span style="{{ src.chipStyle }}">{{ src.chip }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ su4 }}" hint-placeholder-val="{{ false }}">
+      <h1 style="margin:22px 0 0;font:600 23px/1.25 'Golos Text',sans-serif;color:var(--ink);letter-spacing:-.3px">План занятий</h1>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-top:10px">
+        <span style="font:500 10.5px/1 'IBM Plex Mono',monospace;color:var(--amber);letter-spacing:.08em">ЗАЧЕМ</span>
+        <span style="font:400 13px/1.45 'Golos Text',sans-serif;color:var(--mut)">{{ missionEcho }}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:9px;margin-top:16px">
+        <sc-for list="{{ plan }}" as="ms" hint-placeholder-count="3">
+          <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;gap:12px">
+            <span style="font:500 12px/1.5 'IBM Plex Mono',monospace;color:var(--amber)">{{ ms.n }}</span>
+            <div>
+              <div style="font:500 14.5px/1.4 'Golos Text',sans-serif;color:var(--ink)">{{ ms.t }}</div>
+              <div style="font:400 12.5px/1.5 'Golos Text',sans-serif;color:var(--mut);margin-top:3px">{{ ms.d }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:var(--mint);border-radius:14px;padding:14px 16px;margin-top:14px;font:400 13.5px/1.55 'Golos Text',sans-serif;color:var(--ink)">Первый урок соберётся в фоне и будет готов к вашему возвращению — без спиннера. План перестраивается после каждой сессии по записям об усвоенном.</div>
+    </sc-if>
+  </div>
+  <div onClick="{{ onSetupNext }}" style="{{ setupBtnStyle }}">{{ setupPrimary }}</div>
+</sc-if>
+
+<sc-if value="{{ isRecap }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div onClick="{{ onExit }}" style="width:36px;height:36px;border-radius:50%;background:var(--mint);display:flex;align-items:center;justify-content:center;font:400 18px/1 'Golos Text',sans-serif;color:var(--mintInk);cursor:pointer">×</div>
+    <div style="flex:1;display:flex;justify-content:center"><div style="background:var(--chipDk);color:var(--btnInk);font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;padding:8px 14px;border-radius:7px">{{ tRecapChip }}</div></div>
+    <div style="width:36px"></div>
+  </div>
+  <div style="margin-top:24px;font:600 24px/1.2 'Golos Text',sans-serif;color:var(--ink);letter-spacing:-.3px">{{ recapTitle }}</div>
+  <div style="margin-top:6px;font:400 14px/1.5 'Golos Text',sans-serif;color:var(--mut)">{{ recapVerdict }}</div>
+  <div style="display:flex;flex-direction:column;gap:10px;margin-top:18px">
+    <sc-for list="{{ records }}" as="r" hint-placeholder-count="2">
+      <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div style="font:500 10px/1 'IBM Plex Mono',monospace;color:var(--amber);letter-spacing:.1em">{{ tToReviews }}</div>
+          <div style="font:500 11px/1 'IBM Plex Mono',monospace;color:var(--amber);white-space:nowrap">{{ r.interval }}</div>
+        </div>
+        <div style="font:500 14px/1.45 'Golos Text',sans-serif;color:var(--ink);margin-top:8px">{{ r.title }}</div>
+        <div style="font:400 13px/1.5 'Golos Text',sans-serif;color:var(--mut);margin-top:4px">{{ r.note }}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--lineSoft)">
+          <span style="font:400 11.5px/1.4 'Golos Text',sans-serif;color:var(--mut);min-width:0">{{ r.src }}</span>
+          <span onClick="{{ r.doubt }}" style="{{ r.doubtStyle }}">{{ r.doubtLabel }}</span>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="font:400 12.5px/1.5 'Golos Text',sans-serif;color:var(--mut);margin-top:14px">{{ tRecapFoot }}</div>
+  <div style="flex:1"></div>
+  <div onClick="{{ onFinish }}" style="background:var(--mintInk);color:var(--btnInk);font:600 16px/1 'Golos Text',sans-serif;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer">{{ tDone }}</div>
+</sc-if>
+
+</div>
+</x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:470,&quot;height&quot;:940},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Вид&quot;},&quot;reviewCount&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:12,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:99,&quot;section&quot;:&quot;Данные&quot;},&quot;showSources&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Урок&quot;}}">
+class Component extends DCLogic {
+  state = { screen: 'auth', tab: 'today', lang: 'ru', user: null,
+    subj: null, step: 0, sel: null, checked: false, input: '', results: [], done: {}, added: 0,
+    su: { step: 0, topic: '', focus: '', mission: '', excl: {} }, custom: null, removed: {}, doubts: {}, prepStage: 0,
+    g: { rem: 'evening', remTime: '19:00', weekendOff: false, cap: 40, prio: 'overdue', mode: 'ptt' },
+    cfg: {}, manageId: null, confirmDel: false, refId: null, editM: null, draft: '', obsMap: {}, refQ: '', weakOnly: false, refSubj: 'en', refDQ: '',
+    missions: { en: { cur: 'проходить собеседования на английском', hist: ['v1 · смотреть сериалы без субтитров'] },
+                qa: { cur: 'перейти из ручного тестирования в автоматизацию', hist: [] },
+                hist: { cur: 'понимать, как рождались и умирали империи — чтобы читать новости глубже', hist: [] } },
+    reviewLog: [] };
+  i18n = {
+    ru: { today: 'Сегодня', reviews: 'Повторы', refs: 'Справочники', mission: 'Предметы',
+      queueKicker: 'ПОВТОРЫ · СЕГОДНЯ', queueNote: 'то, что пора вспомнить именно сегодня', queueLine: (n) => n + ' карточек · ~6 мин',
+      subjects: 'ПРЕДМЕТЫ', newSubj: 'Новый предмет', ready: 'Урок готов', doneToday: 'Пройдено сегодня', start: 'Начать', more: 'Ещё урок',
+      preparing: 'Готовится…', inBg: 'в фоне', diag: 'Урок · Стартовая диагностика', bgLesson: 'Первый урок собирается в фоне…',
+      dueToday: 'СЕГОДНЯ', dueLater: 'ПОЗЖЕ', startReviews: 'Начать повторы', reviewsSummary: (n) => n + ' в очереди',
+      refsNote: 'офлайн', offline: 'ОФЛАЙН',
+      searchPh: 'Поиск', weakF: 'Слабые места', updL: 'обновлён после урока',
+      rowsL: 'строк', weakN: (n) => 'слабых: ' + n, weakBadge: 'ОШИБКА', searchInPh: 'Поиск в этом справочнике',
+      missionNote: 'миссия и настройки', edit: 'Изменить', save: 'Сохранить', cancel: 'Отмена',
+      profileChip: 'ПРОФИЛЬ', language: 'Язык', contentLangNote: 'Язык голоса задаётся в настройках каждого предмета.',
+      logout: 'Выйти', via: 'вход через', logoutConfirm: 'Выйти из аккаунта? Записи и очередь повторов останутся на устройстве и в облаке — при повторном входе всё будет на месте.', logoutYes: 'Да, выйти', logoutNo: 'Остаться',
+      authSub: 'Репетитор, который помнит ваши ошибки и знает, когда о них напомнить', authApple: 'Продолжить с Apple', authGoogle: 'Продолжить с Google', authVk: 'Продолжить с VK',
+      authNote: 'Аккаунт хранит записи об усвоенном и очередь повторов', manageChip: 'НАСТРОЙКИ ПРЕДМЕТА',
+      pause: 'Пауза уроков', pauseD: 'повторы продолжат приходить', rem: 'Напоминания', remD: 'вечером, в 19:00',
+      dur: 'Длительность урока', limit: 'Дневная норма повторов', diff: 'Сложность практики', diffA: 'Комфортно', diffB: 'На пределе',
+      voiceC: 'Голос в этом курсе', voiceD: 'практика вслух и живой транскрипт', voiceLang: 'Язык распознавания', vlUi: 'Интерфейс', vlLesson: 'Урок', obsT: 'НАБЛЮДЕНИЯ СИСТЕМЫ',
+      obsD: 'Накапливаются из сессий — подтвердите или отклоните', accept: 'Учесть', rejectB: 'Не про меня',
+      accepted: 'учтено', rejectedC: 'отклонено', minU: 'мин', perDay: 'в день',
+      themeT: 'Тема', lightL: 'Светлая', darkL: 'Тёмная',
+      stRecords: 'записей', stClosed: 'за месяц', stToday: 'сегодня', stInterval: 'интервал', stIntervalV: '9 дн',
+      profileTitle: 'Профиль', remG: 'Напоминания', remTime: 'Когда', remMorning: 'Утро', remEvening: 'Вечер', weekendOff: 'Тихие выходные',
+      reviewsG: 'Повторы', capG: 'Лимит в день', capOff: 'Нет', voiceGL: 'Голос', appG: 'Приложение', capSum: (sum, cap) => cap ? 'нормы предметов: ' + sum + ' → потолок ' + cap : 'нормы предметов: ' + sum,
+      voiceG: 'Голос', recMode: 'Запись', modePtt: 'Удерживать', modeHands: 'Без рук', 
+      weekLine: (n, k) => 'за неделю: ' + n + ' ошибок закрыто · ' + k + ' темы окрепли',
+      prepSteps: ['Ищу источники', 'Отбираю по доверию', 'Собираю первый урок'], stage1: 'этап 1',
+      srcL: 'источник:', srcFromPlan: 'Ваш план', doubt: 'Сомневаюсь', doubtSent: 'на проверке',
+      criteria: 'ЧТО ДОЛЖНО БЫТЬ В ОТВЕТЕ', critHit: 'есть', critMiss: 'нет', critScore: (a, b) => a + ' из ' + b + ' пунктов',
+      accepted2: 'Принято', right: 'Верно', notQuite: 'Не совсем', orderHint: 'Нажимайте события по порядку — от раннего к позднему',
+      reset: 'Сбросить прогресс за сегодня', del: 'Удалить предмет', delConfirm: 'Точно удалить? Записи об усвоенном и очередь повторов по предмету исчезнут.',
+      delYes: 'Да, удалить', delNo: 'Оставить',
+      why: 'ЗАЧЕМ', example: 'ПРИМЕР', noHints: 'Подсказок нет — разбор откроется после попытки', howRight: 'КАК ПРАВИЛЬНО',
+      micIdle: 'Или ответьте голосом — транскрипт появится в поле', micRec: 'Слушаю… нажмите ещё раз, чтобы закончить',
+      toPractice: 'К практике', answer: 'Ответить', next: 'Дальше', toRecap: 'К разбору', done: 'Готово',
+      newSubjChip: 'НОВЫЙ ПРЕДМЕТ', recapChip: 'РАЗБОР', toReviews: 'УЙДЁТ В ПОВТОРЫ',
+      recapFoot: 'Записи станут карточками в очереди — интервал вырастет после каждого верного ответа.',
+      cleanSession: 'Чистая сессия', toFix: 'Есть что закрепить', firstTry: (a, b) => a + ' из ' + b + ' с первой попытки',
+      refChip: 'СПРАВОЧНИК', reviewName: 'Повторы', dIn1: 'через 1 день', dIn4: 'через 4 дня', dTomorrow: 'завтра', dToday: 'сегодня', dIn3: 'через 3 дня' },
+    en: { today: 'Today', reviews: 'Reviews', refs: 'References', mission: 'Subjects',
+      queueKicker: 'REVIEWS · TODAY', queueNote: 'what is due to be recalled today', queueLine: (n) => n + ' cards · ~6 min',
+      subjects: 'SUBJECTS', newSubj: 'New subject', ready: 'Lesson ready', doneToday: 'Done today', start: 'Start', more: 'One more',
+      preparing: 'Preparing…', inBg: 'in background', diag: 'Lesson · Initial check-in', bgLesson: 'First lesson is being prepared…',
+      dueToday: 'TODAY', dueLater: 'LATER', startReviews: 'Start reviews', reviewsSummary: (n) => n + ' in queue',
+      refsNote: 'offline', offline: 'OFFLINE',
+      searchPh: 'Search', weakF: 'Weak spots', updL: 'updated after lesson',
+      rowsL: 'rows', weakN: (n) => 'weak: ' + n, weakBadge: 'MISTAKE', searchInPh: 'Search this reference',
+      missionNote: 'mission and settings', edit: 'Edit', save: 'Save', cancel: 'Cancel',
+      profileChip: 'PROFILE', language: 'Language', contentLangNote: 'Voice language is set per subject in its settings.',
+      logout: 'Sign out', via: 'signed in with', logoutConfirm: 'Sign out? Records and the review queue stay on this device and in the cloud — everything will be here when you sign back in.', logoutYes: 'Yes, sign out', logoutNo: 'Stay',
+      authSub: 'A tutor that remembers your mistakes and knows when to bring them back', authApple: 'Continue with Apple', authGoogle: 'Continue with Google', authVk: 'Continue with VK',
+      authNote: 'Your account keeps learning records and the review queue', manageChip: 'SUBJECT SETTINGS',
+      pause: 'Pause lessons', pauseD: 'reviews keep coming', rem: 'Reminders', remD: 'evenings, 7 pm',
+      dur: 'Lesson length', limit: 'Daily review cap', diff: 'Practice difficulty', diffA: 'Comfortable', diffB: 'At the edge',
+      voiceC: 'Voice in this course', voiceD: 'speaking practice and live transcript', voiceLang: 'Recognition language', vlUi: 'Interface', vlLesson: 'Lesson', obsT: 'SYSTEM OBSERVATIONS',
+      obsD: 'Collected from sessions — confirm or dismiss', accept: 'Apply', rejectB: 'Not me',
+      accepted: 'applied', rejectedC: 'dismissed', minU: 'min', perDay: 'per day',
+      themeT: 'Theme', lightL: 'Light', darkL: 'Dark',
+      stRecords: 'records', stClosed: 'this month', stToday: 'today', stInterval: 'interval', stIntervalV: '9 d',
+      profileTitle: 'Profile', remG: 'Reminders', remTime: 'When', remMorning: 'Morning', remEvening: 'Evening', weekendOff: 'Quiet weekends',
+      reviewsG: 'Reviews', capG: 'Daily cap', capOff: 'None', appG: 'App', capSum: (sum, cap) => cap ? 'subject quotas: ' + sum + ' → cap ' + cap : 'subject quotas: ' + sum,
+      voiceG: 'Voice', recMode: 'Recording', modePtt: 'Hold', modeHands: 'Hands-free', 
+      weekLine: (n, k) => 'this week: ' + n + ' fixed · ' + k + ' topics stronger',
+      prepSteps: ['Finding sources', 'Filtering by trust', 'Building first lesson'], stage1: 'stage 1',
+      srcL: 'source:', srcFromPlan: 'Your plan', doubt: 'Doubt this', doubtSent: 'under review',
+      criteria: 'WHAT THE ANSWER SHOULD COVER', critHit: 'yes', critMiss: 'no', critScore: (a, b) => a + ' of ' + b + ' points',
+      accepted2: 'Accepted', right: 'Correct', notQuite: 'Not quite', orderHint: 'Tap events in order — earliest first',
+      reset: 'Reset today’s progress', del: 'Delete subject', delConfirm: 'Delete for sure? Learning records and the review queue for this subject will be gone.',
+      delYes: 'Yes, delete', delNo: 'Keep it',
+      why: 'WHY', example: 'EXAMPLE', noHints: 'No hints — the breakdown opens after your attempt', howRight: 'CORRECT ANSWER',
+      micIdle: 'Or answer by voice — the transcript lands in the field', micRec: 'Listening… tap again to finish',
+      toPractice: 'To practice', answer: 'Answer', next: 'Next', toRecap: 'To recap', done: 'Done',
+      newSubjChip: 'NEW SUBJECT', recapChip: 'RECAP', toReviews: 'GOES TO REVIEWS',
+      recapFoot: 'Records become queue cards — the interval grows after every correct answer.',
+      cleanSession: 'Clean session', toFix: 'Things to reinforce', firstTry: (a, b) => a + ' of ' + b + ' on first try',
+      refChip: 'REFERENCE', reviewName: 'Reviews', dIn1: 'in 1 day', dIn4: 'in 4 days', dTomorrow: 'tomorrow', dToday: 'today', dIn3: 'in 3 days' }
+  };
+  lessons = {
+    en: {
+      name: 'Английский', level: 'этап 2/5 · Грамматика для речи', lessonTitle: 'Урок · Second Conditional',
+      steps: [
+        { type: 'explain', why: 'миссия · собеседования на английском', title: 'Second Conditional — нереальное настоящее',
+          paras: ['Он про воображаемую ситуацию сейчас, а не про прошлое: If I had more time, I would practise. Времени нет — но мы фантазируем.',
+                  'Формула: If + Past Simple, would + инфинитив. Past здесь не про время, а про нереальность.'],
+          example: 'If I were you, I would take the job. — «Были бы» вы другим человеком нельзя, поэтому were даже с I.',
+          source: 'Cambridge Grammar of English, §10.4 · доверие высокое' },
+        { type: 'choice', prompt: 'If I ___ more time, I would practise every day.',
+          options: ['have', 'had', 'would have'], correct: 1,
+          explain: 'После if — Past Simple, а не would: условие нереальное, would живёт только в главной части.',
+          recTitle: 'После if не бывает would', recNote: 'Рука тянется к would have — типичная калька с русского «если бы».' },
+        { type: 'input', prompt: 'Переведите: «На твоём месте я бы не спешил»', placeholder: 'Наберите перевод…',
+          tokens: [['if i were'], ['would']], answer: "If I were you, I wouldn't rush.",
+          voice: 'If I were you, I would not rush',
+          explain: 'Устойчивая рамка совета: If I were you, I would(n’t) + инфинитив.',
+          recTitle: 'Рамка совета If I were you…', recNote: 'Вспомнить формулу целиком, без опоры на текст.' }
+      ]
+    },
+    qa: {
+      name: 'Quality Assurance', level: 'этап 1/4 · Тест-дизайн', lessonTitle: 'Урок · Граничные значения',
+      steps: [
+        { type: 'explain', why: 'миссия · перейти в автоматизацию тестирования', title: 'Ошибки живут на границах',
+          paras: ['Внутри допустимого диапазона код почти всегда работает. Ломается он на краях: off-by-one, неверный знак сравнения, «включительно или нет».',
+                  'Правило: для диапазона проверяем сами границы и соседние значения — по одной точке снаружи и внутри каждого края.'],
+          example: 'Поле «возраст» принимает 18–65. Граничные тесты: 17, 18, 65, 66. Значение 40 почти ничего не добавляет.',
+          source: 'ISTQB Foundation Syllabus, §4.2 · доверие высокое' },
+        { type: 'choice', prompt: 'Поле принимает целые от 1 до 100. Какой набор проверяет границы?',
+          options: ['0, 1, 100, 101', '1, 50, 100', '2, 50, 99'], correct: 0,
+          explain: 'Нужны обе стороны каждой границы: валидные 1 и 100 плюс невалидные 0 и 101. Середина — не граничный тест.',
+          recTitle: 'Граница — это две точки, не одна', recNote: 'Соблазн взять «1, 50, 100» — середина создаёт иллюзию покрытия.' },
+        { type: 'input', prompt: 'Пароль: длина 8–20 символов. Перечислите длины для граничных тестов.', placeholder: 'Например: 5, 10, 15…',
+          tokens: [['7'], ['8'], ['20'], ['21']], answer: '7, 8, 20 и 21 — по паре на каждую границу.',
+          voice: 'длины 7, 8, 20 и 21 — пара точек на каждой границе',
+          explain: 'Каждый край диапазона даёт валидную и невалидную точку рядом.',
+          recTitle: 'Пары точек на краях диапазона', recNote: 'Назвать все четыре длины по памяти для нового диапазона.' }
+      ]
+    },
+    hist: {
+      name: 'История', level: 'этап 3/6 · Поздняя Античность', lessonTitle: 'Урок · Почему пал Рим: не одна причина',
+      steps: [
+        { type: 'explain', why: 'миссия · как рождались и умирали империи', title: 'Падение Рима — процесс, а не событие',
+          paras: ['476 год — дата низложения последнего западного императора, но империя не рухнула в один день. Историки описывают столетний процесс с несколькими сцепленными причинами.',
+                  'Три главных: фискальный кризис (армия дороже, чем налоги), давление на границах (готы, вандалы, гунны) и политическая нестабильность — за III век сменилось более 20 императоров.'],
+          example: 'Восток с теми же «варварами» простоял ещё тысячу лет — значит, дело не только во внешнем давлении. Это ключевой контраргумент против одной причины.',
+          source: 'P. Heather, The Fall of the Roman Empire, гл. 10 · доверие высокое' },
+        { type: 'order', prompt: 'Расставьте события в хронологическом порядке',
+          items: ['Разделение империи на Запад и Восток', 'Битва при Адрианополе', 'Низложение Ромула Августа', 'Разграбление Рима Аларихом'],
+          correct: [1, 0, 3, 2],
+          explain: 'Адрианополь (378) показал уязвимость армии → раздел империи (395) закрепил разрыв ресурсов → разграбление Рима Аларихом (410) — символический удар → низложение Ромула Августа (476) — формальный конец.',
+          recTitle: 'Хронология падения Запада', recNote: 'Путаются 395 и 410 — раздел был раньше разграбления.' },
+        { type: 'free', prompt: 'Объясните своими словами: почему Восточная империя пережила Западную?',
+          placeholder: 'Ответьте развёрнуто — текстом или голосом',
+          criteria: [
+            { t: 'Богаче налоговая база Востока (Египет, Сирия)', keys: ['налог', 'богат', 'египет', 'ресурс', 'деньг'] },
+            { t: 'Константинополь труднее взять — стены и море', keys: ['константинопол', 'стен', 'море', 'столиц'] },
+            { t: 'Основной удар варваров пришёлся на Запад', keys: ['запад', 'варвар', 'гот', 'удар', 'границ'] } ],
+          voice: 'Восток был богаче — Египет и Сирия давали больше налогов, а Константинополь с его стенами взять было почти невозможно',
+          explain: 'Хороший ответ связывает деньги и географию: Восток мог платить армии и откупаться, Запад — нет.',
+          recTitle: 'Почему выжил Восток', recNote: 'Не хватило пункта о направлении варварского давления.' }
+      ]
+    }
+  };
+  refsData = {
+    en: { name: 'Английский', groups: [
+      { g: 'Грамматика', items: [
+        { id: 'tenses', t: 'Времена — сводная таблица', upd: 48, rows: [
+          { sec: 'Настоящее', k: 'Present Simple', v: 'регулярность и факты: I test APIs every day.', weak: false },
+          { sec: 'Настоящее', k: 'Present Continuous', v: 'процесс сейчас или ближайший план: am/is/are + V-ing.', weak: false },
+          { sec: 'Настоящее', k: 'Present Perfect', v: 'связь с настоящим: have + V3 — I have lived here for 5 years.', weak: true },
+          { sec: 'Настоящее', k: 'Present Perfect Continuous', v: 'длится до сих пор: have been + V-ing.', weak: false },
+          { sec: 'Прошедшее', k: 'Past Simple', v: 'закрытое время: yesterday, in 2020, last week.', weak: false },
+          { sec: 'Прошедшее', k: 'Past Continuous', v: 'фон для события: I was reading when he called.', weak: false },
+          { sec: 'Прошедшее', k: 'Past Simple vs Perfect', v: 'закрытое время → Simple; важен результат сейчас → Perfect.', weak: true },
+          { sec: 'Будущее', k: 'will', v: 'решение в моменте, обещание, прогноз.', weak: false },
+          { sec: 'Будущее', k: 'going to', v: 'намерение и план: I am going to refactor this.', weak: false },
+          { sec: 'Будущее', k: 'Present Continuous (план)', v: 'договорённость с датой: We are meeting on Monday.', weak: false } ] },
+        { id: 'cond', t: 'Conditionals — таблица форм', upd: 41, rows: [
+          { k: 'Zero', v: 'If + Present, Present — законы и привычки: If you heat ice, it melts.', weak: false },
+          { k: 'First', v: 'If + Present, will — реальное будущее: If it rains, I will stay.', weak: false },
+          { k: 'Second', v: 'If + Past, would — нереальное настоящее: If I were you, I would go.', weak: true },
+          { k: 'Third', v: 'If + Past Perfect, would have — нереальное прошлое: If I had known…', weak: false } ] },
+        { id: 'modal', t: 'Модальные глаголы', upd: 36, rows: [
+          { k: 'must vs have to', v: 'must — внутренняя необходимость; have to — внешнее правило.', weak: false },
+          { k: 'should / ought to', v: 'совет, мягкое долженствование.', weak: false },
+          { k: 'can / could / be able to', v: 'способность; could — прошлое или вежливая просьба.', weak: false },
+          { k: 'might / may', v: 'вероятность; may — ещё и формальное разрешение.', weak: false } ] } ] },
+      { g: 'Цель', items: [
+        { id: 'interview', t: 'Рамки для собеседования', upd: 50, rows: [
+          { k: 'Опыт', v: 'I have been working on… for…; My role involved…', weak: false },
+          { k: 'Достижения', v: 'I led…, which resulted in… — результат всегда числом.', weak: false },
+          { k: 'Гипотетика', v: 'If I were to…, I would… — second conditional в ответах.', weak: false },
+          { k: 'Вопросы интервьюеру', v: 'Could you tell me more about…; What does success look like here?', weak: false } ] },
+        { id: 'phrasal', t: 'Фразовые глаголы — ваш набор', upd: 47, rows: [
+          { k: 'figure out', v: 'разобраться: We figured out the root cause.', weak: true },
+          { k: 'follow up', v: 'вернуться с продолжением: I will follow up on this.', weak: false },
+          { k: 'point out', v: 'указать на: She pointed out a risk.', weak: true },
+          { k: 'carry out', v: 'выполнить: carry out regression testing.', weak: false } ] } ] },
+      { g: 'Глоссарий', items: [
+        { id: 'glen', t: 'Термины · Английский', upd: 50, rows: [
+          { k: 'Second Conditional', v: 'нереальное условие о настоящем: If + Past, would + inf.', weak: false },
+          { k: 'Phrasal verb', v: 'глагол + частица с новым смыслом: figure out, follow up.', weak: false },
+          { k: 'Collocation', v: 'устойчивая пара слов: make a decision, а не do.', weak: false } ] } ] } ] },
+    qa: { name: 'Quality Assurance', groups: [
+      { g: 'Тест-дизайн', items: [
+        { id: 'qa', t: 'Граничные значения — чеклист', upd: 12, rows: [
+          { k: '1 · Края', v: 'Для диапазона [a; b] — тесты a−1, a, b, b+1.', weak: false },
+          { k: '2 · Включительность', v: 'Уточнить, входят ли границы: «до 100» ≠ «по 100».', weak: true },
+          { k: '3 · Типы', v: 'Пустое значение, ноль, отрицательное, дробное, максимум типа.', weak: false },
+          { k: '4 · Длины', v: 'Строки: пустая, минимальная, максимальная, максимальная+1.', weak: false },
+          { k: '5 · Середина', v: 'Одно типичное значение — для контраста, не для покрытия.', weak: false } ] },
+        { id: 'equiv', t: 'Классы эквивалентности', upd: 9, rows: [
+          { k: 'Определение', v: 'группа значений, обрабатываемых одинаково — один тест на класс.', weak: false },
+          { k: 'Валидные и невалидные', v: 'на каждый невалидный класс — отдельный тест.', weak: false },
+          { k: 'Комбинации', v: 'невалидные классы не комбинировать — маскируют друг друга.', weak: false } ] } ] },
+      { g: 'Глоссарий', items: [
+        { id: 'glqa', t: 'Термины · QA', upd: 12, rows: [
+          { k: 'Граничное значение', v: 'крайняя точка допустимого диапазона и её соседи.', weak: false },
+          { k: 'Эквивалентный класс', v: 'группа значений, которые код обрабатывает одинаково.', weak: false },
+          { k: 'Off-by-one', v: 'ошибка на единицу у края диапазона — главный улов граничных тестов.', weak: false } ] } ] } ] },
+    hist: { name: 'История', groups: [
+      { g: 'Хронология', items: [
+        { id: 'romefall', t: 'Падение Западной империи — лента', upd: 22, rows: [
+          { sec: 'III век', k: '235–284', v: 'Кризис III века: более 20 императоров, инфляция, потеря контроля над провинциями.', weak: false },
+          { sec: 'IV век', k: '378', v: 'Адрианополь: готы разбивают римскую армию, погибает император Валент.', weak: false },
+          { sec: 'IV век', k: '395', v: 'Смерть Феодосия I — окончательный раздел на Запад и Восток.', weak: true },
+          { sec: 'V век', k: '410', v: 'Аларих берёт Рим — первое разграбление за 800 лет.', weak: true },
+          { sec: 'V век', k: '455', v: 'Вандалы разоряют Рим — «вандализм» входит в язык.', weak: false },
+          { sec: 'V век', k: '476', v: 'Одоакр низлагает Ромула Августа — формальный конец Запада.', weak: false } ] } ] },
+      { g: 'Причины и следствия', items: [
+        { id: 'romewhy', t: 'Почему пал Рим — карта причин', upd: 22, rows: [
+          { k: 'Фискальная', v: 'армия дорожает, налоговая база сжимается — платить нечем.', weak: false },
+          { k: 'Военная', v: 'давление готов, вандалов, гуннов; армия всё больше из наёмников.', weak: false },
+          { k: 'Политическая', v: 'частая смена императоров, гражданские войны, слабая легитимность.', weak: true },
+          { k: 'Контраргумент', v: 'Восток простоял ещё 1000 лет с теми же угрозами — одной причины нет.', weak: false } ] } ] },
+      { g: 'Персоны', items: [
+        { id: 'romewho', t: 'Ключевые фигуры', upd: 20, rows: [
+          { k: 'Диоклетиан', v: '284–305 · тетрархия, реформы, конец кризиса III века.', weak: false },
+          { k: 'Феодосий I', v: '379–395 · последний правитель единой империи.', weak: false },
+          { k: 'Аларих', v: 'король вестготов, взял Рим в 410.', weak: false },
+          { k: 'Одоакр', v: 'военачальник, низложивший последнего западного императора.', weak: false } ] } ] },
+      { g: 'Цель', items: [
+        { id: 'romelens', t: 'Оптика для новостей: признаки распада', upd: 22, rows: [
+          { k: 'Расходы > доходы', v: 'структурный дефицит на оборону/аппарат — первый римский признак.', weak: false },
+          { k: 'Кадровая карусель', v: 'частая смена власти без смены курса.', weak: false },
+          { k: 'Аутсорс силы', v: 'опора на наёмников/союзников, которые становятся хозяевами.', weak: false } ] } ] },
+      { g: 'Глоссарий', items: [
+        { id: 'glhist', t: 'Термины · История', upd: 22, rows: [
+          { k: 'Тетрархия', v: 'правление четырёх: два августа и два цезаря (с 293).', weak: false },
+          { k: 'Федераты', v: 'варварские племена на службе Рима за землю и плату.', weak: false },
+          { k: 'Поздняя Античность', v: 'период ~III–VII вв., переход от античности к средневековью.', weak: false } ] } ] } ] }
+  };
+  reviewLesson() {
+    return { name: this.i18n[this.state.lang].reviewName, level: '', steps: [
+      { type: 'choice', prompt: 'If she ___ here, she would help us.', options: ['was', 'were', 'would be'], correct: 1,
+        explain: 'В условной части second conditional — were для всех лиц.',
+        recTitle: 'were после if — для всех лиц', recNote: 'Интервал вырос: следующий повтор позже.' },
+      { type: 'choice', prompt: 'Диапазон 10–99. Какие невалидные граничные значения?', options: ['9 и 100', '0 и 999', '10 и 99'], correct: 0,
+        explain: '10 и 99 — валидные края; невалидные соседи — 9 и 100.',
+        recTitle: 'Невалидные соседи границ', recNote: 'Пара «внутри и снаружи» для каждого края.' } ] };
+  }
+  customLesson() {
+    const c = this.state.custom || { topic: 'Тема', mission: '' };
+    return { name: c.topic, level: 'старт', steps: [
+      { type: 'explain', why: 'миссия · ' + (c.mission || 'уточняется'), title: 'Стартовая диагностика',
+        paras: ['Зона ближайшего развития считается из записей, а не из самооценки. Поэтому первый урок — не теория, а замер: два коротких задания покажут границу, с которой начнём.',
+                'Ошибаться здесь полезно: каждая ошибка станет первой записью об усвоенном — памятью системы.'],
+        example: 'Ответ «не знаю» — тоже данные: такая тема попадёт в каркас первого этапа плана.',
+        source: 'Ваш план · этап 01 — каркас темы' },
+      { type: 'choice', prompt: 'Насколько уверенно вы сейчас в теме «' + c.topic + '»?',
+        options: ['Слышал(а), но не применял(а)', 'Применяю по шаблону', 'Могу объяснить другому'], correct: -1,
+        explain: 'Это калибровка, а не экзамен: от ответа зависит, с какой ступени плана начнём.',
+        recTitle: 'Стартовая уверенность', recNote: 'Сверим через несколько сессий — самооценка сдвигается.' },
+      { type: 'input', prompt: 'Что уже знаете или умеете в «' + c.topic + '»? Пишите как есть.',
+        placeholder: '2–3 фразы свободным текстом', tokens: [], answer: '',
+        explain: 'Замер лёг в записи об усвоенном — первый полный урок построится от этой границы.',
+        voice: 'знаю базовые вещи, применял пару раз на практике, системно не учил',
+        recTitle: 'Карта того, что уже есть', recNote: 'Из этого считается зона ближайшего развития.' } ] };
+  }
+  getLesson(id) {
+    if (id === 'custom') return this.customLesson();
+    if (id === 'review') return this.reviewLesson();
+    return this.lessons[id];
+  }
+  themeVars(dark) {
+    return { minHeight: '100vh', display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+      padding: '32px 16px', boxSizing: 'border-box', background: dark ? '#0A120D' : '#EFEBE0',
+      '--bg': dark ? '#0F1B15' : '#FAF6EE', '--card': dark ? '#17271D' : '#ffffff',
+      '--ink': dark ? '#EDF3EA' : '#12281C', '--ink2': dark ? '#C9D6CC' : '#24332B',
+      '--mut': dark ? '#8FA697' : '#4A5A50', '--mut2': dark ? '#5E7065' : '#8A9A8F',
+      '--mint': dark ? '#1E3226' : '#DCEEDF', '--mintInk': dark ? '#9FD6B4' : '#1C4634',
+      '--chipDk': dark ? '#DCEEDF' : '#12281C', '--btnInk': dark ? '#12281C' : '#FAF6EE', '--onAccent': '#FAF6EE',
+      '--sand': dark ? '#2A281E' : '#EFE7D5', '--sandInk': dark ? '#B5A98E' : '#6B6353',
+      '--amber': dark ? '#DFA032' : '#835A0E', '--amberBg': dark ? '#3A2F14' : '#F5EAD2',
+      '--err': dark ? '#D9764F' : '#B4552F', '--errBg': dark ? '#3A231B' : '#F5E3DB',
+      '--errInk': dark ? '#F0B49B' : '#7A3A22', '--errLine': dark ? 'rgba(217,118,79,.5)' : 'rgba(180,85,47,.4)',
+      '--sel': dark ? '#21332A' : '#EFF7F0', '--dis': dark ? '#2E3E34' : '#C9D6CC', '--trackOff': dark ? '#3A473E' : '#D9D2C2',
+      '--line': dark ? 'rgba(220,238,223,.15)' : 'rgba(28,70,52,.15)',
+      '--lineSoft': dark ? 'rgba(220,238,223,.1)' : 'rgba(28,70,52,.11)',
+      '--line2': dark ? 'rgba(220,238,223,.28)' : 'rgba(28,70,52,.22)',
+      '--heroBg': dark ? '#14231A' : '#1C4634', '--heroInk': dark ? '#EDF3EA' : '#FAF6EE',
+      '--heroSub': dark ? '#8FA697' : '#C9D6CC' };
+  }
+  renderVals() {
+    const s = this.state, L = this.lessons, t = this.i18n[s.lang];
+    const dark = (s.theme || this.props.theme || 'light') === 'dark';
+    const showSources = this.props.showSources ?? true;
+    const startSession = (id) => this.setState({ screen: 'session', subj: id, step: 0, sel: null, checked: false, input: '', results: [], ordSel: [] });
+    const subjects = Object.keys(L).filter((id) => !s.removed[id]).map((id) => {
+      const v = L[id], done = !!s.done[id];
+      return { name: v.name, level: v.level, lessonTitle: v.lessonTitle,
+        status: done ? t.doneToday : t.ready, cta: done ? t.more : t.start,
+        chipStyle: { font: "500 11px/1 'IBM Plex Mono',monospace", letterSpacing: '.06em', padding: '6px 10px', borderRadius: '7px',
+          background: done ? 'var(--mint)' : 'var(--chipDk)', color: done ? 'var(--mintInk)' : 'var(--bg)' },
+        open: () => startSession(id),
+        manage: (e) => { e.stopPropagation(); this.setState({ screen: 'manage', manageId: id, confirmDel: false }); } };
+    });
+    if (s.custom && !s.removed.custom) {
+      const ready = s.custom.ready, cdone = !!s.done.custom;
+      const prepNames = t.prepSteps;
+      subjects.push({ name: s.custom.topic, level: s.custom.focus ? t.stage1 + ' · ' + s.custom.focus : t.stage1,
+        lessonTitle: ready ? t.diag : t.bgLesson,
+        preparing: !ready,
+        prepSteps: prepNames.map((nm, i) => {
+          const done = i < s.prepStage, cur = i === s.prepStage;
+          return { t: nm,
+            dot: { flex: 'none', width: '8px', height: '8px', borderRadius: '50%', background: done ? 'var(--mintInk)' : (cur ? 'var(--amber)' : 'var(--dis)') },
+            txt: { font: (cur ? '500' : '400') + " 12px/1.4 'Golos Text',sans-serif", color: done ? 'var(--mut)' : (cur ? 'var(--ink)' : 'var(--mut2)') } };
+        }),
+        status: cdone ? t.doneToday : (ready ? t.ready : t.prepSteps[Math.min(s.prepStage, 2)]),
+        cta: ready ? (cdone ? t.more : t.start) : t.inBg,
+        chipStyle: { font: "500 11px/1 'IBM Plex Mono',monospace", letterSpacing: '.06em', padding: '6px 10px', borderRadius: '7px',
+          background: ready && !cdone ? 'var(--chipDk)' : 'var(--mint)', color: ready && !cdone ? 'var(--btnInk)' : 'var(--mintInk)' },
+        open: () => { if (ready) startSession('custom'); },
+        manage: (e) => { e.stopPropagation(); this.setState({ screen: 'manage', manageId: 'custom', confirmDel: false }); } });
+    }
+    const queueCount = (this.props.reviewCount ?? 12) + s.added;
+    const tabsDef = [['today', t.today], ['reviews', t.reviews], ['refs', t.refs], ['mission', t.mission]];
+    const vals = {
+      isAuth: s.screen === 'auth', isMain: s.screen === 'main', isSession: s.screen === 'session',
+      isRecap: s.screen === 'recap', isSetup: s.screen === 'setup', isManage: s.screen === 'manage',
+      isProfile: s.screen === 'profile', isRefDetail: s.screen === 'refdetail',
+      tabToday: s.tab === 'today', tabReviews: s.tab === 'reviews', tabRefs: s.tab === 'refs', tabMission: s.tab === 'mission',
+      isDark: dark, pageStyle: this.themeVars(dark),
+      tTheme: t.themeT, tLight: t.lightL, tDark: t.darkL,
+      setLight: () => this.setState({ theme: 'light' }), setDark: () => this.setState({ theme: 'dark' }),
+      lightStyle: this.seg(!dark), darkStyle: this.seg(dark),
+      tabs: tabsDef.map(([id, label]) => ({ label, go: () => this.setState({ tab: id }),
+        style: { flex: 1, textAlign: 'center', font: (s.tab === id ? '500' : '400') + " 11.5px/1 'Golos Text',sans-serif",
+          color: s.tab === id ? 'var(--ink)' : 'var(--mut2)', cursor: 'pointer', padding: '4px 0' } })),
+      subjects, showSources,
+      tDate: s.lang === 'ru' ? 'ВС · 7 СЕН' : 'SUN · SEP 7',
+      tQueueKicker: t.queueKicker, tQueueNote: t.queueNote, queueLine: t.queueLine(queueCount),
+      tSubjects: t.subjects, tNewSubj: t.newSubj, tReviews: t.reviews, tRefs: t.refs, tMission: t.mission,
+      tRefsNote: t.refsNote, tOffline: t.offline, tMissionNote: t.missionNote, tEdit: t.edit, tSave: t.save, tCancel: t.cancel,
+      tDueToday: t.dueToday, tDueLater: t.dueLater, tStartReviews: t.startReviews, reviewsSummary: t.reviewsSummary(queueCount),
+      tProfileChip: t.profileChip, tLanguage: t.language, tContentLangNote: t.contentLangNote, tLogout: t.logout,
+      tAuthSub: t.authSub, tAuthApple: t.authApple, tAuthGoogle: t.authGoogle, tAuthVk: t.authVk, tAuthNote: t.authNote,
+      tManageChip: t.manageChip, tPause: t.pause, tPauseD: t.pauseD, tRem: t.rem, tRemD: t.remD,
+      tReset: t.reset, tDel: t.del, tDelConfirm: t.delConfirm, tDelYes: t.delYes, tDelNo: t.delNo,
+      tWhy: t.why, tExample: t.example, tNoHints: t.noHints, tHowRight: t.howRight,
+      tNewSubjChip: t.newSubjChip, tRecapChip: t.recapChip, tToReviews: t.toReviews, tRecapFoot: t.recapFoot, tDone: t.done, tRefChip: t.refChip,
+      initials: s.user ? s.user.name[0] : 'О', userName: s.user ? s.user.name : 'Олег',
+      viaLine: t.via + ' ' + (s.user ? s.user.provider : 'Apple'),
+      loginApple: () => this.setState({ screen: 'main', user: { name: 'Олег', provider: 'Apple' } }),
+      loginGoogle: () => this.setState({ screen: 'main', user: { name: 'Олег', provider: 'Google' } }),
+      loginVk: () => this.setState({ screen: 'main', user: { name: 'Олег', provider: 'VK' } }),
+      logout: () => this.setState({ screen: 'auth', user: null, confirmOut: false }),
+      askLogout: () => this.setState({ confirmOut: true }), cancelLogout: () => this.setState({ confirmOut: false }),
+      confirmOut: !!s.confirmOut, notConfirmOut: !s.confirmOut,
+      tLogoutConfirm: t.logoutConfirm, tLogoutYes: t.logoutYes, tLogoutNo: t.logoutNo,
+      ...this.profileVals(t),
+      openProfile: () => this.setState({ screen: 'profile', confirmOut: false }),
+      setRu: () => this.setState({ lang: 'ru' }), setEn: () => this.setState({ lang: 'en' }),
+      ruStyle: this.seg(s.lang === 'ru'), enStyle: this.seg(s.lang === 'en'),
+      segBox: { display: 'flex', background: 'var(--mint)', borderRadius: '9px', padding: '3px', flex: 'none' },
+      tProfileTitle: t.profileTitle, tRemTime: t.remTime, tReviewsG: t.reviewsG, tAppG: t.appG,
+      goReviews: () => this.setState({ tab: 'reviews' }),
+      startReviews: () => startSession('review'),
+      dueToday: [
+        { t: 'После if не бывает would', s: 'Английский', due: t.dToday },
+        { t: 'Граница — это две точки, не одна', s: 'Quality Assurance', due: t.dToday },
+        { t: 'Раздел 395 был раньше разграбления 410', s: 'История', due: t.dToday } ],
+      dueLater: [
+        { t: 'Рамка совета If I were you…', s: 'Английский', due: t.dTomorrow },
+        { t: 'Пары точек на краях диапазона', s: 'Quality Assurance', due: t.dIn3 },
+        ...s.reviewLog.map((r) => ({ t: r.t, s: r.s, due: t.dTomorrow })) ],
+      searchVal: s.refQ, onSearch: (e) => this.setState({ refQ: e.target.value }),
+      tSearchPh: t.searchPh, tWeakF: t.weakF, weakChipStyle: this.tag(s.weakOnly),
+      toggleWeak: () => this.setState({ weakOnly: !s.weakOnly }),
+      refSubjTabs: Object.keys(this.refsData).map((id) => ({ label: this.refsData[id].name,
+        style: { ...this.pill(s.refSubj === id), flex: 'none', whiteSpace: 'nowrap' }, pick: () => this.setState({ refSubj: id }) })),
+      refGroups: this.refsData[s.refSubj].groups.map((g) => {
+        const q = s.refQ.trim().toLowerCase();
+        const items = g.items.filter((it) => {
+          const wc = it.rows.filter((r) => r.weak).length;
+          if (s.weakOnly && wc === 0) return false;
+          if (!q) return true;
+          return it.t.toLowerCase().includes(q) || it.rows.some((r) => (r.k + ' ' + r.v).toLowerCase().includes(q));
+        }).map((it) => {
+          const wc = it.rows.filter((r) => r.weak).length;
+          return { t: it.t, m: t.updL + ' ' + it.upd + ' · ' + it.rows.length + ' ' + t.rowsL,
+            hasWeak: wc > 0, weakChip: t.weakN(wc),
+            open: () => this.setState({ screen: 'refdetail', refId: it.id, refDQ: '' }) };
+        });
+        return { g: g.g, items };
+      }).filter((g) => g.items.length > 0),
+      missionCards: this.missionCards(t),
+      onNewSubject: () => this.setState({ screen: 'setup', su: { step: 0, topic: '', focus: '', mission: '', excl: {} } }),
+      weekLine: t.weekLine(14 + s.added, 3),
+      onExit: () => { this.stopRec(); this.setState({ screen: 'main' }); },
+      backToRefs: () => this.setState({ screen: 'main', tab: 'refs' }),
+      onInput: (e) => this.setState({ input: e.target.value }), inputVal: s.input, notChecked: !s.checked, checked: s.checked
+    };
+    if (s.screen === 'refdetail') {
+      const all = Object.values(this.refsData).flatMap((sub) => sub.groups.flatMap((g) => g.items));
+      const r = all.find((x) => x.id === s.refId) || all[0];
+      const dq = (s.refDQ || '').trim().toLowerCase();
+      const rows = r.rows.filter((row) => !dq || (row.k + ' ' + row.v).toLowerCase().includes(dq));
+      const secs = [];
+      rows.forEach((row) => {
+        const name = row.sec || '';
+        let sec = secs.find((x) => x.sec === name);
+        if (!sec) { sec = { sec: name, hasSec: !!name, rows: [] }; secs.push(sec); }
+        sec.rows.push(row);
+      });
+      Object.assign(vals, { refTitle: r.t, refMeta: t.updL + ' ' + r.upd + ' · ' + r.rows.length + ' ' + t.rowsL,
+        refSecs: secs, tWeakBadge: t.weakBadge,
+        refDQVal: s.refDQ || '', onRefDQ: (e) => this.setState({ refDQ: e.target.value }), tSearchInPh: t.searchInPh });
+    }
+    if (s.screen === 'manage') {
+      const id = s.manageId, cfg = Object.assign({ pause: false, rem: true, dur: 5, lim: 20, diff: 'edge', voice: true }, s.cfg[id] || {});
+      const setCfg = (patch) => this.setState({ cfg: { ...s.cfg, [id]: { ...cfg, ...patch } } });
+      const name = id === 'custom' ? (s.custom || {}).topic : (L[id] || {}).name;
+      const mis = s.missions[id];
+      Object.assign(vals, {
+        manageName: name || '', manageMission: mis ? mis.cur : (s.custom && id === 'custom' ? (s.custom.mission || '…') : ''),
+        pauseTrack: this.track(cfg.pause),
+        togglePause: () => this.setState({ cfg: { ...s.cfg, [id]: { ...cfg, pause: !cfg.pause } } }),
+        tDur: t.dur, tLimit: t.limit, tDiff: t.diff, tVoice: t.voiceC, tVoiceD: t.voiceD,
+        durOpts: [3, 5, 10].map((v) => ({ label: v + ' ' + t.minU, style: this.pill(cfg.dur === v), pick: () => setCfg({ dur: v }) })),
+        limOpts: [10, 20, 50].map((v) => ({ label: v + ' ' + t.perDay, style: this.pill(cfg.lim === v), pick: () => setCfg({ lim: v }) })),
+        diffOpts: [['comfy', t.diffA], ['edge', t.diffB]].map(([v, label]) => ({ label, style: this.pill(cfg.diff === v), pick: () => setCfg({ diff: v }) })),
+        voiceTrack: this.track(cfg.voice), toggleVoice: () => setCfg({ voice: !cfg.voice }), voiceOn: cfg.voice,
+        tVoiceLang: t.voiceLang,
+        voiceLangOpts: (() => {
+          const ui = s.lang === 'ru' ? 'Русский' : 'English';
+          const isLang = this.topicKind(name || '') === 'lang';
+          const lessonLang = id === 'en' ? 'English' : (isLang ? (name || '') : ui);
+          const cur = cfg.vlang || (isLang ? 'lesson' : 'ui');
+          const opts = lessonLang === ui ? [['ui', 'Русский'], ['lesson', 'English']] : [['ui', ui], ['lesson', lessonLang]];
+          return opts.map(([v, label]) => ({ label, style: this.pill(cur === v), pick: () => setCfg({ vlang: v }) }));
+        })(),
+
+        confirmDel: s.confirmDel, notConfirmDel: !s.confirmDel,
+        askDelete: () => this.setState({ confirmDel: true }),
+        cancelDelete: () => this.setState({ confirmDel: false }),
+        doDelete: () => this.setState({ screen: 'main', tab: 'today', removed: { ...s.removed, [id]: true }, confirmDel: false, custom: id === 'custom' ? null : s.custom })
+      });
+    }
+    const subj = s.subj ? this.getLesson(s.subj) : null;
+    if (subj && s.screen === 'session') {
+      const step = subj.steps[s.step], n = subj.steps.length;
+      const isEx = step.type === 'explain', isCh = step.type === 'choice', isIn = step.type === 'input',
+        isFree = step.type === 'free', isOrd = step.type === 'order';
+      const ok = s.checked ? this.evalStep(step) : false;
+      const ordSel = s.ordSel || [];
+      const canGo = isEx || s.checked || (isCh ? s.sel !== null : isOrd ? ordSel.length === (step.items || []).length : s.input.trim().length > 0);
+      const critHits = isFree && s.checked ? this.critHits(step) : [];
+      Object.assign(vals, {
+        subjName: subj.name, stepLabel: (s.step + 1) + '/' + n,
+        segs: subj.steps.map((_, i) => ({ bg: i <= s.step ? 'var(--mintInk)' : 'var(--mint)' })),
+        isExplain: isEx, isChoice: isCh, isInput: isIn || isFree, isFree, isOrder: isOrd,
+        isSingleLine: isIn, isMultiLine: isFree,
+        tCriteria: t.criteria, tCritHit: t.critHit, tCritMiss: t.critMiss,
+        criteria: (step.criteria || []).map((c, i) => ({ t: c.t, hit: !!critHits[i], miss: !critHits[i],
+          style: { display: 'flex', alignItems: 'flex-start', gap: '9px', padding: '9px 0', borderTop: i ? '1px solid var(--lineSoft)' : 'none',
+            font: "400 13.5px/1.45 'Golos Text',sans-serif", color: 'var(--ink)' } })),
+        ordItems: (step.items || []).map((label, i) => {
+          const pos = ordSel.indexOf(i);
+          const picked = pos !== -1;
+          const rightPos = s.checked ? step.correct.indexOf(i) : -1;
+          const st = { display: 'flex', alignItems: 'center', gap: '12px', padding: '13px 14px', borderRadius: '12px', cursor: s.checked ? 'default' : 'pointer',
+            border: '1.5px solid var(--line2)', background: 'var(--card)', font: "400 14.5px/1.4 'Golos Text',sans-serif", color: 'var(--ink)' };
+          let badge = picked ? String(pos + 1) : '';
+          if (picked && !s.checked) { st.border = '1.5px solid var(--mintInk)'; st.background = 'var(--sel)'; }
+          if (s.checked) {
+            if (pos === rightPos) { st.border = '1.5px solid var(--mintInk)'; st.background = 'var(--mint)'; }
+            else { st.border = '1.5px solid var(--err)'; st.background = 'var(--errBg)'; badge = (pos + 1) + '→' + (rightPos + 1); }
+          }
+          return { label, badge, style: st,
+            numStyle: { flex: 'none', minWidth: '26px', height: '26px', padding: '0 6px', borderRadius: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              font: "500 11px/1 'IBM Plex Mono',monospace", background: picked ? 'var(--chipDk)' : 'var(--sand)', color: picked ? 'var(--btnInk)' : 'var(--sandInk)' },
+            pick: () => { if (s.checked) return; this.setState({ ordSel: picked ? ordSel.filter((x) => x !== i) : [...ordSel, i] }); } };
+        }),
+        tOrderHint: t.orderHint,
+        why: step.why, title: step.title, paras: step.paras || [], example: step.example, source: step.source,
+        prompt: step.prompt, placeholder: step.placeholder,
+        opts: (step.options || []).map((label, i) => {
+          const st = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px',
+            padding: '15px 16px', borderRadius: '12px', font: "400 15px/1.4 'Golos Text',sans-serif", cursor: 'pointer',
+            border: '1.5px solid var(--line2)', background: 'var(--card)', color: 'var(--ink)' };
+          let badge = '';
+          if (!s.checked && s.sel === i) { st.border = '1.5px solid var(--mintInk)'; st.background = 'var(--sel)'; }
+          if (s.checked && step.correct === -1 && i === s.sel) { st.border = '1.5px solid var(--mintInk)'; st.background = 'var(--mint)'; badge = 'ПРИНЯТО'; }
+          else if (s.checked && i === step.correct) { st.border = '1.5px solid var(--mintInk)'; st.background = 'var(--mint)'; badge = 'ВЕРНО'; }
+          else if (s.checked && i === s.sel) { st.border = '1.5px solid var(--err)'; st.background = 'var(--errBg)'; st.color = 'var(--errInk)'; badge = 'ВАШ ВЫБОР'; }
+          return { label, badge, style: st, pick: () => { if (!s.checked) this.setState({ sel: i }); } };
+        }),
+        fbTitle: step.correct === -1 || (isIn && !(step.tokens || []).length) ? t.accepted2
+          : isFree ? t.critScore(critHits.filter(Boolean).length, (step.criteria || []).length)
+          : (ok ? t.right : t.notQuite), fbText: step.explain,
+        fbStyle: { background: ok ? 'var(--mint)' : (isFree && critHits.some(Boolean) ? 'var(--amberBg)' : 'var(--errBg)'), borderRadius: '14px', padding: '14px 16px', marginTop: '14px' },
+        showAnswer: s.checked && isIn && !ok, answer: step.answer,
+        rec: !!s.rec, notRec: !s.rec, showMic: ((s.cfg[s.subj] || {}).voice) !== false && (isIn || isFree),
+        micHint: s.rec ? t.micRec : t.micIdle,
+        micStyle: { width: '52px', height: '52px', borderRadius: '50%', background: s.rec ? 'var(--err)' : 'var(--mintInk)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flex: 'none',
+          boxShadow: s.rec ? '0 0 0 8px rgba(180,85,47,.15)' : 'none' },
+        toggleMic: () => {
+          if (s.rec) { this.stopRec(); return; }
+          this._words = (step.voice || '').split(' ');
+          this.setState({ rec: true, input: '' });
+          this._t = setInterval(() => {
+            const w = this._words.shift();
+            if (!w) { this.stopRec(); return; }
+            this.setState((st) => ({ input: st.input ? st.input + ' ' + w : w }));
+          }, 240);
+        },
+        primaryLabel: isEx ? t.toPractice : (!s.checked ? t.answer : (s.step + 1 < n ? t.next : t.toRecap)),
+        primaryStyle: { background: canGo ? 'var(--mintInk)' : 'var(--dis)', color: 'var(--btnInk)', font: "600 16px/1 'Golos Text',sans-serif",
+          height: '54px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: canGo ? 'pointer' : 'default', flex: 'none', marginTop: '10px' },
+        onPrimary: () => {
+          if (!canGo) return;
+          this.stopRec();
+          if (!isEx && !s.checked) { this.setState({ checked: true, results: [...s.results, this.evalStep(step)] }); return; }
+          if (s.step + 1 < n) this.setState({ step: s.step + 1, sel: null, checked: false, input: '', ordSel: [] });
+          else this.setState({ screen: 'recap' });
+        }
+      });
+    }
+    if (s.screen === 'setup') {
+      const su = s.su, topic = su.topic.trim(), focus = su.focus.trim();
+      const kind = this.topicKind(topic);
+      const srcData = this.sourcesFor(kind, focus || topic);
+      const kept = srcData.filter((_, i) => !su.excl[i]).length;
+      // steps: 0 topic · 1 narrow · 2 mission · 3 sources · 4 plan
+      const canNext = [topic.length > 0, focus.length > 0, su.mission.trim().length > 0, kept > 0, true][su.step];
+      Object.assign(vals, {
+        su1: su.step === 0, suNarrow: su.step === 1, su2: su.step === 2, su3: su.step === 3, su4: su.step === 4,
+        setupLabel: (su.step + 1) + '/5',
+        setupSegs: [0, 1, 2, 3, 4].map((i) => ({ bg: i <= su.step ? 'var(--mintInk)' : 'var(--mint)' })),
+        topicVal: su.topic, onTopicInput: (e) => this.setState({ su: { ...su, topic: e.target.value } }),
+        topicChips: ['История', 'SQL', 'Испанский', 'Публичные выступления'].map((label) => ({ label, pick: () => this.setState({ su: { ...su, topic: label } }) })),
+        topicName: topic || 'эта тема', focusName: focus || topic || 'тема',
+        narrowVal: su.focus, onNarrowInput: (e) => this.setState({ su: { ...su, focus: e.target.value } }),
+        narrowOpts: this.narrowFor(kind, topic).map((o) => {
+          const active = focus === o.t;
+          return { t: o.t, d: o.d, pick: () => this.setState({ su: { ...su, focus: o.t } }),
+            style: { background: active ? 'var(--sel)' : 'var(--card)', border: active ? '1.5px solid var(--mintInk)' : '1.5px solid var(--line2)',
+              borderRadius: '12px', padding: '13px 14px', cursor: 'pointer', color: 'var(--ink)' } };
+        }),
+        missionVal: su.mission, onMissionInput: (e) => this.setState({ su: { ...su, mission: e.target.value } }),
+        sources: srcData.map((d, i) => {
+          const off = !!su.excl[i];
+          const hue = { g: ['var(--mint)', 'var(--mintInk)'], a: ['var(--amberBg)', 'var(--amber)'], r: ['var(--errBg)', 'var(--errInk)'] }[d.hue];
+          return { t: d.t, m: d.m, chip: off ? 'исключён' : d.chip,
+            style: { display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--card)', border: '1px solid var(--line)',
+              borderRadius: '14px', padding: '13px 14px', cursor: 'pointer', opacity: off ? 0.45 : 1 },
+            chipStyle: { font: "500 10px/1 'IBM Plex Mono',monospace", letterSpacing: '.05em', padding: '6px 9px', borderRadius: '7px',
+              whiteSpace: 'nowrap', flex: 'none', background: off ? 'var(--sand)' : hue[0], color: off ? 'var(--sandInk)' : hue[1] },
+            toggle: () => this.setState({ su: { ...su, excl: { ...su.excl, [i]: !off } } }) };
+        }),
+        missionEcho: su.mission.trim() || 'миссия',
+        plan: [
+          { n: '01', t: 'Каркас: термины и карта темы', d: 'глоссарий закладывается с первого урока' },
+          { n: '02', t: 'Рабочие приёмы малыми шагами', d: 'один урок — одна победа, практика без подсказок' },
+          { n: '03', t: 'Применение под вашу миссию', d: su.mission.trim() || 'уточним после первых сессий' }
+        ],
+        setupPrimary: ['Дальше', 'Дальше', 'Дальше', 'Собрать план', t.done][su.step],
+        setupBtnStyle: { background: canNext ? 'var(--mintInk)' : 'var(--dis)', color: 'var(--btnInk)', font: "600 16px/1 'Golos Text',sans-serif",
+          height: '54px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: canNext ? 'pointer' : 'default', flex: 'none', marginTop: '10px' },
+        onSetupNext: () => {
+          if (!canNext) return;
+          if (su.step < 4) this.setState({ su: { ...su, step: su.step + 1 } });
+          else {
+            this.setState({ screen: 'main', tab: 'today', prepStage: 0,
+              custom: { topic: topic, focus: focus, mission: su.mission.trim(), ready: false },
+              missions: { ...s.missions, custom: { cur: su.mission.trim(), hist: [] } }, removed: { ...s.removed, custom: false } });
+            if (this._gen) clearInterval(this._gen);
+            this._gen = setInterval(() => this.setState((st) => {
+              if (!st.custom) { clearInterval(this._gen); return null; }
+              const next = st.prepStage + 1;
+              if (next >= 3) { clearInterval(this._gen); return { prepStage: 3, custom: { ...st.custom, ready: true } }; }
+              return { prepStage: next };
+            }), 1800);
+          }
+        }
+      });
+    }
+    if (subj && s.screen === 'recap') {
+      const practice = subj.steps.filter((st) => st.type !== 'explain');
+      const okCount = s.results.filter(Boolean).length;
+      Object.assign(vals, {
+        recapTitle: okCount === practice.length ? t.cleanSession : t.toFix,
+        recapVerdict: t.firstTry(okCount, practice.length) + ' · ' + subj.name,
+        records: practice.map((st, i) => {
+          const key = s.subj + ':' + i, d = !!s.doubts[key];
+          const src = (subj.steps.find((x) => x.type === 'explain') || {}).source || t.srcFromPlan;
+          return { title: st.recTitle, note: st.recNote, interval: s.results[i] ? t.dIn4 : t.dIn1,
+            src: t.srcL + ' ' + src.split(' · ')[0],
+            doubtLabel: d ? t.doubtSent : t.doubt,
+            doubtStyle: { flex: 'none', font: "500 11.5px/1 'Golos Text',sans-serif", padding: '7px 10px', borderRadius: '7px', cursor: d ? 'default' : 'pointer',
+              background: d ? 'var(--sand)' : 'transparent', color: d ? 'var(--sandInk)' : 'var(--err)', border: d ? '1px solid transparent' : '1px solid var(--errLine)' },
+            doubt: () => this.setState({ doubts: { ...s.doubts, [key]: true } }) };
+        }),
+        onFinish: () => this.setState({ screen: 'main', tab: 'today', done: { ...s.done, [s.subj]: true }, added: s.added + practice.length,
+          reviewLog: [...s.reviewLog, ...practice.map((st) => ({ t: st.recTitle, s: subj.name }))] })
+      });
+    }
+    return vals;
+  }
+  missionCards(t) {
+    const s = this.state, L = this.lessons;
+    const ids = Object.keys(L).filter((id) => !s.removed[id]);
+    if (s.custom && !s.removed.custom) ids.push('custom');
+    return ids.map((id) => {
+      const m = s.missions[id] || { cur: '—', hist: [] };
+      const name = id === 'custom' ? s.custom.topic : L[id].name;
+      const editing = s.editM === id;
+      return { name, ver: 'v' + (m.hist.length + 1), cur: m.cur, hist: m.hist,
+        editing, notEditing: !editing,
+        settings: () => this.setState({ screen: 'manage', manageId: id, confirmDel: false }),
+        draft: s.draft, onDraft: (e) => this.setState({ draft: e.target.value }),
+        startEdit: () => this.setState({ editM: id, draft: m.cur }),
+        cancel: () => this.setState({ editM: null }),
+        save: () => {
+          if (!s.draft.trim()) return;
+          const hist = [...m.hist, 'v' + (m.hist.length + 1) + ' · ' + m.cur];
+          this.setState({ missions: { ...s.missions, [id]: { cur: s.draft.trim(), hist } }, editM: null });
+        } };
+    });
+  }
+  langBtn(active) {
+    return { flex: 1, height: '44px', borderRadius: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+      font: "600 14px/1 'Golos Text',sans-serif", cursor: 'pointer',
+      background: active ? 'var(--mintInk)' : 'var(--bg)', color: active ? 'var(--btnInk)' : 'var(--mut)',
+      border: active ? '1.5px solid var(--mintInk)' : '1.5px solid var(--line2)' };
+  }
+  profileVals(t) {
+    const s = this.state, g = s.g, L = this.lessons;
+    const setG = (patch) => this.setState({ g: { ...g, ...patch } });
+    const activeIds = Object.keys(L).filter((id) => !s.removed[id]).concat(s.custom && !s.removed.custom ? ['custom'] : []);
+    const sumLim = activeIds.reduce((a, id) => a + ((s.cfg[id] || {}).lim || 20), 0);
+    const total = 186 + s.added;
+    return {
+      stats: [ { v: String(41 + s.added), l: t.stClosed }, { v: String(s.added), l: t.stToday } ],
+      tRemG: t.remG, tWeekendOff: t.weekendOff, tCapG: t.capG, tVoiceG: t.voiceG, tRecMode: t.recMode, tRecLang: t.recLang,
+      remOpts: [['morning', t.remMorning], ['evening', t.remEvening]].map(([v, label]) => ({ label, style: this.seg(g.rem === v), pick: () => setG({ rem: v }) })),
+      weekendTrack: this.track(g.weekendOff), toggleWeekend: () => setG({ weekendOff: !g.weekendOff }),
+      capOpts: [20, 40, 80].map((v) => ({ label: String(v), style: this.seg(g.cap === v), pick: () => setG({ cap: v }) })).concat([{ label: t.capOff, style: this.seg(g.cap === 0), pick: () => setG({ cap: 0 }) }]),
+      modeOpts: [['ptt', t.modePtt], ['hands', t.modeHands]].map(([v, label]) => ({ label, style: this.seg(g.mode === v), pick: () => setG({ mode: v }) })),
+    };
+  }
+  langRows(t) {
+    const s = this.state, ui = s.lang === 'ru' ? 'Русский' : 'English';
+    const rows = [];
+    Object.keys(this.lessons).filter((id) => !s.removed[id]).forEach((id) => {
+      const L = this.lessons[id];
+      const isLang = this.topicKind(L.name) === 'lang';
+      rows.push({ name: L.name, lang: isLang ? 'English' : ui, style: this.langChip(isLang) });
+    });
+    if (s.custom && !s.removed.custom) rows.push({ name: s.custom.topic, lang: this.topicKind(s.custom.topic) === 'lang' ? s.custom.topic : ui, style: this.langChip(this.topicKind(s.custom.topic) === 'lang') });
+    return rows;
+  }
+  langChip(isLang) {
+    return { font: "500 10.5px/1 'IBM Plex Mono',monospace", padding: '6px 9px', borderRadius: '7px', whiteSpace: 'nowrap', flex: 'none',
+      background: isLang ? 'var(--amberBg)' : 'var(--mint)', color: isLang ? 'var(--amber)' : 'var(--mintInk)' };
+  }
+  seg(active) {
+    return { font: (active ? '600' : '500') + " 12.5px/1 'Golos Text',sans-serif", padding: '8px 11px', borderRadius: '7px', cursor: 'pointer', whiteSpace: 'nowrap',
+      background: active ? 'var(--card)' : 'transparent', color: active ? 'var(--ink)' : 'var(--mintInk)',
+      boxShadow: active ? '0 1px 2px rgba(0,0,0,.08)' : 'none' };
+  }
+  tag(active) {
+    return { font: "500 12.5px/1 'Golos Text',sans-serif", padding: '0 12px', height: '42px', display: 'flex', alignItems: 'center', borderRadius: '10px', cursor: 'pointer', whiteSpace: 'nowrap', flex: 'none',
+      boxSizing: 'border-box', background: active ? 'var(--amber)' : 'transparent', color: active ? '#FAF6EE' : 'var(--amber)', border: active ? '1px solid var(--amber)' : '1px solid var(--amber)' };
+  }
+  pill(active) {
+    return { font: "500 13px/1 'Golos Text',sans-serif", padding: '10px 13px', borderRadius: '10px', cursor: 'pointer', whiteSpace: 'nowrap',
+      background: active ? 'var(--mintInk)' : 'var(--mint)', color: active ? 'var(--btnInk)' : 'var(--mintInk)' };
+  }
+  track(on) {
+    return { width: '46px', height: '28px', borderRadius: '14px', background: on ? 'var(--mintInk)' : 'var(--trackOff)',
+      display: 'flex', alignItems: 'center', justifyContent: on ? 'flex-end' : 'flex-start',
+      padding: '3px', boxSizing: 'border-box', cursor: 'pointer', flex: 'none' };
+  }
+  stopRec() {
+    if (this._t) { clearInterval(this._t); this._t = null; }
+    if (this.state.rec) this.setState({ rec: false });
+  }
+  componentWillUnmount() { if (this._t) clearInterval(this._t); if (this._gen) clearInterval(this._gen); }
+  topicKind(topic) {
+    const x = (topic || '').toLowerCase();
+    if (/истор|history|философ|литерат|искусств/.test(x)) return 'human';
+    if (/англ|испан|немец|франц|язык|english|spanish/.test(x)) return 'lang';
+    if (/sql|python|js|qa|тест|програм|данн|devops|код/.test(x)) return 'tech';
+    if (/выступ|перегов|менедж|лидер|продаж/.test(x)) return 'soft';
+    return 'gen';
+  }
+  narrowFor(kind, topic) {
+    const T = topic || 'тема';
+    return {
+      human: [ { t: 'Поздняя Античность', d: 'Рим, раздел империи, варвары — III–VI вв.' }, { t: 'Революции Нового времени', d: 'Англия, Франция, Америка — механика перелома' }, { t: 'XX век: мировые войны', d: 'причины, коалиции, последствия' } ],
+      lang: [ { t: 'Грамматика для речи', d: 'времена и конструкции, которые нужны в разговоре' }, { t: 'Рабочий словарь', d: 'лексика вашей профессии' }, { t: 'Аудирование и произношение', d: 'понимать на слух и быть понятым' } ],
+      tech: [ { t: 'Основы и синтаксис', d: 'база, без которой не пойти дальше' }, { t: 'Практика на задачах', d: 'типовые сценарии из работы' }, { t: 'Архитектура и оптимизация', d: 'почему так, а не иначе' } ],
+      soft: [ { t: 'Структура и аргументы', d: 'как строить мысль' }, { t: 'Подача и голос', d: 'темп, паузы, уверенность' }, { t: 'Работа с аудиторией', d: 'вопросы, возражения, внимание' } ],
+      gen: [ { t: T + ': основы', d: 'карта темы и ключевые понятия' }, { t: T + ': практика', d: 'применение в типовых ситуациях' }, { t: T + ': глубина', d: 'спорные места и детали' } ]
+    }[kind];
+  }
+  sourcesFor(kind, focus) {
+    const F = focus || 'тема';
+    return {
+      human: [ { t: 'Академическая монография — ' + F, m: 'рецензированная, с аппаратом ссылок', chip: 'высокое', hue: 'g' }, { t: 'Университетский учебник', m: 'структурный каркас периода', chip: 'высокое', hue: 'g' }, { t: 'Первоисточники: хроники, письма', m: 'взгляд современников — с поправкой на позицию', chip: 'среднее', hue: 'a' }, { t: 'Научпоп и подкасты', m: 'живо, но упрощает', chip: 'низкое', hue: 'r' } ],
+      lang: [ { t: 'Академическая грамматика — ' + F, m: 'нормативный источник', chip: 'высокое', hue: 'g' }, { t: 'Корпус живой речи', m: 'как говорят на самом деле', chip: 'высокое', hue: 'g' }, { t: 'Учебные курсы уровня', m: 'проверенные последовательности', chip: 'среднее', hue: 'a' }, { t: 'Блоги и видео носителей', m: 'быстро, но без системы', chip: 'низкое', hue: 'r' } ],
+      tech: [ { t: 'Официальная документация — ' + F, m: 'первоисточник · обновляется', chip: 'высокое', hue: 'g' }, { t: 'Университетский курс: введение', m: 'структурный каркас темы', chip: 'высокое', hue: 'g' }, { t: 'Разборы практиков', m: 'живые примеры, реальные задачи', chip: 'среднее', hue: 'a' }, { t: 'Треды и подборки в соцсетях', m: 'быстро, но шумно', chip: 'низкое', hue: 'r' } ],
+      soft: [ { t: 'Исследования по коммуникации — ' + F, m: 'что подтверждено экспериментами', chip: 'высокое', hue: 'g' }, { t: 'Классические руководства', m: 'проверенные десятилетиями рамки', chip: 'среднее', hue: 'a' }, { t: 'Разборы выступлений', m: 'на реальных примерах', chip: 'среднее', hue: 'a' }, { t: 'Мотивационный контент', m: 'вдохновляет, но не учит', chip: 'низкое', hue: 'r' } ],
+      gen: [ { t: 'Академический обзор — ' + F, m: 'систематизация темы', chip: 'высокое', hue: 'g' }, { t: 'Базовый учебник', m: 'структурный каркас', chip: 'высокое', hue: 'g' }, { t: 'Практические разборы', m: 'примеры и кейсы', chip: 'среднее', hue: 'a' }, { t: 'Подборки и треды', m: 'быстро, но шумно', chip: 'низкое', hue: 'r' } ]
+    }[kind];
+  }
+  critHits(step) {
+    const txt = this.state.input.toLowerCase();
+    return (step.criteria || []).map((c) => c.keys.some((k) => txt.includes(k)));
+  }
+  evalStep(step) {
+    if (step.type === 'choice') return step.correct === -1 ? true : this.state.sel === step.correct;
+    if (step.type === 'order') return JSON.stringify(this.state.ordSel || []) === JSON.stringify(step.correct);
+    if (step.type === 'free') { const h = this.critHits(step); return h.length > 0 && h.every(Boolean); }
+    const t = this.state.input.toLowerCase().replace(/[’']/g, "'");
+    return step.tokens.every((g) => g.some((v) => t.includes(v)));
+  }
+}
+</script>
+</body>
+</html>

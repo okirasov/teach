@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Golos+Text:wght@400;500;600;700&family=Unbounded:wght@400;500;600&family=Onest:wght@400;500;600&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f0eee9;font-family:system-ui,sans-serif}
+a{color:#1a1a1a}a:hover{color:#C8402C}
+.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 6px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 13px/1.2 system-ui,sans-serif;color:#1a1a1a}
+.dv-note{margin:0 0 22px;font:400 11.5px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.55);max-width:720px}
+.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 system-ui,sans-serif;color:rgba(0,0,0,.55)}
+.dv-card{max-width:100%;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden}
+.dv-opt:target .dv-oid{background:#2a78d6;color:#fff}
+.dv-next{margin:22px 0 0;font:12px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.5)}
+</style>
+</helmet>
+
+<section class="dv-turn" id="t3">
+<div class="dv-thd"><a class="dv-tid" href="#t3">3</a><span class="dv-tname">Голосовая практика — три состояния</span></div>
+<p class="dv-note">Push-to-talk по умолчанию, hands-free — тумблером. Пока говорите — волна и живой транскрипт; распознанное можно поправить текстом, не переговаривая. Разбор — по схеме <a class="dv-oid" href="#2c">2c</a>. Голос никогда не блокирует прогресс: всегда есть «ответить текстом».</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="3a" data-screen-label="3a Голос — ожидание">
+<div class="dv-olabel"><a class="dv-oid" href="#3a">3a</a>Ожидание — вопрос задан, кнопка удержания</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;box-sizing:border-box;display:flex;flex-direction:column;background:#FAF6EE;padding:70px 20px 46px;font-family:'Golos Text',sans-serif">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="width:36px;height:36px;border-radius:50%;background:#DCEEDF;display:flex;align-items:center;justify-content:center;font:400 18px/1 'Golos Text',sans-serif;color:#1C4634">×</div>
+    <div style="flex:1;display:flex;justify-content:center"><div style="background:#12281C;color:#FAF6EE;font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;padding:8px 14px;border-radius:999px">ГОЛОС</div></div>
+    <div style="font:500 12px/1 'IBM Plex Mono',monospace;color:#4A5A50;width:36px;text-align:right">1/6</div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;background:#fff;border:1px solid rgba(28,70,52,.15);border-radius:12px;padding:11px 14px">
+    <span style="font:400 13px/1.3 'Golos Text',sans-serif;color:#24332B">Свободные руки — авто-конец фразы</span>
+    <div style="width:44px;height:26px;border-radius:13px;background:#D9D2C2;display:flex;align-items:center;padding:2px;box-sizing:border-box"><div style="width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)"></div></div>
+  </div>
+  <div style="font:600 22px/1.4 'Golos Text',sans-serif;color:#12281C;margin-top:26px;text-wrap:pretty">Объясните своими словами: почему стандартная ошибка убывает с ростом выборки, а стандартное отклонение — нет?</div>
+  <div style="flex:1"></div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
+    <div style="width:96px;height:96px;border-radius:50%;background:#1C4634;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(28,70,52,.35)">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="11" rx="3" fill="#FAF6EE"/><path d="M5 11 a7 7 0 0 0 14 0" stroke="#FAF6EE" stroke-width="2" stroke-linecap="round"/><path d="M12 18 v3" stroke="#FAF6EE" stroke-width="2" stroke-linecap="round"/></svg>
+    </div>
+    <div style="font:400 13px/1.4 'Golos Text',sans-serif;color:#4A5A50">Удерживайте и говорите</div>
+    <div style="font:500 13px/1 'Golos Text',sans-serif;color:#1C4634;border-bottom:1.5px solid #1C4634;padding-bottom:2px">Ответить текстом</div>
+  </div>
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="3b" data-screen-label="3b Голос — запись">
+<div class="dv-olabel"><a class="dv-oid" href="#3b">3b</a>Запись — волна и живой транскрипт</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;box-sizing:border-box;display:flex;flex-direction:column;background:#FAF6EE;padding:70px 20px 46px;font-family:'Golos Text',sans-serif">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="width:36px;height:36px;border-radius:50%;background:#DCEEDF;display:flex;align-items:center;justify-content:center;font:400 18px/1 'Golos Text',sans-serif;color:#1C4634">×</div>
+    <div style="flex:1;display:flex;justify-content:center"><div style="background:#B4552F;color:#FAF6EE;font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;padding:8px 14px;border-radius:999px">● ЗАПИСЬ 0:07</div></div>
+    <div style="font:500 12px/1 'IBM Plex Mono',monospace;color:#4A5A50;width:36px;text-align:right">1/6</div>
+  </div>
+  <div style="font:500 15px/1.5 'Golos Text',sans-serif;color:#4A5A50;margin-top:20px;text-wrap:pretty">Почему SE убывает с ростом выборки, а σ — нет?</div>
+  <div style="background:#fff;border:1.5px solid #1C4634;border-radius:14px;padding:16px;margin-top:16px;flex:1;overflow:hidden">
+    <div style="font:500 10px/1 'IBM Plex Mono',monospace;color:#4A5A50;letter-spacing:.1em">ТРАНСКРИПТ</div>
+    <div style="font:400 16px/1.6 'Golos Text',sans-serif;color:#12281C;margin-top:10px">Стандартное отклонение описывает разброс самих людей, он от размера выборки не зависит. А ошибка — это про точность среднего: чем больше наблюдений, тем точнее<span style="display:inline-block;width:2px;height:17px;background:#1C4634;margin-left:2px;vertical-align:-3px"></span></div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:3px;height:44px;margin-top:14px">
+    <div style="width:3px;height:10px;border-radius:2px;background:#1C4634"></div><div style="width:3px;height:22px;border-radius:2px;background:#1C4634"></div><div style="width:3px;height:34px;border-radius:2px;background:#1C4634"></div><div style="width:3px;height:18px;border-radius:2px;background:#1C4634"></div><div style="width:3px;height:28px;border-radius:2px;background:#1C4634"></div><div style="width:3px;height:40px;border-radius:2px;background:#1C4634"></div><div style="width:3px;height:24px;border-radius:2px;background:#1C4634"></div><div style="width:3px;height:12px;border-radius:2px;background:#1C4634"></div><div style="width:3px;height:30px;border-radius:2px;background:#1C4634"></div><div style="width:3px;height:20px;border-radius:2px;background:#1C4634"></div><div style="width:3px;height:36px;border-radius:2px;background:#1C4634"></div><div style="width:3px;height:14px;border-radius:2px;background:#7FA98F"></div><div style="width:3px;height:8px;border-radius:2px;background:#7FA98F"></div><div style="width:3px;height:8px;border-radius:2px;background:#C9D6CC"></div><div style="width:3px;height:8px;border-radius:2px;background:#C9D6CC"></div>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:6px">
+    <div style="width:96px;height:96px;border-radius:50%;background:#B4552F;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 10px rgba(180,85,47,.15)">
+      <div style="width:30px;height:30px;border-radius:7px;background:#FAF6EE"></div>
+    </div>
+    <div style="font:400 13px/1.4 'Golos Text',sans-serif;color:#4A5A50">Отпустите, чтобы отправить · смахните в сторону — отмена</div>
+  </div>
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="3c" data-screen-label="3c Голос — разбор">
+<div class="dv-olabel"><a class="dv-oid" href="#3c">3c</a>Разбор — транскрипт можно поправить текстом</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;box-sizing:border-box;display:flex;flex-direction:column;background:#FAF6EE;padding:70px 20px 46px;font-family:'Golos Text',sans-serif">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="width:36px;height:36px;border-radius:50%;background:#DCEEDF;display:flex;align-items:center;justify-content:center;font:400 18px/1 'Golos Text',sans-serif;color:#1C4634">×</div>
+    <div style="flex:1;display:flex;justify-content:center"><div style="background:#12281C;color:#FAF6EE;font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;padding:8px 14px;border-radius:999px">ГОЛОС</div></div>
+    <div style="font:500 12px/1 'IBM Plex Mono',monospace;color:#4A5A50;width:36px;text-align:right">1/6</div>
+  </div>
+  <div style="margin-top:24px;font:600 24px/1.2 'Golos Text',sans-serif;color:#12281C;letter-spacing:-.3px">Суть схвачена</div>
+  <div style="margin-top:6px;font:400 14px/1.5 'Golos Text',sans-serif;color:#4A5A50">Оба различия названы верно, не хватает механизма √n.</div>
+  <div style="background:#fff;border:1px solid rgba(28,70,52,.15);border-radius:14px;padding:14px 16px;margin-top:18px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="font:500 10px/1 'IBM Plex Mono',monospace;color:#4A5A50;letter-spacing:.1em">ВАШ ОТВЕТ · ТРАНСКРИПТ</div>
+      <div style="font:500 12px/1 'Golos Text',sans-serif;color:#1C4634;border-bottom:1.5px solid #1C4634;padding-bottom:1px">Исправить</div>
+    </div>
+    <div style="font:400 14px/1.55 'Golos Text',sans-serif;color:#24332B;margin-top:8px">«Отклонение описывает разброс самих людей… а ошибка — про точность среднего: чем больше наблюдений, тем точнее».</div>
+  </div>
+  <div style="background:#DCEEDF;border-radius:14px;padding:14px 16px;margin-top:10px">
+    <div style="font:500 10px/1 'IBM Plex Mono',monospace;color:#1C4634;letter-spacing:.1em">ЧЕГО НЕ ХВАТИЛО</div>
+    <div style="font:400 14px/1.55 'Golos Text',sans-serif;color:#12281C;margin-top:8px">Механизм: среднее усредняет случайные отклонения, поэтому его погрешность падает как <span style="border-bottom:1.5px dotted #1C4634">1/√n</span> — назовите это в следующий раз.</div>
+  </div>
+  <div style="background:#fff;border:1px solid rgba(28,70,52,.15);border-radius:14px;padding:14px 16px;margin-top:10px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="font:500 10px/1 'IBM Plex Mono',monospace;color:#835A0E;letter-spacing:.1em">УЙДЁТ В ПОВТОРЫ</div>
+      <div style="font:500 11px/1 'IBM Plex Mono',monospace;color:#835A0E">через 2 дня</div>
+    </div>
+    <div style="font:400 14px/1.5 'Golos Text',sans-serif;color:#24332B;margin-top:7px">Связка «усреднение → 1/√n» — объяснить голосом без опоры.</div>
+  </div>
+  <div style="flex:1"></div>
+  <div style="background:#1C4634;color:#FAF6EE;font:600 16px/1 'Golos Text',sans-serif;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center">Дальше</div>
+</div>
+</x-import>
+</div>
+
+</div>
+<p class="dv-next">Дальше: «hands-free-состояние» · «экран без доступа к микрофону» · «тёмная тема для <a class="dv-oid" href="#3b">3b</a>»</p>
+</section>
+
+<section class="dv-turn" id="t2">
+<div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">Экран сессии в направлении <a class="dv-oid" href="#1b">1b</a></span></div>
+<p class="dv-note">Решения применены: несколько предметов → чип предмета в шапке каждого шага; голос — отдельный режим, в шаге урока микрофона нет; тон нейтральный; обе темы. Принцип 2.6 в макете: объяснение мягкое и читаемое, практика жёсткая — без подсказок, разбор только после попытки.</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="2a" data-screen-label="2a Сессия — объяснение">
+<div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>Шаг «объяснение» — знание делается лёгким</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;box-sizing:border-box;display:flex;flex-direction:column;background:#FAF6EE;padding:70px 20px 46px;font-family:'Golos Text',sans-serif">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="width:36px;height:36px;border-radius:50%;background:#DCEEDF;display:flex;align-items:center;justify-content:center;font:400 18px/1 'Golos Text',sans-serif;color:#1C4634">×</div>
+    <div style="flex:1;display:flex;justify-content:center"><div style="background:#DCEEDF;color:#1C4634;font:500 12.5px/1 'Golos Text',sans-serif;padding:8px 14px;border-radius:999px">Статистика</div></div>
+    <div style="font:500 12px/1 'IBM Plex Mono',monospace;color:#4A5A50;width:36px;text-align:right">2/5</div>
+  </div>
+  <div style="display:flex;gap:5px;margin-top:16px">
+    <div style="flex:1;height:4px;border-radius:2px;background:#1C4634"></div>
+    <div style="flex:1;height:4px;border-radius:2px;background:#1C4634"></div>
+    <div style="flex:1;height:4px;border-radius:2px;background:#DCEEDF"></div>
+    <div style="flex:1;height:4px;border-radius:2px;background:#DCEEDF"></div>
+    <div style="flex:1;height:4px;border-radius:2px;background:#DCEEDF"></div>
+  </div>
+  <div style="display:flex;align-items:baseline;gap:8px;margin-top:22px">
+    <span style="font:500 10.5px/1 'IBM Plex Mono',monospace;color:#835A0E;letter-spacing:.08em">ЗАЧЕМ</span>
+    <span style="font:400 12.5px/1.4 'Golos Text',sans-serif;color:#4A5A50">миссия · читать исследования без пересказов</span>
+  </div>
+  <h1 style="margin:14px 0 0;font:600 24px/1.25 'Golos Text',sans-serif;color:#12281C;letter-spacing:-.3px;text-wrap:pretty">Стандартная ошибка — это не разброс данных</h1>
+  <p style="margin:14px 0 0;font:400 15px/1.65 'Golos Text',sans-serif;color:#24332B">Разброс самих наблюдений описывает <span style="border-bottom:1.5px dotted #1C4634;color:#1C4634">стандартное отклонение</span>. Стандартная ошибка — о другом: насколько среднее вашей выборки может отличаться от истинного среднего.</p>
+  <p style="margin:10px 0 0;font:400 15px/1.65 'Golos Text',sans-serif;color:#24332B">Чем больше выборка, тем точнее среднее — поэтому ошибка убывает с ростом n, а отклонение — нет.</p>
+  <div style="background:#DCEEDF;border-radius:14px;padding:14px 16px;margin-top:16px">
+    <div style="font:500 10px/1 'IBM Plex Mono',monospace;color:#1C4634;letter-spacing:.1em">ПРИМЕР</div>
+    <div style="font:400 14px/1.55 'Golos Text',sans-serif;color:#12281C;margin-top:7px">Рост 100 человек: σ = 7 см — люди разные, это не лечится. Но среднее по сотне известно с точностью ±0,7 см.</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;margin-top:14px">
+    <div style="width:18px;height:18px;border-radius:5px;background:#EFE7D5;display:flex;align-items:center;justify-content:center;font:500 10px/1 'IBM Plex Mono',monospace;color:#6B6353">1</div>
+    <span style="font:400 12px/1.4 'Golos Text',sans-serif;color:#4A5A50">OpenIntro Statistics, гл. 5.1 · доверие высокое</span>
+  </div>
+  <div style="flex:1"></div>
+  <div style="background:#1C4634;color:#FAF6EE;font:600 16px/1 'Golos Text',sans-serif;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center">К практике</div>
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="2b" data-screen-label="2b Сессия — практика, попытка">
+<div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>Шаг «практика» — навык делается трудным, подсказок нет</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" keyboard="{{ true }}" hint-size="402px,874px">
+<div style="height:100%;box-sizing:border-box;display:flex;flex-direction:column;background:#FAF6EE;padding:70px 20px 14px;font-family:'Golos Text',sans-serif">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="width:36px;height:36px;border-radius:50%;background:#DCEEDF;display:flex;align-items:center;justify-content:center;font:400 18px/1 'Golos Text',sans-serif;color:#1C4634">×</div>
+    <div style="flex:1;display:flex;justify-content:center"><div style="background:#12281C;color:#FAF6EE;font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.08em;padding:8px 14px;border-radius:999px">ПРИПОМИНАНИЕ</div></div>
+    <div style="font:500 12px/1 'IBM Plex Mono',monospace;color:#4A5A50;width:36px;text-align:right">3/5</div>
+  </div>
+  <div style="font:600 19px/1.4 'Golos Text',sans-serif;color:#12281C;margin-top:20px;text-wrap:pretty">Выборку увеличили с n = 100 до n = 400. Что произойдёт со стандартной ошибкой?</div>
+  <div style="background:#fff;border:1.5px solid #1C4634;border-radius:14px;padding:14px 16px;margin-top:16px;min-height:64px">
+    <span style="font:400 15px/1.5 'Golos Text',sans-serif;color:#12281C">уменьшится в</span><span style="display:inline-block;width:2px;height:17px;background:#1C4634;margin-left:2px;vertical-align:-3px"></span>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px">
+    <span style="font:400 12px/1.45 'Golos Text',sans-serif;color:#4A5A50">Подсказок нет — разбор откроется после попытки</span>
+    <div style="background:#1C4634;color:#FAF6EE;font:600 14px/1 'Golos Text',sans-serif;padding:13px 20px;border-radius:12px;white-space:nowrap">Ответить</div>
+  </div>
+</div>
+</x-import>
+</div>
+
+<div class="dv-opt" id="2c" data-screen-label="2c Сессия — после попытки, тёмная">
+<div class="dv-olabel"><a class="dv-oid" href="#2c">2c</a>После попытки — разбор и запись в повторы, тёмная тема</div>
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+<div style="height:100%;box-sizing:border-box;display:flex;flex-direction:column;background:#0F1B15;padding:70px 20px 46px;font-family:'Golos Text',sans-serif">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="width:36px;height:36px;border-radius:50%;background:#1E3226;display:flex;align-items:center;justify-content:center;font:400 18px/1 'Golos Text',sans-serif;color:#DCEEDF">×</div>
+    <div style="flex:1;display:flex;justify-content:center"><div style="background:#1E3226;color:#DCEEDF;font:500 12.5px/1 'Golos Text',sans-serif;padding:8px 14px;border-radius:999px">Статистика</div></div>
+    <div style="font:500 12px/1 'IBM Plex Mono',monospace;color:#8FA697;width:36px;text-align:right">3/5</div>
+  </div>
+  <div style="margin-top:26px;font:600 24px/1.2 'Golos Text',sans-serif;color:#EDF3EA;letter-spacing:-.3px">Почти верно</div>
+  <div style="margin-top:6px;font:400 14px/1.5 'Golos Text',sans-serif;color:#8FA697">Направление верное, множитель — нет.</div>
+  <div style="background:#17271D;border-radius:14px;padding:14px 16px;margin-top:20px">
+    <div style="font:500 10px/1 'IBM Plex Mono',monospace;color:#8FA697;letter-spacing:.1em">ВАШ ОТВЕТ</div>
+    <div style="font:400 15px/1.5 'Golos Text',sans-serif;color:#EDF3EA;margin-top:7px">уменьшится в <span style="text-decoration:line-through;text-decoration-color:#DFA032;color:#C9D6CC">4 раза</span></div>
+  </div>
+  <div style="background:#1E3226;border-radius:14px;padding:14px 16px;margin-top:10px">
+    <div style="font:500 10px/1 'IBM Plex Mono',monospace;color:#9FD6B4;letter-spacing:.1em">КАК ПРАВИЛЬНО</div>
+    <div style="font:400 15px/1.55 'Golos Text',sans-serif;color:#EDF3EA;margin-top:7px">В 2 раза: ошибка убывает как <span style="border-bottom:1.5px dotted #9FD6B4;color:#DCEEDF">√n</span>, а не линейно. n вырос в 4 раза → √4 = 2.</div>
+  </div>
+  <div style="background:#17271D;border-radius:14px;padding:14px 16px;margin-top:10px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="font:500 10px/1 'IBM Plex Mono',monospace;color:#DFA032;letter-spacing:.1em">УЙДЁТ В ПОВТОРЫ</div>
+      <div style="font:500 11px/1 'IBM Plex Mono',monospace;color:#DFA032">через 1 день</div>
+    </div>
+    <div style="font:400 14px/1.5 'Golos Text',sans-serif;color:#C9D6CC;margin-top:7px">SE убывает как корень из n — интуиция тянет к линейному ответу.</div>
+  </div>
+  <div style="flex:1"></div>
+  <div style="background:#DCEEDF;color:#12281C;font:600 16px/1 'Golos Text',sans-serif;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center">Дальше</div>
+</div>
+</x-import>
+</div>
+
+</div>
+<p class="dv-next">Дальше: «разбор после сессии целиком» · «очередь повторов» · «в <a class="dv-oid" href="#2b">2b</a> сделай вопрос с вариантами» · «покажи <a class="dv-oid" href="#2a">2a</a> в тёмной теме»</p>
+</section>
+
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Teach — логотип и цветовая гамма, 4 направления</span></div>
+<p class="dv-note">Допущения: имя пишем строчными — «teach», интерфейс кириллический, iOS-first. Каждое направление привязано к принципу метода, а не просто к «настроению»: красная ручка → ошибки как память системы; интервалы → отложенные повторы; ступень → зона ближайшего развития; сигнал → тесная петля обратной связи. Все шрифты с поддержкой кириллицы.</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a" data-screen-label="1a Красная ручка">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Красная ручка — академичная, бумага и чернила</div>
+<div class="dv-card" style="width:392px">
+  <div style="background:#F7F2E8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:196px">
+    <div style="font-family:'Source Serif 4',serif;font-weight:600;font-size:56px;line-height:1;color:#1E2C3F;letter-spacing:-1px">teach<span style="color:#C8402C">.</span></div>
+    <svg width="158" height="14" viewBox="0 0 158 14" fill="none"><path d="M5 9 C 34 3, 66 11, 94 7 S 142 5, 153 8" stroke="#C8402C" stroke-width="3.5" stroke-linecap="round"/></svg>
+  </div>
+  <div style="display:flex;gap:20px;align-items:center;padding:18px 22px;border-bottom:1px solid rgba(0,0,0,.06)">
+    <div style="width:64px;height:64px;border-radius:15px;background:#F7F2E8;border:1px solid rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;flex-direction:column">
+      <span style="font-family:'Source Serif 4',serif;font-weight:600;font-size:34px;line-height:1;color:#1E2C3F">t<span style="color:#C8402C">.</span></span>
+    </div>
+    <div style="width:64px;height:64px;border-radius:15px;background:#1E2C3F;display:flex;align-items:center;justify-content:center">
+      <span style="font-family:'Source Serif 4',serif;font-weight:600;font-size:34px;line-height:1;color:#F7F2E8">t<span style="color:#C8402C">.</span></span>
+    </div>
+    <div style="font:400 11px/1.5 'IBM Plex Sans',sans-serif;color:#6B6353">Иконка: светлая<br>и чернильная</div>
+  </div>
+  <div style="padding:16px 22px 14px;border-bottom:1px solid rgba(0,0,0,.06)">
+    <div style="display:flex;gap:6px">
+      <div style="flex:1.4"><div style="height:52px;border-radius:6px;background:#1E2C3F"></div><div style="font:500 9.5px/1.4 'IBM Plex Mono',monospace;color:#555;margin-top:5px">Чернила<br>#1E2C3F</div></div>
+      <div style="flex:1"><div style="height:52px;border-radius:6px;background:#F7F2E8;border:1px solid rgba(0,0,0,.07)"></div><div style="font:500 9.5px/1.4 'IBM Plex Mono',monospace;color:#555;margin-top:5px">Бумага<br>#F7F2E8</div></div>
+      <div style="flex:1"><div style="height:52px;border-radius:6px;background:#C8402C"></div><div style="font:500 9.5px/1.4 'IBM Plex Mono',monospace;color:#555;margin-top:5px">Ручка<br>#C8402C</div></div>
+      <div style="flex:1"><div style="height:52px;border-radius:6px;background:#6B6353"></div><div style="font:500 9.5px/1.4 'IBM Plex Mono',monospace;color:#555;margin-top:5px">Сепия<br>#6B6353</div></div>
+    </div>
+  </div>
+  <div style="padding:14px 22px;border-bottom:1px solid rgba(0,0,0,.06);display:flex;gap:18px;align-items:baseline">
+    <span style="font-family:'Source Serif 4',serif;font-weight:600;font-size:26px;color:#1E2C3F">Абв Aa 012</span>
+    <span style="font:400 11px/1.5 'IBM Plex Sans',sans-serif;color:#6B6353">Source Serif 4 — заголовки<br>IBM Plex Sans — интерфейс</span>
+  </div>
+  <div style="padding:14px 22px 18px;background:#FDFBF6;display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <div><div style="font:500 10.5px/1.3 'IBM Plex Sans',sans-serif;color:#6B6353;text-transform:uppercase;letter-spacing:.06em">Сегодня</div>
+    <div style="font:600 15px/1.3 'IBM Plex Sans',sans-serif;color:#1E2C3F">12 повторов · урок готов</div></div>
+    <div style="background:#1E2C3F;color:#F7F2E8;font:600 13px/1 'IBM Plex Sans',sans-serif;padding:12px 18px;border-radius:8px;white-space:nowrap">Начать</div>
+  </div>
+  <div style="padding:12px 22px 16px;font:400 11.5px/1.55 'IBM Plex Sans',sans-serif;color:rgba(0,0,0,.5);border-top:1px solid rgba(0,0,0,.06)">Ошибки — память системы: единственный акцент — красная ручка учителя. Точка после имени — «урок = одна победа».</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1b" data-screen-label="1b Интервал">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Интервал — спокойная, глубокая зелень</div>
+<div class="dv-card" style="width:392px">
+  <div style="background:#1C4634;display:flex;align-items:center;justify-content:center;gap:18px;height:196px">
+    <svg width="76" height="76" viewBox="0 0 96 96" fill="none">
+      <rect x="16" y="14" width="9" height="64" rx="4.5" fill="#FAF6EE"/>
+      <circle cx="20.5" cy="30" r="5" fill="#FAF6EE"/>
+      <circle cx="37" cy="30" r="5" fill="#FAF6EE"/>
+      <circle cx="56" cy="30" r="5" fill="#FAF6EE"/>
+      <circle cx="79" cy="30" r="5.5" stroke="#DFA032" stroke-width="3"/>
+    </svg>
+    <div style="font-family:'Golos Text',sans-serif;font-weight:600;font-size:46px;color:#FAF6EE;letter-spacing:-.5px">teach</div>
+  </div>
+  <div style="display:flex;gap:20px;align-items:center;padding:18px 22px;border-bottom:1px solid rgba(0,0,0,.06)">
+    <div style="width:64px;height:64px;border-radius:15px;background:#1C4634;display:flex;align-items:center;justify-content:center">
+      <svg width="42" height="42" viewBox="0 0 96 96" fill="none"><rect x="16" y="14" width="9" height="64" rx="4.5" fill="#FAF6EE"/><circle cx="20.5" cy="30" r="5" fill="#FAF6EE"/><circle cx="37" cy="30" r="5" fill="#FAF6EE"/><circle cx="56" cy="30" r="5" fill="#FAF6EE"/><circle cx="79" cy="30" r="5.5" stroke="#DFA032" stroke-width="3"/></svg>
+    </div>
+    <div style="width:64px;height:64px;border-radius:15px;background:#FAF6EE;border:1px solid rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center">
+      <svg width="42" height="42" viewBox="0 0 96 96" fill="none"><rect x="16" y="14" width="9" height="64" rx="4.5" fill="#1C4634"/><circle cx="20.5" cy="30" r="5" fill="#1C4634"/><circle cx="37" cy="30" r="5" fill="#1C4634"/><circle cx="56" cy="30" r="5" fill="#1C4634"/><circle cx="79" cy="30" r="5.5" stroke="#DFA032" stroke-width="3"/></svg>
+    </div>
+    <div style="font:400 11px/1.5 'Golos Text',sans-serif;color:#4A5A50">Знак: буква t,<br>перекладина — повторы<br>с растущим шагом</div>
+  </div>
+  <div style="padding:16px 22px 14px;border-bottom:1px solid rgba(0,0,0,.06)">
+    <div style="display:flex;gap:6px">
+      <div style="flex:1.4"><div style="height:52px;border-radius:6px;background:#1C4634"></div><div style="font:500 9.5px/1.4 'IBM Plex Mono',monospace;color:#555;margin-top:5px">Хвоя<br>#1C4634</div></div>
+      <div style="flex:1"><div style="height:52px;border-radius:6px;background:#FAF6EE;border:1px solid rgba(0,0,0,.07)"></div><div style="font:500 9.5px/1.4 'IBM Plex Mono',monospace;color:#555;margin-top:5px">Крем<br>#FAF6EE</div></div>
+      <div style="flex:1"><div style="height:52px;border-radius:6px;background:#DCEEDF"></div><div style="font:500 9.5px/1.4 'IBM Plex Mono',monospace;color:#555;margin-top:5px">Мята<br>#DCEEDF</div></div>
+      <div style="flex:1"><div style="height:52px;border-radius:6px;background:#DFA032"></div><div style="font:500 9.5px/1.4 'IBM Plex Mono',monospace;color:#555;margin-top:5px">Янтарь<br>#DFA032</div></div>
+    </div>
+  </div>
+  <div style="padding:14px 22px;border-bottom:1px solid rgba(0,0,0,.06);display:flex;gap:18px;align-items:baseline">
+    <span style="font-family:'Golos Text',sans-serif;font-weight:600;font-size:26px;color:#1C4634">Абв Aa 012</span>
+    <span style="font:400 11px/1.5 'Golos Text',sans-serif;color:#4A5A50">Golos Text — всё
+<br>IBM Plex Mono — данные</span>
+  </div>
+  <div style="padding:14px 22px 18px;background:#FAF6EE;display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <div><div style="font:500 10px/1.3 'IBM Plex Mono',monospace;color:#4A5A50;letter-spacing:.08em">СЛЕД. ПОВТОР</div>
+    <div style="font:600 15px/1.3 'Golos Text',sans-serif;color:#12281C">через 3 дня · шаг растёт</div></div>
+    <div style="background:#1C4634;color:#FAF6EE;font:600 13px/1 'Golos Text',sans-serif;padding:12px 18px;border-radius:8px;white-space:nowrap">Повторить</div>
+  </div>
+  <div style="padding:12px 22px 16px;font:400 11.5px/1.55 'Golos Text',sans-serif;color:rgba(0,0,0,.5);border-top:1px solid rgba(0,0,0,.06)">Память строится на интервалах: в знаке шаг между точками растёт, последняя — ещё не наступивший повтор.</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1c" data-screen-label="1c Ступень">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Ступень — смелая, кобальт и лайм</div>
+<div class="dv-card" style="width:392px">
+  <div style="background:#0D1020;display:flex;align-items:center;justify-content:center;gap:20px;height:196px">
+    <svg width="72" height="72" viewBox="0 0 96 96" fill="none">
+      <path d="M16 80 V52 H48 V24 H80 V80 Z" fill="#EEF0F6"/>
+      <circle cx="64" cy="12" r="7" fill="#D7F250"/>
+    </svg>
+    <div style="font-family:'Unbounded',sans-serif;font-weight:500;font-size:38px;color:#EEF0F6;letter-spacing:-.5px">teach</div>
+  </div>
+  <div style="display:flex;gap:20px;align-items:center;padding:18px 22px;border-bottom:1px solid rgba(0,0,0,.06)">
+    <div style="width:64px;height:64px;border-radius:15px;background:#2A3CE4;display:flex;align-items:center;justify-content:center">
+      <svg width="42" height="42" viewBox="0 0 96 96" fill="none"><path d="M16 80 V52 H48 V24 H80 V80 Z" fill="#fff"/><circle cx="64" cy="12" r="7" fill="#D7F250"/></svg>
+    </div>
+    <div style="width:64px;height:64px;border-radius:15px;background:#D7F250;display:flex;align-items:center;justify-content:center">
+      <svg width="42" height="42" viewBox="0 0 96 96" fill="none"><path d="M16 80 V52 H48 V24 H80 V80 Z" fill="#0D1020"/><circle cx="64" cy="12" r="7" fill="#2A3CE4"/></svg>
+    </div>
+    <div style="font:400 11px/1.5 'Onest',sans-serif;color:#4A4F63">Знак: ступень выше,<br>точка — ученик<br>на следующей</div>
+  </div>
+  <div style="padding:16px 22px 14px;border-bottom:1px solid rgba(0,0,0,.06)">
+    <div style="display:flex;gap:6px">
+      <div style="flex:1.4"><div style="height:52px;border-radius:6px;background:#2A3CE4"></div><div style="font:500 9.5px/1.4 'IBM Plex Mono',monospace;color:#555;margin-top:5px">Кобальт<br>#2A3CE4</div></div>
+      <div style="flex:1"><div style="height:52px;border-radius:6px;background:#0D1020"></div><div style="font:500 9.5px/1.4 'IBM Plex Mono',monospace;color:#555;margin-top:5px">Чернильный<br>#0D1020</div></div>
+      <div style="flex:1"><div style="height:52px;border-radius:6px;background:#D7F250"></div><div style="font:500 9.5px/1.4 'IBM Plex Mono',monospace;color:#555;margin-top:5px">Лайм<br>#D7F250</div></div>
+      <div style="flex:1"><div style="height:52px;border-radius:6px;background:#EEF0F6;border:1px solid rgba(0,0,0,.07)"></div><div style="font:500 9.5px/1.4 'IBM Plex Mono',monospace;color:#555;margin-top:5px">Дымка<br>#EEF0F6</div></div>
+    </div>
+  </div>
+  <div style="padding:14px 22px;border-bottom:1px solid rgba(0,0,0,.06);display:flex;gap:18px;align-items:baseline">
+    <span style="font-family:'Unbounded',sans-serif;font-weight:500;font-size:22px;color:#0D1020">Абв Aa 012</span>
+    <span style="font:400 11px/1.5 'Onest',sans-serif;color:#4A4F63">Unbounded — заголовки<br>Onest — интерфейс</span>
+  </div>
+  <div style="padding:14px 22px 18px;background:#EEF0F6;display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <div><div style="font:500 10.5px/1.3 'Onest',sans-serif;color:#4A4F63;text-transform:uppercase;letter-spacing:.06em">Уровень</div>
+    <div style="font:600 15px/1.3 'Onest',sans-serif;color:#0D1020">4 → 5 · на ступень выше</div></div>
+    <div style="background:#2A3CE4;color:#fff;font:600 13px/1 'Onest',sans-serif;padding:12px 18px;border-radius:8px;white-space:nowrap">Дальше</div>
+  </div>
+  <div style="padding:12px 22px 16px;font:400 11.5px/1.55 'Onest',sans-serif;color:rgba(0,0,0,.5);border-top:1px solid rgba(0,0,0,.06)">Зона ближайшего развития: урок всегда на границе возможного. Самая громкая пара из четырёх — для тех, кто хочет спорт-режим.</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1d" data-screen-label="1d Сигнал">
+<div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>Сигнал — тёплая, голос и отклик</div>
+<div class="dv-card" style="width:392px">
+  <div style="background:#FBF2E7;display:flex;align-items:center;justify-content:center;gap:18px;height:196px">
+    <svg width="72" height="72" viewBox="0 0 96 96" fill="none">
+      <circle cx="36" cy="48" r="7" fill="#E4593A"/>
+      <path d="M48 32 A20 20 0 0 1 48 64" stroke="#E4593A" stroke-width="8" stroke-linecap="round"/>
+      <path d="M56 21 A34 34 0 0 1 56 75" stroke="#E4593A" stroke-width="8" stroke-linecap="round"/>
+      <path d="M26 35 A16 16 0 0 0 26 61" stroke="#33241D" stroke-width="8" stroke-linecap="round"/>
+    </svg>
+    <div style="font-family:'Rubik',sans-serif;font-weight:600;font-size:46px;color:#33241D;letter-spacing:-.5px">teach</div>
+  </div>
+  <div style="display:flex;gap:20px;align-items:center;padding:18px 22px;border-bottom:1px solid rgba(0,0,0,.06)">
+    <div style="width:64px;height:64px;border-radius:15px;background:#E4593A;display:flex;align-items:center;justify-content:center">
+      <svg width="42" height="42" viewBox="0 0 96 96" fill="none"><circle cx="36" cy="48" r="7" fill="#FBF2E7"/><path d="M48 32 A20 20 0 0 1 48 64" stroke="#FBF2E7" stroke-width="8" stroke-linecap="round"/><path d="M56 21 A34 34 0 0 1 56 75" stroke="#FBF2E7" stroke-width="8" stroke-linecap="round"/><path d="M26 35 A16 16 0 0 0 26 61" stroke="#33241D" stroke-width="8" stroke-linecap="round"/></svg>
+    </div>
+    <div style="width:64px;height:64px;border-radius:15px;background:#33241D;display:flex;align-items:center;justify-content:center">
+      <svg width="42" height="42" viewBox="0 0 96 96" fill="none"><circle cx="36" cy="48" r="7" fill="#E4593A"/><path d="M48 32 A20 20 0 0 1 48 64" stroke="#E4593A" stroke-width="8" stroke-linecap="round"/><path d="M56 21 A34 34 0 0 1 56 75" stroke="#E4593A" stroke-width="8" stroke-linecap="round"/><path d="M26 35 A16 16 0 0 0 26 61" stroke="#FBF2E7" stroke-width="8" stroke-linecap="round"/></svg>
+    </div>
+    <div style="font:400 11px/1.5 'Rubik',sans-serif;color:#6E5A4E">Знак: диалог —<br>реплика и отклик<br>с двух сторон</div>
+  </div>
+  <div style="padding:16px 22px 14px;border-bottom:1px solid rgba(0,0,0,.06)">
+    <div style="display:flex;gap:6px">
+      <div style="flex:1.4"><div style="height:52px;border-radius:6px;background:#E4593A"></div><div style="font:500 9.5px/1.4 'IBM Plex Mono',monospace;color:#555;margin-top:5px">Коралл<br>#E4593A</div></div>
+      <div style="flex:1"><div style="height:52px;border-radius:6px;background:#FBF2E7;border:1px solid rgba(0,0,0,.07)"></div><div style="font:500 9.5px/1.4 'IBM Plex Mono',monospace;color:#555;margin-top:5px">Сливки<br>#FBF2E7</div></div>
+      <div style="flex:1"><div style="height:52px;border-radius:6px;background:#33241D"></div><div style="font:500 9.5px/1.4 'IBM Plex Mono',monospace;color:#555;margin-top:5px">Какао<br>#33241D</div></div>
+      <div style="flex:1"><div style="height:52px;border-radius:6px;background:#D9A13F"></div><div style="font:500 9.5px/1.4 'IBM Plex Mono',monospace;color:#555;margin-top:5px">Охра<br>#D9A13F</div></div>
+    </div>
+  </div>
+  <div style="padding:14px 22px;border-bottom:1px solid rgba(0,0,0,.06);display:flex;gap:18px;align-items:baseline">
+    <span style="font-family:'Rubik',sans-serif;font-weight:600;font-size:26px;color:#33241D">Абв Aa 012</span>
+    <span style="font:400 11px/1.5 'Rubik',sans-serif;color:#6E5A4E">Rubik — заголовки<br>и интерфейс</span>
+  </div>
+  <div style="padding:14px 22px 18px;background:#FBF2E7;display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <div><div style="font:500 10.5px/1.3 'Rubik',sans-serif;color:#6E5A4E;text-transform:uppercase;letter-spacing:.06em">Голосовая практика</div>
+    <div style="font:600 15px/1.3 'Rubik',sans-serif;color:#33241D">отклик за 1,2 секунды</div></div>
+    <div style="background:#E4593A;color:#FBF2E7;font:600 13px/1 'Rubik',sans-serif;padding:12px 18px;border-radius:8px;white-space:nowrap">Говорить</div>
+  </div>
+  <div style="padding:12px 22px 16px;font:400 11.5px/1.55 'Rubik',sans-serif;color:rgba(0,0,0,.5);border-top:1px solid rgba(0,0,0,.06)">Тесная петля обратной связи: сказал — услышал — исправил. Тёплая и человечная, дальше всех от «учебника».</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Дальше можно: «сделай <a class="dv-oid" href="#1b">1b</a> с акцентом из <a class="dv-oid" href="#1a">1a</a>» · «покажи <a class="dv-oid" href="#1a">1a</a> в тёмной теме» · «выбранное направление — на экран сессии»</p>
+</section>
+
+</x-dc>
+</body>
+</html>
