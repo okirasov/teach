@@ -1,0 +1,27 @@
+mobile/app/recap.tsx
+  s_a2145daee18e40::t_5fbf96f8a26f6e 2,4,9-10,12,16,18-19,22-25,27-28,30,34-37,41-86
+mobile/src/domain/__tests__/scheduler.test.ts
+  s_a2145daee18e40::t_ecf7f2015d2b98 1-11
+mobile/src/domain/scheduler.ts
+  s_a2145daee18e40::t_04acf155f51ea6 1-21
+mobile/src/store/session.ts
+  s_a2145daee18e40::t_af5f883fcb6716 17-18,26,33-34,46-47
+mobile/src/ui/SessionHeader.tsx
+  s_a2145daee18e40::t_f90c5a73e4002d 14,43-49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "2b8c64cf9b4b7ff3b157af6512dc95025064713d",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
