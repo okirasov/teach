@@ -4,7 +4,7 @@ import type { Dict } from './ru';
 export const en: Dict = {
   today: 'Today', reviews: 'Reviews', refs: 'References', mission: 'Subjects',
   queueKicker: 'REVIEWS · TODAY', queueNote: 'what is due to be recalled today',
-  queueLine: (n) => n + ' cards · ~6 min',
+  queueLine: (n, min) => n + (n === 1 ? ' card' : ' cards') + ' · ~' + min + ' min',
   subjects: 'SUBJECTS', newSubj: 'New subject', ready: 'Lesson ready', doneToday: 'Done today', start: 'Start', more: 'One more',
   preparing: 'Preparing…', inBg: 'in background', diag: 'Lesson · Initial check-in', bgLesson: 'First lesson is being prepared…',
   dueToday: 'TODAY', dueLater: 'LATER', startReviews: 'Start reviews', reviewsSummary: (n) => n + ' in queue',

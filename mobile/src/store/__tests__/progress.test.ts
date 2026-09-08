@@ -3,7 +3,6 @@ import {
   CUSTOM_ID,
   getLesson,
   PREP_STAGES,
-  queueCount,
   subjectConfig,
   useProgress,
 } from '../progress';
@@ -19,11 +18,10 @@ describe('progress store', () => {
   });
 
   it('markDone flags the subject and grows the queue by the number of records', () => {
-    expect(queueCount(useProgress.getState())).toBe(12);
     useProgress.getState().markDone('en', [{ t: 'a', s: 'Английский' }, { t: 'b', s: 'Английский' }]);
     const s = useProgress.getState();
     expect(s.done.en).toBe(true);
-    expect(queueCount(s)).toBe(14);
+    expect(s.added).toBe(2);
     expect(s.reviewLog).toHaveLength(2);
   });
 

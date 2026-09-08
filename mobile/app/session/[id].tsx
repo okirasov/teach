@@ -7,7 +7,8 @@ import { ChoiceView, ExplainView, FeedbackCard, InputView, OrderView } from '@/f
 import { useVoiceInput } from '@/features/session/useVoiceInput';
 import { voiceLangFor } from '@/features/session/voiceLang';
 import { useT } from '@/i18n';
-import { getLesson, subjectConfig, useProgress } from '@/store/progress';
+import { useReviewPlan } from '@/features/reviews/useReviewPlan';
+import { getLesson, REVIEW_ID, subjectConfig, useProgress } from '@/store/progress';
 import { useSession } from '@/store/session';
 import { useSettings } from '@/store/settings';
 import { Button, MicButton, Screen, SessionHeader, Txt } from '@/ui';
@@ -19,7 +20,12 @@ export default function SessionScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const custom = useProgress((s) => s.custom);
-  const lesson = useMemo(() => getLesson({ custom }, id, t.reviewName), [custom, id, t]);
+  const plan = useReviewPlan();
+  const lesson = useMemo(
+    () => (id === REVIEW_ID ? plan.lesson : getLesson({ custom }, id, t.reviewName)),
+    [custom, id, t, plan],
+  );
+  const cardIds = id === REVIEW_ID ? plan.cardIds : undefined;
   const cfg = useProgress(useShallow((s) => subjectConfig(s, id)));
   const uiLang = useSettings((s) => s.lang);
   const mode = useSettings((s) => s.mode);
@@ -33,8 +39,8 @@ export default function SessionScreen() {
   const end = useSession((st) => st.end);
 
   useEffect(() => {
-    if (lesson && (!s || s.subjectId !== id)) start(id, lesson);
-  }, [id, lesson, s, start]);
+    if (lesson && lesson.steps.length > 0 && (!s || s.subjectId !== id)) start(id, lesson, cardIds);
+  }, [id, lesson, cardIds, s, start]);
 
   const step = s ? currentStep(s) : null;
   const hint = step && step.type !== 'explain' ? step.voice : undefined;

@@ -13,7 +13,9 @@ describe('i18n dictionaries', () => {
   });
 
   it('function entries return strings', () => {
-    expect(ru.queueLine(12)).toBe('12 карточек · ~6 мин');
+    expect(ru.queueLine(12, 6)).toBe('12 карточек · ~6 мин');
+    expect(ru.queueLine(3, 2)).toBe('3 карточки · ~2 мин');
+    expect(en.queueLine(1, 1)).toBe('1 card · ~1 min');
     expect(en.reviewsSummary(13)).toBe('13 in queue');
     expect(ru.firstTry(2, 3)).toBe('2 из 3 с первой попытки');
   });

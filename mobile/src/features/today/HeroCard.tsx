@@ -6,7 +6,7 @@ import { useTheme } from '@/theme';
 import { Txt } from '@/ui';
 
 /** Hero-карта повторов (DESIGN.md §4.2): кикер, «N карточек · ~6 мин», подпись, стрелка. */
-export function HeroCard({ count, onPress }: { count: number; onPress: () => void }) {
+export function HeroCard({ count, minutes, onPress }: { count: number; minutes: number; onPress: () => void }) {
   const t = useT();
   const { c, radius } = useTheme();
   return (
@@ -27,7 +27,7 @@ export function HeroCard({ count, onPress }: { count: number; onPress: () => voi
     >
       <View style={{ flexShrink: 1 }}>
         <Txt t="kickerSm" color="heroKicker">{t.queueKicker}</Txt>
-        <Txt t="hero" color="heroInk" style={{ marginTop: 8 }}>{t.queueLine(count)}</Txt>
+        <Txt t="hero" color="heroInk" style={{ marginTop: 8 }}>{t.queueLine(count, minutes)}</Txt>
         <Txt t="small" color="heroSub" style={{ marginTop: 4 }} numberOfLines={1}>{t.queueNote}</Txt>
       </View>
       <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: c.mint, alignItems: 'center', justifyContent: 'center' }}>

@@ -42,8 +42,8 @@ describe('session engine · english lesson (explain → choice → input)', () =
     const r = primary(s);
     expect(r.finished).toBe(true);
     expect(recapRecords(r.state)).toEqual([
-      { title: 'После if не бывает would', note: expect.any(String), ok: true },
-      { title: 'Рамка совета If I were you…', note: expect.any(String), ok: true },
+      { title: 'После if не бывает would', note: expect.any(String), ok: true, stepIndex: 1, cardId: undefined },
+      { title: 'Рамка совета If I were you…', note: expect.any(String), ok: true, stepIndex: 2, cardId: undefined },
     ]);
   });
 

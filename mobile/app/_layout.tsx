@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { DbGate } from '@/db/DbGate';
 import { useAuth } from '@/store/auth';
 import { fontAssets, ThemeProvider, useTheme } from '@/theme';
 
@@ -51,7 +52,9 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <RootStack />
+        <DbGate>
+          <RootStack />
+        </DbGate>
       </ThemeProvider>
     </SafeAreaProvider>
   );

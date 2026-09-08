@@ -14,10 +14,12 @@ export interface SessionState {
   checked: boolean;
   /** Результат каждого практического шага в порядке прохождения. */
   results: boolean[];
+  /** Для сессии повторов: id карточки на каждый практический шаг. */
+  cardIds?: string[];
 }
 
-export function startSession(subjectId: string, lesson: Lesson): SessionState {
-  return { subjectId, lesson, step: 0, sel: null, ordSel: [], input: '', checked: false, results: [] };
+export function startSession(subjectId: string, lesson: Lesson, cardIds?: string[]): SessionState {
+  return { subjectId, lesson, step: 0, sel: null, ordSel: [], input: '', checked: false, results: [], cardIds };
 }
 
 export function currentStep(s: SessionState): LessonStep {
@@ -111,9 +113,19 @@ export interface RecapRecord {
   title: string;
   note: string;
   ok: boolean;
+  /** Индекс шага в уроке — ссылка, по которой вопрос можно задать снова. */
+  stepIndex: number;
+  /** Карточка, если сессия была повтором. */
+  cardId?: string;
 }
 
 /** Записи для разбора: каждая практика → запись + результат. */
 export function recapRecords(s: SessionState): RecapRecord[] {
-  return practiceSteps(s.lesson).map((st, i) => ({ title: st.recTitle, note: st.recNote, ok: !!s.results[i] }));
+  const out: RecapRecord[] = [];
+  s.lesson.steps.forEach((st, stepIndex) => {
+    if (st.type === 'explain') return;
+    const i = out.length;
+    out.push({ title: st.recTitle, note: st.recNote, ok: !!s.results[i], stepIndex, cardId: s.cardIds?.[i] });
+  });
+  return out;
 }

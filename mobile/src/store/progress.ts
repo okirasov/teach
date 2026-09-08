@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { customLesson, reviewLesson, seedLessons, seedMissions, seedQueueBase } from '@/domain/seed';
+import { customLesson, reviewLesson, seedLessons, seedMissions } from '@/domain/seed';
 import type { CustomSubject, Lesson, Mission, SubjectConfig, SubjectId } from '@/domain/types';
 import { defaultSubjectConfig } from '@/domain/types';
 
@@ -87,10 +87,6 @@ export function subjectName(s: Pick<ProgressState, 'custom'>, id: SubjectId): st
 
 export function subjectConfig(s: Pick<ProgressState, 'cfg'>, id: SubjectId): SubjectConfig {
   return { ...defaultSubjectConfig, ...s.cfg[id] };
-}
-
-export function queueCount(s: Pick<ProgressState, 'added'>): number {
-  return seedQueueBase + s.added;
 }
 
 export function getLesson(s: Pick<ProgressState, 'custom'>, id: SubjectId, reviewName: string): Lesson | null {

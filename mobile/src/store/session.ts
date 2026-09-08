@@ -16,7 +16,7 @@ export interface SessionStore {
   rec: boolean;
   /** «Сомневаюсь» по индексу записи в разборе — отправлено на проверку. */
   doubts: Record<number, boolean>;
-  start: (subjectId: string, lesson: Lesson) => void;
+  start: (subjectId: string, lesson: Lesson, cardIds?: string[]) => void;
   select: (i: number) => void;
   toggleOrder: (i: number) => void;
   setInput: (v: string) => void;
@@ -31,7 +31,7 @@ export const useSession = create<SessionStore>((set, get) => ({
   s: null,
   rec: false,
   doubts: {},
-  start: (subjectId, lesson) => set({ s: startSession(subjectId, lesson), rec: false, doubts: {} }),
+  start: (subjectId, lesson, cardIds) => set({ s: startSession(subjectId, lesson, cardIds), rec: false, doubts: {} }),
   select: (i) => set((st) => (st.s ? { s: engineSelect(st.s, i) } : st)),
   toggleOrder: (i) => set((st) => (st.s ? { s: engineToggleOrder(st.s, i) } : st)),
   setInput: (v) => set((st) => (st.s ? { s: engineSetInput(st.s, v) } : st)),

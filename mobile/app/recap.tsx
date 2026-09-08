@@ -1,10 +1,11 @@
 import { useRouter } from 'expo-router';
 import { Pressable, ScrollView, View } from 'react-native';
 
-import { scheduler } from '@/domain/scheduler';
+import { previewDays } from '@/domain/fsrs';
 import { recapRecords } from '@/features/session/engine';
 import { useT } from '@/i18n';
-import { useProgress } from '@/store/progress';
+import { REVIEW_ID, useProgress } from '@/store/progress';
+import { useReviews } from '@/store/reviews';
 import { useSession } from '@/store/session';
 import { useTheme } from '@/theme';
 import { Button, Card, Screen, SessionHeader, Txt } from '@/ui';
@@ -19,20 +20,37 @@ export default function RecapScreen() {
   const doubt = useSession((st) => st.doubt);
   const end = useSession((st) => st.end);
   const markDone = useProgress((p) => p.markDone);
+  const cards = useReviews((st) => st.cards);
+  const addRecords = useReviews((st) => st.addRecords);
+  const applyResults = useReviews((st) => st.applyResults);
 
   if (!s) return <Screen />;
 
+  const isReview = s.subjectId === REVIEW_ID;
   const records = recapRecords(s);
   const okCount = records.filter((r) => r.ok).length;
   const explain = s.lesson.steps.find((st) => st.type === 'explain');
-  const source = (explain?.type === 'explain' ? explain.source : t.srcFromPlan).split(' · ')[0];
+  const lessonSource = (explain?.type === 'explain' ? explain.source : t.srcFromPlan).split(' · ')[0];
+  const cardOf = (id?: string) => (id ? cards.find((c) => c.id === id) ?? null : null);
+  const now = new Date();
 
   const leave = () => {
     end();
     router.dismissTo('/(tabs)/today');
   };
-  const finish = () => {
-    markDone(s.subjectId, records.map((r) => ({ t: r.title, s: s.lesson.name })));
+  const finish = async () => {
+    if (isReview) {
+      await applyResults(records.filter((r) => r.cardId).map((r) => ({ cardId: r.cardId!, ok: r.ok })), now);
+    } else {
+      await addRecords(
+        records.map((r) => ({
+          subjectId: s.subjectId, subjectName: s.lesson.name, title: r.title, note: r.note, source: lessonSource,
+          ref: { subjectId: s.subjectId, step: r.stepIndex }, ok: r.ok,
+        })),
+        now,
+      );
+      markDone(s.subjectId, records.map((r) => ({ t: r.title, s: s.lesson.name })));
+    }
     leave();
   };
 
@@ -44,7 +62,9 @@ export default function RecapScreen() {
         <Txt t="row" color="mut" style={{ marginTop: 6, fontSize: 14, lineHeight: 21 }}>{t.firstTry(okCount, records.length)} · {s.lesson.name}</Txt>
         <View style={{ gap: 10, marginTop: 18 }}>
           {records.map((r, i) => {
-            const days = scheduler.firstIntervalDays(r.ok);
+            const card = cardOf(r.cardId);
+            const days = previewDays(card?.fsrs ?? null, r.ok, now);
+            const source = card?.source || lessonSource;
             const sent = !!doubts[i];
             return (
               <Card key={i} style={{ paddingVertical: 14, paddingHorizontal: 16 }}>

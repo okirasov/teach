@@ -72,9 +72,6 @@ export const seedMissions: Record<SubjectId, Mission> = {
   hist: { cur: 'понимать, как рождались и умирали империи — чтобы читать новости глубже', hist: [] },
 };
 
-/** Базовый размер очереди повторов в прототипе (prop reviewCount). */
-export const seedQueueBase = 12;
-
 export function topicKind(topic: string): TopicKind {
   const x = (topic || '').toLowerCase();
   if (/истор|history|философ|литерат|искусств/.test(x)) return 'human';
