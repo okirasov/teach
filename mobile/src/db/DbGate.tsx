@@ -4,6 +4,7 @@ import { useAuth } from '@/store/auth';
 import { persistSlice } from '@/store/persist';
 import { useProgress } from '@/store/progress';
 import { useSettings } from '@/store/settings';
+import { useRefs } from '@/store/refs';
 import { useReviews } from '@/store/reviews';
 import { openRepos, type Repos } from './database';
 
@@ -15,11 +16,14 @@ export function DbGate({ children }: { children: React.ReactNode }) {
   const accountId = useAuth((s) => s.account?.id ?? null);
   const attach = useReviews((s) => s.attach);
   const detach = useReviews((s) => s.detach);
+  const attachRefs = useRefs((s) => s.attach);
+  const detachRefs = useRefs((s) => s.detach);
   const [readyFor, setReadyFor] = useState<string | null>(null);
 
   useEffect(() => {
     if (!accountId) {
       detach();
+      detachRefs();
       setReadyFor(null);
       return;
     }
@@ -31,6 +35,7 @@ export function DbGate({ children }: { children: React.ReactNode }) {
         if (cancelled) return r.close();
         repos = r;
         await attach(r.reviews);
+        await attachRefs(r.refs);
         unsubs.push(await persistSlice(useSettings, r.kv, 'settings', ['lang', 'theme', 'reminder', 'weekendOff', 'cap', 'mode']));
         unsubs.push(
           await persistSlice(useProgress, r.kv, 'progress', ['done', 'removed', 'added', 'custom', 'customLesson', 'prepStage', 'missions', 'cfg', 'reviewLog']),
@@ -42,9 +47,10 @@ export function DbGate({ children }: { children: React.ReactNode }) {
       cancelled = true;
       unsubs.forEach((u) => u());
       detach();
+      detachRefs();
       repos?.close().catch(() => {});
     };
-  }, [accountId, attach, detach]);
+  }, [accountId, attach, detach, attachRefs, detachRefs]);
 
   if (accountId && readyFor !== accountId) return null;
   return <>{children}</>;

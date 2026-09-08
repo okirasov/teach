@@ -45,6 +45,28 @@ const migrations: string[] = [
     value TEXT NOT NULL
   );
   `,
+  // v2 — справочники (офлайн)
+  `
+  CREATE TABLE IF NOT EXISTS refs (
+    id TEXT PRIMARY KEY NOT NULL,
+    subject_id TEXT NOT NULL,
+    subject_name TEXT NOT NULL,
+    grp TEXT NOT NULL,
+    title TEXT NOT NULL,
+    updated_after INTEGER NOT NULL,
+    sort INTEGER NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS ref_rows (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ref_id TEXT NOT NULL,
+    sec TEXT,
+    k TEXT NOT NULL,
+    v TEXT NOT NULL,
+    weak INTEGER NOT NULL,
+    sort INTEGER NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS idx_ref_rows_ref ON ref_rows(ref_id);
+  `,
 ];
 
 export async function migrate(db: SQLiteDatabase): Promise<void> {

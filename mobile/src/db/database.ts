@@ -2,11 +2,14 @@ import { Platform } from 'react-native';
 
 import { memoryKv, type KvRepo } from './kv';
 import { migrate } from './migrations';
+import { memoryRefsRepo, type RefsRepo } from './refsRepo';
 import { memoryReviewsRepo, type ReviewsRepo } from './reviewsRepo';
+import { prototypeRefs } from './seedRefs';
 import { prototypeQueue } from './seedCards';
 
 export interface Repos {
   reviews: ReviewsRepo;
+  refs: RefsRepo;
   kv: KvRepo;
   close(): Promise<void>;
 }
@@ -16,7 +19,7 @@ export function databaseName(accountId: string): string {
   return `teach-${accountId.replace(/[^a-zA-Z0-9_-]/g, '_')}.db`;
 }
 
-const memoryCache = new Map<string, { reviews: ReviewsRepo; kv: KvRepo }>();
+const memoryCache = new Map<string, { reviews: ReviewsRepo; refs: RefsRepo; kv: KvRepo }>();
 
 /**
  * Открывает локальное хранилище для аккаунта. На устройстве — SQLite (expo-sqlite);
@@ -27,7 +30,7 @@ export async function openRepos(accountId: string, now = new Date()): Promise<Re
     const key = databaseName(accountId);
     let repos = memoryCache.get(key);
     if (!repos) {
-      repos = { reviews: memoryReviewsRepo(prototypeQueue(now)), kv: memoryKv() };
+      repos = { reviews: memoryReviewsRepo(prototypeQueue(now)), refs: memoryRefsRepo(prototypeRefs), kv: memoryKv() };
       memoryCache.set(key, repos);
     }
     return { ...repos, close: async () => {} };
@@ -35,10 +38,13 @@ export async function openRepos(accountId: string, now = new Date()): Promise<Re
   const SQLite = await import('expo-sqlite');
   const { sqliteReviewsRepo } = await import('./sqliteReviewsRepo');
   const { sqliteKv } = await import('./kv');
+  const { sqliteRefsRepo } = await import('./refsRepo');
   const db = await SQLite.openDatabaseAsync(databaseName(accountId));
   await migrate(db);
   const reviews = sqliteReviewsRepo(db);
   if ((await reviews.count()) === 0) await reviews.upsert(prototypeQueue(now));
-  if (__DEV__) console.log(`[db] ${databaseName(accountId)} · ${await reviews.count()} cards`);
-  return { reviews, kv: sqliteKv(db), close: () => db.closeAsync() };
+  const refs = sqliteRefsRepo(db);
+  if ((await refs.count()) === 0) await refs.upsert(prototypeRefs);
+  if (__DEV__) console.log(`[db] ${databaseName(accountId)} · ${await reviews.count()} cards · ${await refs.count()} refs`);
+  return { reviews, refs, kv: sqliteKv(db), close: () => db.closeAsync() };
 }
