@@ -35,7 +35,11 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
         {
             try { await PrepareAsync(id, ct); }
             catch (OperationCanceledException) when (ct.IsCancellationRequested) { return; }
-            catch (Exception e) { log.LogError(e, "prepare {Subject} failed", id); }
+            catch (Exception e)
+            {
+                log.LogError(e, "prepare {Subject} failed", id);
+                await MarkFailedAsync(id, e.Message, ct);
+            }
         }
     }
 
@@ -80,6 +84,23 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
         s.LastError = lastError;
         s.UpdatedAt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync(ct);
+    }
+
+    /// <summary>Сбой генерации не должен оставлять предмет в вечном «Готовится…»: клиент увидит failed и предложит повторить.</summary>
+    private async Task MarkFailedAsync(Guid id, string error, CancellationToken ct)
+    {
+        try
+        {
+            using var scope = scopes.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<TeachDb>();
+            var s = await db.Subjects.FindAsync([id], ct);
+            if (s is null) return;
+            s.Status = SubjectStatus.Failed;
+            s.LastError = error.Length > 500 ? error[..500] : error;
+            s.UpdatedAt = DateTimeOffset.UtcNow;
+            await db.SaveChangesAsync(ct);
+        }
+        catch (Exception e) { log.LogError(e, "mark failed {Subject}", id); }
     }
 
     private static async Task SetStage(TeachDb db, SubjectRow s, int stage, CancellationToken ct)

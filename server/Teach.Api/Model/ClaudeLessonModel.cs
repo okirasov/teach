@@ -16,11 +16,13 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
     public const string GradeModel = "claude-haiku-4-5";
 
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+    private static ILogger? Log;
 
     public string Name => "claude";
 
     public async Task<IReadOnlyList<FocusOption>> SuggestFocusAsync(string topic, CancellationToken ct)
     {
+        Log ??= log;
         var r = await AskAsync<FocusList>(
             $"Тема ученика: «{topic}». Предложи ровно 3 фокуса — с чего начать, чтобы один урок не был «про всё». t — короткое название, d — одна строка пояснения.",
             Schemas.FocusList, ct, effort: Effort.Medium);
@@ -52,8 +54,22 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
             Выбранные источники:
             {string.Join("\n", sources.Select(s => $"- {s.T} ({s.Trust}): {s.M}"))}
             """;
-        var raw = await AskAsync<RawLesson>(Prompts.Diagnostic, Schemas.Lesson, ct, context: context);
-        return raw.ToLesson("миссия · " + (string.IsNullOrWhiteSpace(draft.Mission) ? "уточняется" : draft.Mission));
+        Log ??= log;
+        var why = "миссия · " + (string.IsNullOrWhiteSpace(draft.Mission) ? "уточняется" : draft.Mission);
+        try
+        {
+            var raw = await AskAsync<RawLesson>(Prompts.Diagnostic, Schemas.Lesson, ct, context: context, effort: Effort.Medium);
+            return raw.ToLesson(why);
+        }
+        catch (Exception e) when (e is JsonException or InvalidOperationException)
+        {
+            // Ограниченная грамматика структурированного вывода изредка зацикливается внутри строки;
+            // запасной путь — тот же формат без схемы, JSON вырезается из текста, валидатор проверит смысл.
+            log.LogWarning(e, "diagnostic: structured output failed, retrying without schema");
+            var raw = await AskAsync<RawLesson>(Prompts.Diagnostic + "\nОтветь только одним JSON-объектом без пояснений: " + Schemas.LessonShape,
+                null, ct, context: context, effort: Effort.Medium);
+            return raw.ToLesson(why);
+        }
     }
 
     public async Task<bool[]> GradeFreeAsync(IReadOnlyList<Criterion> criteria, string text, string lang, CancellationToken ct)
@@ -71,7 +87,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         return hits.Length == criteria.Count ? hits : criteria.Select((_, i) => i < hits.Length && hits[i]).ToArray();
     }
 
-    private async Task<T> AskAsync<T>(string task, Dictionary<string, JsonElement> schema, CancellationToken ct, string? context = null, List<ToolUnion>? tools = null, Effort effort = Effort.High)
+    private async Task<T> AskAsync<T>(string task, Dictionary<string, JsonElement>? schema, CancellationToken ct, string? context = null, List<ToolUnion>? tools = null, Effort effort = Effort.High)
     {
         var content = new List<ContentBlockParam>();
         if (context is not null)
@@ -81,11 +97,12 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         var p = new MessageCreateParams
         {
             Model = LessonModel,
-            MaxTokens = 16000,
+            // Thinking считается в max_tokens: запас, чтобы длинное размышление не обрезало JSON урока.
+            MaxTokens = 32000,
             System = new List<TextBlockParam> { new() { Text = Prompts.System, CacheControl = new CacheControlEphemeral() } },
             Messages = [new() { Role = Role.User, Content = content }],
             Thinking = new ThinkingConfigAdaptive(),
-            OutputConfig = new OutputConfig { Effort = effort, Format = new JsonOutputFormat { Schema = schema } },
+            OutputConfig = schema is null ? new OutputConfig { Effort = effort } : new OutputConfig { Effort = effort, Format = new JsonOutputFormat { Schema = schema } },
             Tools = tools,
         };
 
@@ -104,10 +121,26 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
 
     private static T Parse<T>(Message response)
     {
-        if (response.StopReason?.ToString() == "refusal")
+        var stop = response.StopReason?.ToString()?.Trim('"');
+        if (stop == "refusal")
             throw new InvalidOperationException("model refused: " + response.StopDetails?.ToString());
+        if (stop == "max_tokens")
+            throw new InvalidOperationException($"model output truncated at max_tokens (out={response.Usage.OutputTokens})");
         var text = string.Concat(response.Content.Select(b => b.Value).OfType<TextBlock>().Select(t => t.Text));
-        return JsonSerializer.Deserialize<T>(text, Json) ?? throw new InvalidOperationException("empty model output");
+        Log?.LogDebug("model output ({Len} chars): {Text}", text.Length, text.Length > 4000 ? text[..4000] + "…" : text);
+        // Без схемы модель может обернуть JSON в текст — берём от первой '{' до последней '}'.
+        var a = text.IndexOf('{');
+        var z = text.LastIndexOf('}');
+        if (a >= 0 && z > a) text = text[a..(z + 1)];
+        try
+        {
+            return JsonSerializer.Deserialize<T>(text, Json) ?? throw new InvalidOperationException("empty model output");
+        }
+        catch (JsonException e)
+        {
+            var tail = text.Length > 300 ? text[^300..] : text;
+            throw new JsonException($"{e.Message} | output {text.Length} chars, tail: {tail}", e);
+        }
     }
 
     private sealed record FocusList(List<FocusOption> Items);
@@ -134,7 +167,6 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         public int? Correct { get; set; }
         public List<int>? Order { get; set; }
         public string? Answer { get; set; }
-        public string? Placeholder { get; set; }
 
         private static List<string> Split(string s, char sep) =>
             s.Split(sep, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
@@ -145,13 +177,13 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
             "choice" => new ChoiceStep { Prompt = Prompt ?? "", Explain = Explain ?? "", RecTitle = RecTitle ?? "", RecNote = RecNote ?? "", Options = Text ?? [], Correct = Correct ?? -1 },
             "input" => new InputStep
             {
-                Prompt = Prompt ?? "", Explain = Explain ?? "", RecTitle = RecTitle ?? "", RecNote = RecNote ?? "", Placeholder = Placeholder ?? "",
+                Prompt = Prompt ?? "", Explain = Explain ?? "", RecTitle = RecTitle ?? "", RecNote = RecNote ?? "", Placeholder = "Наберите ответ…",
                 Tokens = (Text ?? []).Select(g => Split(g, '|')).Where(g => g.Count > 0).ToList(), Answer = Answer ?? "",
             },
             "order" => new OrderStep { Prompt = Prompt ?? "", Explain = Explain ?? "", RecTitle = RecTitle ?? "", RecNote = RecNote ?? "", Items = Text ?? [], Correct = Order ?? [] },
             "free" => new FreeStep
             {
-                Prompt = Prompt ?? "", Explain = Explain ?? "", RecTitle = RecTitle ?? "", RecNote = RecNote ?? "", Placeholder = Placeholder ?? "",
+                Prompt = Prompt ?? "", Explain = Explain ?? "", RecTitle = RecTitle ?? "", RecNote = RecNote ?? "", Placeholder = "Ответьте развёрнуто — текстом или голосом",
                 Criteria = (Text ?? []).Select(c =>
                 {
                     var parts = c.Split('|', 2, StringSplitOptions.TrimEntries);
@@ -197,6 +229,10 @@ public static class Schemas
         {"type":"object","properties":{"hits":{"type":"array","items":{"type":"boolean"}}},"required":["hits"],"additionalProperties":false}
         """);
 
+    /// <summary>Тот же формат словами — для запасного пути без схемы.</summary>
+    public const string LessonShape =
+        "{name, level, steps:[{type: explain|choice|input|order|free, title, text:[…], example, source, prompt, explain, recTitle, recNote, correct:int, order:[int], answer}]}";
+
     public static readonly Dictionary<string, JsonElement> Lesson = Parse("""
         {"type":"object","properties":{
           "name":@S@,"level":@S@,
@@ -205,8 +241,8 @@ public static class Schemas
             "title":@S@,"text":@SA@,"example":@S@,"source":@S@,
             "prompt":@S@,"explain":@S@,"recTitle":@S@,"recNote":@S@,
             "correct":{"type":"integer"},"order":{"type":"array","items":{"type":"integer"}},
-            "answer":@S@,"placeholder":@S@
-          },"required":["type"],"additionalProperties":false}}
+            "answer":@S@
+          },"required":["type","title","text","example","source","prompt","explain","recTitle","recNote","correct","order","answer"],"additionalProperties":false}}
         },"required":["name","level","steps"],"additionalProperties":false}
         """);
 }
