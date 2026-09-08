@@ -1,0 +1,75 @@
+mobile/app/(tabs)/reviews.tsx
+  s_a2145daee18e40::t_4c6bbc11fa179b 2-3,5-6,9-12,14-27,31,33-37,41-57
+mobile/app/(tabs)/today.tsx
+  s_a2145daee18e40::t_4a7494460bd5a3 7,10-11,21-22,30
+mobile/app/_layout.tsx
+  s_a2145daee18e40::t_54c0cf8c453af1 8,55-57
+mobile/app/recap.tsx
+  s_a2145daee18e40::t_3290b891c2a690 4,7-8,23-25,29,33-35,41-53,65-67
+mobile/app/session/[id].tsx
+  s_a2145daee18e40::t_b52a7b5e826b47 10-11,23-28,42-43
+mobile/src/db/DbGate.tsx
+  s_a2145daee18e40::t_71dcf289230d52 1-42
+mobile/src/db/database.ts
+  s_a2145daee18e40::t_dba639a6a87e46 1-40
+mobile/src/db/migrations.ts
+  s_a2145daee18e40::t_ca1e8853b6e268 1-61
+mobile/src/db/reviewsRepo.ts
+  s_a2145daee18e40::t_e54db337e4ad7a 1-39
+mobile/src/db/seedCards.ts
+  s_a2145daee18e40::t_8b9474928c9376 1-51
+mobile/src/db/sqliteReviewsRepo.ts
+  s_a2145daee18e40::t_9b6a8bdc9a215d 1-133
+mobile/src/domain/__tests__/fsrs.test.ts
+  s_a2145daee18e40::t_6ade8b4834eea3 1,3-10,12-28
+mobile/src/domain/fsrs.ts
+  s_a2145daee18e40::t_e05e0d1be05fa8 1-33
+mobile/src/domain/reviewCard.ts
+  s_a2145daee18e40::t_5af71fd0380563 1,3-7,9-22
+mobile/src/features/reviews/__tests__/buildReviewLesson.test.ts
+  s_a2145daee18e40::t_f80dfd5926f03e 1-34
+mobile/src/features/reviews/buildReviewLesson.ts
+  s_a2145daee18e40::t_525208fedefe50 1-31
+mobile/src/features/reviews/queue.ts
+  s_a2145daee18e40::t_b59685ec5648c7 1-39
+mobile/src/features/reviews/useReviewPlan.ts
+  s_a2145daee18e40::t_b4b0d9a578ac33 1-21
+mobile/src/features/session/__tests__/engine.test.ts
+  s_a2145daee18e40::t_49b0309c7dc80c 45-46
+mobile/src/features/session/engine.ts
+  s_a2145daee18e40::t_eb464b405fab74 17-18,21-22,116-119,124-130
+mobile/src/features/today/HeroCard.tsx
+  s_a2145daee18e40::t_b1025ef48ac949 9,30
+mobile/src/i18n/__tests__/i18n.test.ts
+  s_a2145daee18e40::t_b94831719d9346 16-18
+mobile/src/i18n/en.ts
+  s_a2145daee18e40::t_a1a6c28cf24950 7
+mobile/src/i18n/ru.ts
+  s_a2145daee18e40::t_37bd352521eefc 8
+mobile/src/store/__tests__/progress.test.ts
+  s_a2145daee18e40::t_2418ad30caad2b 24
+mobile/src/store/__tests__/reviews.test.ts
+  s_a2145daee18e40::t_5b4772191871d7 1-61
+mobile/src/store/progress.ts
+  s_a2145daee18e40::t_0d1506fbbd0ac4 3
+mobile/src/store/reviews.ts
+  s_a2145daee18e40::t_df744b8164fac4 1-95
+mobile/src/store/session.ts
+  s_a2145daee18e40::t_37c721709f50ee 19,34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "0bf80b9708810c7319dfb05430482213d2071fa2",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
