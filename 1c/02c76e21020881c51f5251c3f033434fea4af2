@@ -1,0 +1,29 @@
+mobile/README.md
+  s_a2145daee18e40::t_7af591aab37118 47-52,57-58,60-72
+mobile/src/db/database.ts
+  s_a2145daee18e40::t_a239d4086e12dc 39
+mobile/src/features/auth/local.ts
+  s_a2145daee18e40::t_ebb01717212c46 1-15
+mobile/src/features/auth/providers.ts
+  s_a2145daee18e40::t_06c7735d16a194 4,6-8
+mobile/src/features/auth/useGoogleSignIn.ts
+  s_a2145daee18e40::t_a8853993557685 16-22
+mobile/src/store/auth.ts
+  s_a2145daee18e40::t_3797750c59a579 3,23-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "1c02c76e21020881c51f5251c3f033434fea4af2",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
