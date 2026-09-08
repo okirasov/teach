@@ -8,16 +8,16 @@ interface SessionHeaderProps {
   /** Чип контекста по центру: имя предмета (mint) или «НОВЫЙ ПРЕДМЕТ» (chipDk mono). */
   chip: string;
   chipDark?: boolean;
-  /** Счётчик n/N справа, mono. */
-  counter: string;
+  /** Счётчик n/N справа, mono; без него правый слот остаётся пустым для симметрии. */
+  counter?: string;
   onClose: () => void;
   /** Сегменты прогресса: количество (0 — без прогресса) и текущий индекс. */
-  total: number;
-  current: number;
+  total?: number;
+  current?: number;
 }
 
 /** Шапка сессии (DESIGN.md §3): ×-кружок 36 | чип | счётчик; ниже сегменты h4 r2 gap5. */
-export function SessionHeader({ chip, chipDark, counter, onClose, total, current }: SessionHeaderProps) {
+export function SessionHeader({ chip, chipDark, counter = '', onClose, total = 0, current = 0 }: SessionHeaderProps) {
   const { c, size, radius } = useTheme();
   return (
     <View>

@@ -6,7 +6,7 @@ import { useAuth } from '@/store/auth';
 import { useReviews } from '@/store/reviews';
 import { useSettings } from '@/store/settings';
 import { useTheme } from '@/theme';
-import { AppHeader, Avatar, Card, Screen, Segment, Toggle, TwoStepConfirm, Txt } from '@/ui';
+import { Avatar, Card, Screen, Segment, SessionHeader, Toggle, TwoStepConfirm, Txt } from '@/ui';
 
 /** DESIGN.md §4.11 «Профиль»: без скролла, карточка аккаунта, группы настроек, «Выйти». */
 export default function ProfileScreen() {
@@ -41,8 +41,8 @@ export default function ProfileScreen() {
 
   return (
     <Screen>
-      <AppHeader userName={account?.name ?? ''} onClose={() => router.back()} />
-      <Txt t="h1" style={{ marginTop: 16 }}>{t.profileTitle}</Txt>
+      <SessionHeader chip={t.profileChip} chipDark onClose={() => router.back()} />
+      <Txt t="h1" style={{ marginTop: 20 }}>{t.profileTitle}</Txt>
 
       <Card large style={{ marginTop: 12, paddingVertical: 12, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 14 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 }}>

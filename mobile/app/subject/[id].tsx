@@ -5,11 +5,10 @@ import { useShallow } from 'zustand/react/shallow';
 import { deleteSubject } from '@/features/subjects/deleteSubject';
 import { voiceLangOptions } from '@/features/subjects/voiceLangOptions';
 import { useT } from '@/i18n';
-import { useAuth } from '@/store/auth';
 import { subjectConfig, subjectName, useProgress } from '@/store/progress';
 import { useSettings } from '@/store/settings';
 import { useTheme } from '@/theme';
-import { AppHeader, Card, PillGroup, Screen, Toggle, TwoStepConfirm, Txt } from '@/ui';
+import { Card, PillGroup, Screen, SessionHeader, Toggle, TwoStepConfirm, Txt } from '@/ui';
 
 /** DESIGN.md §4.10 «Настройки предмета». */
 export default function SubjectSettingsScreen() {
@@ -17,7 +16,6 @@ export default function SubjectSettingsScreen() {
   const router = useRouter();
   const { c, fonts } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const account = useAuth((s) => s.account);
   const uiLang = useSettings((s) => s.lang);
   const name = useProgress((s) => subjectName(s, id));
   const mission = useProgress((s) => s.missions[id]?.cur ?? '');
@@ -42,8 +40,8 @@ export default function SubjectSettingsScreen() {
 
   return (
     <Screen>
-      <AppHeader userName={account?.name ?? ''} onClose={() => router.back()} />
-      <Txt t="h1" numberOfLines={1} style={{ marginTop: 16 }}>{name}</Txt>
+      <SessionHeader chip={t.manageChip} chipDark onClose={() => router.back()} />
+      <Txt t="h1" numberOfLines={1} style={{ marginTop: 20 }}>{name}</Txt>
       <ScrollView showsVerticalScrollIndicator={false} style={{ marginHorizontal: -4 }} contentContainerStyle={{ paddingHorizontal: 4, paddingBottom: 8 }}>
         <Txt t="meta" color="mut" numberOfLines={2} style={{ marginTop: 6, lineHeight: 20 }}>{mission}</Txt>
 
