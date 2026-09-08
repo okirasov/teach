@@ -12,7 +12,8 @@
       "supportsTablet": false,
       "bundleIdentifier": "app.teach.mobile",
       "infoPlist": {
-        "CFBundleAllowMixedLocalizations": true
+        "CFBundleAllowMixedLocalizations": true,
+        "NSLocalNetworkUsageDescription": "Teach подключается к серверу уроков в вашей локальной сети."
       },
       "appleTeamId": "PW7867VU3L"
     },
