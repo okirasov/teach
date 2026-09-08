@@ -86,6 +86,8 @@ xcrun devicectl device install app --device <UDID> build-device/Build/Products/D
 xcrun devicectl device process launch --terminate-existing --device <UDID> app.teach.mobile
 ```
 
+Release с встроенным бандлом (без Metro, без dev-входа, реальный Apple Sign-In): те же команды с `-configuration Release`, артефакт в `build-device/Build/Products/Release-iphoneos/Teach.app`. Профиль команды содержит `com.apple.developer.applesignin`.
+
 UDID телефона: `xcrun devicectl list devices`. Проверено 2026-09-09: нативный STT на iPhone 16 Pro Max отдаёт промежуточные результаты по словам и финальную фразу.
 
 Metro без watchman не видит правок — после изменения кода перезапускать `expo start --clear`. Разрешение на распознавание речи `simctl privacy` не выдаёт; в симуляторе его можно проставить в `~/Library/Developer/CoreSimulator/Devices/<UDID>/data/Library/TCC/TCC.db` (`kTCCServiceSpeechRecognition`, `auth_value=2`).
