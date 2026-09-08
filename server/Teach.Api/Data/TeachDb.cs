@@ -12,6 +12,8 @@ public sealed class SubjectRow
     public required string Mission { get; set; }
     /// <summary>JSON-массив id выбранных источников.</summary>
     public required string SourceIdsJson { get; set; }
+    /// <summary>JSON-массив выбранных источников (SourceCandidate), если мастер их передал.</summary>
+    public string? SourcesJson { get; set; }
     public SubjectStatus Status { get; set; }
     /// <summary>0..2 — этапы подготовки (t.prepSteps на клиенте).</summary>
     public int PrepStage { get; set; }

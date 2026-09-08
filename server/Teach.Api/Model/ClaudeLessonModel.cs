@@ -23,7 +23,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
     {
         var r = await AskAsync<FocusList>(
             $"Тема ученика: «{topic}». Предложи ровно 3 фокуса — с чего начать, чтобы один урок не был «про всё». t — короткое название, d — одна строка пояснения.",
-            Schemas.FocusList, ct);
+            Schemas.FocusList, ct, effort: Effort.Medium);
         return r.Items;
     }
 
@@ -31,7 +31,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
     {
         var r = await AskAsync<SourceList>(
             $"Тема «{topic}», фокус «{focus}». Найди 4 реальных источника для уроков: t — название, m — одна строка, что это и чем полезно, trust — high/mid/low по правилу: рецензированное и официальное — high, учебные курсы и первоисточники с оговоркой — mid, блоги, треды, научпоп — low. Модель не источник истины: используй поиск.",
-            Schemas.SourceList, ct, tools: [new ToolUnion(new WebSearchTool20260209 { MaxUses = 5 })]);
+            Schemas.SourceList, ct, effort: Effort.Medium, tools: [new ToolUnion(new WebSearchTool20260209 { MaxUses = 3 })]);
         return r.Items.Select((s, i) => new SourceCandidate($"src-{i}", s.T, s.M, s.Trust)).ToList();
     }
 
@@ -39,7 +39,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
     {
         var r = await AskAsync<PlanList>(
             $"Тема «{topic}», фокус «{focus}», миссия ученика: «{mission}». Составь план из 3 этапов: n — «01/02/03», t — название этапа, d — одна строка. Этап 01 — каркас и термины, 02 — рабочие приёмы малыми шагами, 03 — применение под миссию (повтори её формулировку).",
-            Schemas.PlanList, ct);
+            Schemas.PlanList, ct, effort: Effort.Medium);
         return r.Items;
     }
 
@@ -53,7 +53,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
             {string.Join("\n", sources.Select(s => $"- {s.T} ({s.Trust}): {s.M}"))}
             """;
         var raw = await AskAsync<RawLesson>(Prompts.Diagnostic, Schemas.Lesson, ct, context: context);
-        return raw.ToLesson();
+        return raw.ToLesson("миссия · " + (string.IsNullOrWhiteSpace(draft.Mission) ? "уточняется" : draft.Mission));
     }
 
     public async Task<bool[]> GradeFreeAsync(IReadOnlyList<Criterion> criteria, string text, string lang, CancellationToken ct)
@@ -71,7 +71,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         return hits.Length == criteria.Count ? hits : criteria.Select((_, i) => i < hits.Length && hits[i]).ToArray();
     }
 
-    private async Task<T> AskAsync<T>(string task, Dictionary<string, JsonElement> schema, CancellationToken ct, string? context = null, List<ToolUnion>? tools = null)
+    private async Task<T> AskAsync<T>(string task, Dictionary<string, JsonElement> schema, CancellationToken ct, string? context = null, List<ToolUnion>? tools = null, Effort effort = Effort.High)
     {
         var content = new List<ContentBlockParam>();
         if (context is not null)
@@ -85,13 +85,20 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
             System = new List<TextBlockParam> { new() { Text = Prompts.System, CacheControl = new CacheControlEphemeral() } },
             Messages = [new() { Role = Role.User, Content = content }],
             Thinking = new ThinkingConfigAdaptive(),
-            OutputConfig = new OutputConfig { Effort = Effort.High, Format = new JsonOutputFormat { Schema = schema } },
+            OutputConfig = new OutputConfig { Effort = effort, Format = new JsonOutputFormat { Schema = schema } },
             Tools = tools,
         };
 
-        var response = await client.Messages.Create(p, ct);
-        log.LogInformation("claude {Model}: in={In} cached={Cached} out={Out} stop={Stop}", LessonModel, response.Usage.InputTokens,
-            response.Usage.CacheReadInputTokens, response.Usage.OutputTokens, response.StopReason);
+        var started = DateTimeOffset.UtcNow;
+        Message response;
+        try { response = await client.Messages.Create(p, ct); }
+        catch (Exception e)
+        {
+            log.LogError(e, "claude {Model} failed after {Sec:F0}s", LessonModel, (DateTimeOffset.UtcNow - started).TotalSeconds);
+            throw;
+        }
+        log.LogInformation("claude {Model}: in={In} cached={Cached} out={Out} stop={Stop} {Sec:F0}s", LessonModel, response.Usage.InputTokens,
+            response.Usage.CacheReadInputTokens, response.Usage.OutputTokens, response.StopReason, (DateTimeOffset.UtcNow - started).TotalSeconds);
         return Parse<T>(response);
     }
 
@@ -108,36 +115,49 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
     private sealed record SourceList(List<SourceItem> Items);
     private sealed record PlanList(List<PlanStage> Items);
 
-    /// <summary>Плоский шаг из схемы структурированного вывода (без anyOf) → доменный шаг.</summary>
+    /// <summary>
+    /// Компактный шаг из схемы структурированного вывода (лимит сложности схемы у API жёсткий):
+    /// text — абзацы (explain), варианты (choice), элементы (order), критерии «текст | ключ1, ключ2» (free),
+    /// группы токенов «a | b» (input); order — индексы правильного порядка. why сервер ставит сам из миссии.
+    /// </summary>
     private sealed class RawStep
     {
         public string Type { get; set; } = "";
-        public string? Why { get; set; }
         public string? Title { get; set; }
-        public List<string>? Paras { get; set; }
+        public List<string>? Text { get; set; }
         public string? Example { get; set; }
         public string? Source { get; set; }
         public string? Prompt { get; set; }
         public string? Explain { get; set; }
         public string? RecTitle { get; set; }
         public string? RecNote { get; set; }
-        public string? Voice { get; set; }
-        public List<string>? Options { get; set; }
         public int? Correct { get; set; }
-        public List<int>? CorrectOrder { get; set; }
-        public string? Placeholder { get; set; }
-        public List<List<string>>? Tokens { get; set; }
+        public List<int>? Order { get; set; }
         public string? Answer { get; set; }
-        public List<string>? Items { get; set; }
-        public List<FreeCriterion>? Criteria { get; set; }
+        public string? Placeholder { get; set; }
 
-        public LessonStep ToStep() => Type switch
+        private static List<string> Split(string s, char sep) =>
+            s.Split(sep, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+
+        public LessonStep ToStep(string why) => Type switch
         {
-            "explain" => new ExplainStep { Why = Why ?? "", Title = Title ?? "", Paras = Paras ?? [], Example = Example ?? "", Source = Source ?? "" },
-            "choice" => new ChoiceStep { Prompt = Prompt ?? "", Explain = Explain ?? "", RecTitle = RecTitle ?? "", RecNote = RecNote ?? "", Voice = Voice, Options = Options ?? [], Correct = Correct ?? -1 },
-            "input" => new InputStep { Prompt = Prompt ?? "", Explain = Explain ?? "", RecTitle = RecTitle ?? "", RecNote = RecNote ?? "", Voice = Voice, Placeholder = Placeholder ?? "", Tokens = Tokens ?? [], Answer = Answer ?? "" },
-            "order" => new OrderStep { Prompt = Prompt ?? "", Explain = Explain ?? "", RecTitle = RecTitle ?? "", RecNote = RecNote ?? "", Voice = Voice, Items = Items ?? [], Correct = CorrectOrder ?? [] },
-            "free" => new FreeStep { Prompt = Prompt ?? "", Explain = Explain ?? "", RecTitle = RecTitle ?? "", RecNote = RecNote ?? "", Voice = Voice, Placeholder = Placeholder ?? "", Criteria = Criteria ?? [] },
+            "explain" => new ExplainStep { Why = why, Title = Title ?? "", Paras = Text ?? [], Example = Example ?? "", Source = Source ?? "" },
+            "choice" => new ChoiceStep { Prompt = Prompt ?? "", Explain = Explain ?? "", RecTitle = RecTitle ?? "", RecNote = RecNote ?? "", Options = Text ?? [], Correct = Correct ?? -1 },
+            "input" => new InputStep
+            {
+                Prompt = Prompt ?? "", Explain = Explain ?? "", RecTitle = RecTitle ?? "", RecNote = RecNote ?? "", Placeholder = Placeholder ?? "",
+                Tokens = (Text ?? []).Select(g => Split(g, '|')).Where(g => g.Count > 0).ToList(), Answer = Answer ?? "",
+            },
+            "order" => new OrderStep { Prompt = Prompt ?? "", Explain = Explain ?? "", RecTitle = RecTitle ?? "", RecNote = RecNote ?? "", Items = Text ?? [], Correct = Order ?? [] },
+            "free" => new FreeStep
+            {
+                Prompt = Prompt ?? "", Explain = Explain ?? "", RecTitle = RecTitle ?? "", RecNote = RecNote ?? "", Placeholder = Placeholder ?? "",
+                Criteria = (Text ?? []).Select(c =>
+                {
+                    var parts = c.Split('|', 2, StringSplitOptions.TrimEntries);
+                    return new FreeCriterion { T = parts[0], Keys = parts.Length > 1 ? Split(parts[1], ',') : [] };
+                }).ToList(),
+            },
             _ => throw new InvalidOperationException($"unknown step type {Type}"),
         };
     }
@@ -148,7 +168,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         public string Level { get; set; } = "";
         public string? LessonTitle { get; set; }
         public List<RawStep> Steps { get; set; } = [];
-        public Lesson ToLesson() => new() { Name = Name, Level = Level, LessonTitle = LessonTitle, Steps = Steps.Select(s => s.ToStep()).ToList() };
+        public Lesson ToLesson(string why) => new() { Name = Name, Level = Level, LessonTitle = LessonTitle, Steps = Steps.Select(s => s.ToStep(why)).ToList() };
     }
 }
 
@@ -179,15 +199,13 @@ public static class Schemas
 
     public static readonly Dictionary<string, JsonElement> Lesson = Parse("""
         {"type":"object","properties":{
-          "name":@S@,"level":@S@,"lessonTitle":@S@,
+          "name":@S@,"level":@S@,
           "steps":{"type":"array","items":{"type":"object","properties":{
             "type":{"type":"string","enum":["explain","choice","input","order","free"]},
-            "why":@S@,"title":@S@,"paras":@SA@,"example":@S@,"source":@S@,
-            "prompt":@S@,"explain":@S@,"recTitle":@S@,"recNote":@S@,"voice":@S@,
-            "options":@SA@,"correct":{"type":"integer"},"correctOrder":{"type":"array","items":{"type":"integer"}},
-            "placeholder":@S@,"tokens":{"type":"array","items":@SA@},"answer":@S@,
-            "items":@SA@,
-            "criteria":{"type":"array","items":{"type":"object","properties":{"t":@S@,"keys":@SA@},"required":["t","keys"],"additionalProperties":false}}
+            "title":@S@,"text":@SA@,"example":@S@,"source":@S@,
+            "prompt":@S@,"explain":@S@,"recTitle":@S@,"recNote":@S@,
+            "correct":{"type":"integer"},"order":{"type":"array","items":{"type":"integer"}},
+            "answer":@S@,"placeholder":@S@
           },"required":["type"],"additionalProperties":false}}
         },"required":["name","level","steps"],"additionalProperties":false}
         """);

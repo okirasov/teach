@@ -23,8 +23,8 @@ type LessonStatus = { status: 'preparing' | 'failed'; stage: number | null } | {
 /** ContentService поверх HTTP-оркестратора. Ключей модели в клиенте нет. */
 export function createHttpContentService(opts: HttpContentOptions): ContentService {
   const base = opts.baseUrl.replace(/\/+$/, '');
-  const pollMs = opts.pollMs ?? 1500;
-  const timeoutMs = opts.timeoutMs ?? 120_000;
+  const pollMs = opts.pollMs ?? 3000;
+  const timeoutMs = opts.timeoutMs ?? 600_000;
   const f = opts.fetchFn ?? fetch;
 
   async function call<T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T> {

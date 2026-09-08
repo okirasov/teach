@@ -15,7 +15,8 @@ public sealed record SourcesRequest(string Topic, string Focus);
 
 public sealed record PlanRequest(string Topic, string Focus, string Mission);
 
-public sealed record SubjectDraft(string Topic, string Focus, string Mission, string[] SourceIds);
+/// <summary>Sources — кандидаты, уже найденные мастером; если переданы, сервер не ищет их заново.</summary>
+public sealed record SubjectDraft(string Topic, string Focus, string Mission, string[] SourceIds, SourceCandidate[]? Sources = null);
 
 public sealed record SubjectCreated(string SubjectId, string Status);
 

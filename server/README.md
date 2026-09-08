@@ -18,11 +18,15 @@ ASPNETCORE_URLS=http://0.0.0.0:5180 dotnet run --no-launch-profile
 
 Тесты: `dotnet test server/Teach.slnx`.
 
+Схема БД создаётся через `EnsureCreated`, миграций пока нет: при изменении моделей dev-базу `teach.db` нужно удалить.
+
 ## Как устроено
 
 - `Contracts/` — DTO, зеркало `mobile/src/content/types.ts`.
 - `Domain/Lesson.cs` — модель урока с дискриминатором `type`; `LessonValidator` — смысловая проверка поверх схемы
   (варианты, перестановки, критерии, записи об усвоенном, бюджет текста по длительности). Не прошло — повтор генерации, до `MaxAttempts`.
+- Схема структурированного вывода урока компактная: плоский шаг из 13 полей, вложенные массивы свёрнуты в строки
+  (полная схема отвергается API как `Schema is too complex`). Таблица соответствия — `docs/ai-content.md`, «Контракт урока».
 - `Model/ILessonModel` — провайдер модели. `ClaudeLessonModel`: Anthropic SDK, `claude-opus-5` для уроков с адаптивным thinking,
   структурированный вывод по JSON-схеме, кэш промпта на методике и контексте предмета, web search для источников;
   `claude-haiku-4-5` для оценки свободных ответов. `StubLessonModel`: данные прототипа.

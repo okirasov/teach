@@ -32,6 +32,8 @@ export interface SubjectDraft {
   mission: string;
   /** Выбранные источники (id из findSources). */
   sourceIds: string[];
+  /** Сами выбранные источники — сервер не ищет их заново. */
+  sources?: SourceCandidate[];
 }
 
 /** Этапы фоновой подготовки первого урока — ровно как на карточке «Готовится…». */

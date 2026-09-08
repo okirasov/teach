@@ -48,7 +48,9 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
 
         // Этап 0 «Ищу источники» → 1 «Отбираю по доверию» → 2 «Собираю первый урок».
         var draft = new SubjectDraft(s.Topic, s.Focus, s.Mission, JsonSerializer.Deserialize<string[]>(s.SourceIdsJson) ?? []);
-        var all = await model.FindSourcesAsync(s.Topic, s.Focus, ct);
+        // Источники, уже найденные мастером, не ищем заново — это самый долгий вызов модели.
+        var known = s.SourcesJson is null ? null : JsonSerializer.Deserialize<List<SourceCandidate>>(s.SourcesJson, Json);
+        var all = known is { Count: > 0 } ? known : (await model.FindSourcesAsync(s.Topic, s.Focus, ct)).ToList();
         await SetStage(db, s, 1, ct);
         await Task.Delay(opts.StageDelayMs, ct);
         var chosen = all.Where(x => draft.SourceIds.Length == 0 || draft.SourceIds.Contains(x.Id)).ToList();

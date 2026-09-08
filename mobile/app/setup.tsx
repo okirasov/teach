@@ -46,7 +46,7 @@ export default function SetupScreen() {
       return;
     }
     // Подготовка идёт в фоне, экран закрывается сразу (без спиннера).
-    void createSubjectAndPrepare(content, { topic: topicT, focus: focusT, mission: missionT, sourceIds: kept.map((s) => s.id) });
+    void createSubjectAndPrepare(content, { topic: topicT, focus: focusT, mission: missionT, sourceIds: kept.map((s) => s.id), sources: kept });
     router.dismissTo('/(tabs)/today');
   };
 
