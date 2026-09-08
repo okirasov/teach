@@ -29,14 +29,39 @@ export default function SetupScreen() {
   const focusT = focus.trim();
   const missionT = mission.trim();
 
+  /** Сетевые шаги: idle → loading → ok | error; ошибка показывает «Повторить», кнопка «Дальше» ждёт данных. */
+  const [net, setNet] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
-    if (step === 1) content.suggestFocus(topicT).then(setFocusOpts);
-    if (step === 3) content.findSources(topicT, focusT).then(setSources);
-    if (step === 4) content.buildPlan({ topic: topicT, focus: focusT, mission: missionT }).then(setPlan);
-  }, [step, topicT, focusT, missionT]);
+    const req =
+      step === 1 ? content.suggestFocus(topicT).then(setFocusOpts)
+      : step === 3 ? content.findSources(topicT, focusT).then(setSources)
+      : step === 4 ? content.buildPlan({ topic: topicT, focus: focusT, mission: missionT }).then(setPlan)
+      : null;
+    if (!req) return;
+    let alive = true;
+    setNet('loading');
+    req.then(() => alive && setNet('idle')).catch(() => alive && setNet('error'));
+    return () => {
+      alive = false;
+    };
+  }, [step, topicT, focusT, missionT, attempt]);
+  const netBlock = (loadingText: string) =>
+    net === 'idle' ? null : (
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 14 }}>
+        <Txt t="meta" color={net === 'error' ? 'err' : 'mut'} style={{ flexShrink: 1 }}>
+          {net === 'error' ? t.loadFailed : loadingText}
+        </Txt>
+        {net === 'error' ? (
+          <Pressable accessibilityRole="button" onPress={() => setAttempt((n) => n + 1)} hitSlop={8}>
+            <Txt t="metaMed" color="mintInk">{t.retry} →</Txt>
+          </Pressable>
+        ) : null}
+      </View>
+    );
 
   const kept = useMemo(() => sources.filter((s) => !excluded[s.id]), [sources, excluded]);
-  const canNext = [topicT.length > 0, focusT.length > 0, missionT.length > 0, kept.length > 0, true][step];
+  const canNext = net === 'idle' && [topicT.length > 0, focusT.length > 0, missionT.length > 0, kept.length > 0, true][step];
   const label = [t.setupNext, t.setupNext, t.setupNext, t.setupBuild, t.done][step];
 
   const onNext = () => {
@@ -98,6 +123,7 @@ export default function SetupScreen() {
               <Txt t="kicker" color="amber" style={{ marginTop: 22, letterSpacing: 0.84 }}>{t.setupNarrowKicker}</Txt>
               <Txt t="h2" style={{ marginTop: 10, lineHeight: 29 }}>{t.setupNarrowTitle(topicT || t.topicPh)}</Txt>
               <Txt t="row" color="mut" style={{ marginTop: 10, fontSize: 13.5, lineHeight: 21 }}>{t.setupNarrowNote}</Txt>
+              {netBlock(t.loadingFocus)}
               <View style={{ gap: 9, marginTop: 14 }}>
                 {focusOpts.map((o) => {
                   const active = focusT === o.t;
@@ -137,6 +163,7 @@ export default function SetupScreen() {
             <>
               <Txt t="h2" style={{ marginTop: 22, lineHeight: 29 }}>{t.setupSourcesTitle}</Txt>
               <Txt t="row" color="mut" style={{ marginTop: 10, fontSize: 13.5, lineHeight: 21 }}>{t.setupSourcesNote(focusT || topicT || t.focusPh)}</Txt>
+              {netBlock(t.loadingSources)}
               <View style={{ gap: 9, marginTop: 14 }}>
                 {sources.map((s) => {
                   const off = !!excluded[s.id];
@@ -168,6 +195,7 @@ export default function SetupScreen() {
                 <Txt t="kicker" color="amber" style={{ letterSpacing: 0.84 }}>{t.why}</Txt>
                 <Txt t="meta" color="mut" numberOfLines={2} style={{ flexShrink: 1 }}>{missionT || t.missionPh}</Txt>
               </View>
+              {netBlock(t.loadingPlan)}
               <View style={{ gap: 9, marginTop: 16 }}>
                 {plan.map((ms) => (
                   <Card key={ms.n} style={{ flexDirection: 'row', gap: 12, paddingVertical: 14, paddingHorizontal: 16 }}>

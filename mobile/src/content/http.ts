@@ -19,6 +19,7 @@ export class ContentHttpError extends Error {
 }
 
 type LessonStatus = { status: 'preparing' | 'failed'; stage: number | null } | { status: 'ready'; lesson: Lesson };
+type SourcesJob = { status: 'running' | 'failed'; error?: string } | { status: 'ready'; items: SourceCandidate[] };
 
 /** ContentService поверх HTTP-оркестратора. Ключей модели в клиенте нет. */
 export function createHttpContentService(opts: HttpContentOptions): ContentService {
@@ -39,7 +40,18 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
 
   return {
     suggestFocus: (topic) => call<FocusOption[]>('POST', '/subjects/focus', { topic }),
-    findSources: (topic, focus) => call<SourceCandidate[]>('POST', '/subjects/sources', { topic, focus }),
+    /** Поиск источников — фоновая задача на сервере: web search дольше таймаута HTTP на телефоне (60 с). */
+    async findSources(topic, focus) {
+      const job = await call<{ jobId: string; status: string }>('POST', '/subjects/sources', { topic, focus });
+      const deadline = Date.now() + timeoutMs;
+      for (;;) {
+        const st = await call<SourcesJob>('GET', `/subjects/sources/${job.jobId}`);
+        if (st.status === 'ready') return st.items;
+        if (st.status === 'failed') throw new Error(st.error || 'sources search failed');
+        if (Date.now() > deadline) throw new Error('sources search timed out');
+        await new Promise((r) => setTimeout(r, pollMs));
+      }
+    },
     buildPlan: (draft) => call<PlanStage[]>('POST', '/subjects/plan', draft),
     async prepareFirstLesson(draft: SubjectDraft, onStage) {
       const created = await call<{ subjectId: string; status: string }>('POST', '/subjects', draft);

@@ -30,6 +30,7 @@ builder.Services.AddSingleton(new WorkerOptions
     DurationMinutes = cfg.GetValue("DurationMinutes", 5),
 });
 builder.Services.AddSingleton<LessonQueue>();
+builder.Services.AddSingleton<SourcesJobs>();
 builder.Services.AddHostedService<LessonWorker>();
 builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull);
 // CORS нужен только web-превью клиента; нативные приложения его не используют.

@@ -20,6 +20,14 @@ public sealed record SubjectDraft(string Topic, string Focus, string Mission, st
 
 public sealed record SubjectCreated(string SubjectId, string Status);
 
+/// <summary>Поиск источников — фоновая задача: web search у модели идёт 1–2 минуты, дольше таймаута HTTP на телефоне.</summary>
+public sealed record JobCreated(string JobId, string Status);
+
+public sealed record SourcesJobStatus(
+    string Status,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<SourceCandidate>? Items,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Error);
+
 public sealed record Criterion(string T, string[] Keys);
 
 public sealed record GradeRequest(Criterion[] Criteria, string Text, string Lang);

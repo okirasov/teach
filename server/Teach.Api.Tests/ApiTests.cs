@@ -45,9 +45,19 @@ public class ApiTests : IClassFixture<ApiFactory>
         var focus = await Post<FocusOption[]>("/subjects/focus", new FocusRequest("История"));
         Assert.Equal("Поздняя Античность", focus![0].T);
 
-        var sources = await Post<SourceCandidate[]>("/subjects/sources", new SourcesRequest("SQL", "Основы и синтаксис"));
-        Assert.Equal(4, sources!.Length);
-        Assert.Equal(["high", "high", "mid", "low"], sources.Select(s => s.Trust));
+        var job = await _http.PostAsJsonAsync("/subjects/sources", new SourcesRequest("SQL", "Основы и синтаксис"));
+        Assert.Equal(HttpStatusCode.Accepted, job.StatusCode);
+        var jobId = (await job.Content.ReadFromJsonAsync<JobCreated>(Json))!.JobId;
+        SourcesJobStatus? st = null;
+        for (var i = 0; i < 100 && st?.Status != "ready"; i++)
+        {
+            st = await _http.GetFromJsonAsync<SourcesJobStatus>($"/subjects/sources/{jobId}", Json);
+            if (st!.Status != "ready") await Task.Delay(10);
+        }
+        Assert.Equal("ready", st!.Status);
+        Assert.Equal(4, st.Items!.Count);
+        Assert.Equal(["high", "high", "mid", "low"], st.Items.Select(s => s.Trust));
+        Assert.Equal(HttpStatusCode.NotFound, (await _http.GetAsync("/subjects/sources/nope")).StatusCode);
 
         var plan = await Post<PlanStage[]>("/subjects/plan", new PlanRequest("SQL", "Основы", "писать отчёты"));
         Assert.Equal("писать отчёты", plan![2].D);

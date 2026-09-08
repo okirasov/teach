@@ -68,6 +68,7 @@ export const ru = {
   srcExcluded: 'исключён', trustHigh: 'высокое', trustMid: 'среднее', trustLow: 'низкое',
   setupPlanTitle: 'План занятий',
   setupPlanNote: 'Первый урок соберётся в фоне и будет готов к вашему возвращению — без спиннера. План перестраивается после каждой сессии по записям об усвоенном.',
+  loadingFocus: 'Подбираю фокусы…', loadingSources: 'Ищу источники… это может занять минуту', loadingPlan: 'Собираю план…', loadFailed: 'Не удалось загрузить',
   planLater: 'уточним после первых сессий', missionPh: 'миссия', topicPh: 'эта тема', focusPh: 'тема',
   langRu: 'Русский', langEn: 'English',
 };

@@ -14,17 +14,18 @@ function fakeFetch(handler: Handler) {
 
 describe('http content service', () => {
   it('posts wizard requests to the contract paths', async () => {
-    const { fn, calls } = fakeFetch((url) => {
+    const { fn, calls } = fakeFetch((url, init) => {
       if (url.endsWith('/subjects/focus')) return { body: [{ t: 'A', d: 'a' }] };
-      if (url.endsWith('/subjects/sources')) return { body: [{ id: 'src-0', t: 'S', m: 'm', trust: 'high' }] };
+      if (url.endsWith('/subjects/sources') && init?.method === 'POST') return { status: 202, body: { jobId: 'j1', status: 'running' } };
+      if (url.endsWith('/subjects/sources/j1')) return { body: { status: 'ready', items: [{ id: 'src-0', t: 'S', m: 'm', trust: 'high' }] } };
       if (url.endsWith('/subjects/plan')) return { body: [{ n: '01', t: 'p', d: 'd' }] };
       return { status: 404, body: null };
     });
-    const svc = createHttpContentService({ baseUrl: 'http://srv/', fetchFn: fn });
+    const svc = createHttpContentService({ baseUrl: 'http://srv/', fetchFn: fn, pollMs: 1 });
     expect((await svc.suggestFocus('История'))[0].t).toBe('A');
     expect((await svc.findSources('SQL', 'f'))[0].trust).toBe('high');
     expect((await svc.buildPlan({ topic: 'SQL', focus: 'f', mission: 'm' }))[0].n).toBe('01');
-    expect(calls.map((c) => c.url)).toEqual(['http://srv/subjects/focus', 'http://srv/subjects/sources', 'http://srv/subjects/plan']);
+    expect(calls.map((c) => c.url)).toEqual(['http://srv/subjects/focus', 'http://srv/subjects/sources', 'http://srv/subjects/sources/j1', 'http://srv/subjects/plan']);
     expect(JSON.parse(calls[0].init!.body as string)).toEqual({ topic: 'История' });
   });
 

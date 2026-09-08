@@ -66,6 +66,7 @@ export const en: Dict = {
   srcExcluded: 'excluded', trustHigh: 'high', trustMid: 'medium', trustLow: 'low',
   setupPlanTitle: 'Study plan',
   setupPlanNote: 'The first lesson is built in the background and will be ready when you return — no spinner. The plan is rebuilt after every session from your learning records.',
+  loadingFocus: 'Picking focus options…', loadingSources: 'Finding sources… this can take a minute', loadingPlan: 'Building the plan…', loadFailed: 'Could not load',
   planLater: 'refined after the first sessions', missionPh: 'mission', topicPh: 'this topic', focusPh: 'topic',
   langRu: 'Русский', langEn: 'English',
 };

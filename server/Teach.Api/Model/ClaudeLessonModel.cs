@@ -33,7 +33,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
     {
         var r = await AskAsync<SourceList>(
             $"Тема «{topic}», фокус «{focus}». Найди 4 реальных источника для уроков: t — название, m — одна строка, что это и чем полезно, trust — high/mid/low по правилу: рецензированное и официальное — high, учебные курсы и первоисточники с оговоркой — mid, блоги, треды, научпоп — low. Модель не источник истины: используй поиск.",
-            Schemas.SourceList, ct, effort: Effort.Medium, tools: [new ToolUnion(new WebSearchTool20260209 { MaxUses = 3 })]);
+            Schemas.SourceList, ct, effort: Effort.Low, tools: [new ToolUnion(new WebSearchTool20260209 { MaxUses = 2 })]);
         return r.Items.Select((s, i) => new SourceCandidate($"src-{i}", s.T, s.M, s.Trust)).ToList();
     }
 

@@ -20,8 +20,16 @@ public static class ContentEndpoints
         app.MapPost("/subjects/focus", async (FocusRequest r, ILessonModel model, CancellationToken ct) =>
             string.IsNullOrWhiteSpace(r.Topic) ? Results.BadRequest("topic is required") : Results.Ok(await model.SuggestFocusAsync(r.Topic.Trim(), ct)));
 
-        app.MapPost("/subjects/sources", async (SourcesRequest r, ILessonModel model, CancellationToken ct) =>
-            string.IsNullOrWhiteSpace(r.Topic) ? Results.BadRequest("topic is required") : Results.Ok(await model.FindSourcesAsync(r.Topic.Trim(), (r.Focus ?? "").Trim(), ct)));
+        // Источники ищутся в фоне: POST создаёт задачу (202), GET отдаёт статус и результат.
+        app.MapPost("/subjects/sources", (SourcesRequest r, SourcesJobs jobs) =>
+        {
+            if (string.IsNullOrWhiteSpace(r.Topic)) return Results.BadRequest("topic is required");
+            var id = jobs.Start(r.Topic.Trim(), (r.Focus ?? "").Trim());
+            return Results.Accepted($"/subjects/sources/{id}", new JobCreated(id, "running"));
+        });
+
+        app.MapGet("/subjects/sources/{jobId}", (string jobId, SourcesJobs jobs) =>
+            jobs.Get(jobId) is { } st ? Results.Ok(st) : Results.NotFound());
 
         app.MapPost("/subjects/plan", async (PlanRequest r, ILessonModel model, CancellationToken ct) =>
             string.IsNullOrWhiteSpace(r.Topic) ? Results.BadRequest("topic is required") : Results.Ok(await model.BuildPlanAsync(r.Topic.Trim(), (r.Focus ?? "").Trim(), (r.Mission ?? "").Trim(), ct)));
