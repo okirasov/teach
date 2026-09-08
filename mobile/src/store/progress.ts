@@ -51,7 +51,11 @@ export const useProgress = create<ProgressState>((set, get) => ({
   markDone: (id, records) =>
     set((s) => ({ done: { ...s.done, [id]: true }, added: s.added + records.length, reviewLog: [...s.reviewLog, ...records] })),
   removeSubject: (id) =>
-    set((s) => ({ removed: { ...s.removed, [id]: true }, custom: id === CUSTOM_ID ? null : s.custom, customLesson: id === CUSTOM_ID ? null : s.customLesson })),
+    set((s) => {
+      const cfg = { ...s.cfg };
+      delete cfg[id];
+      return { removed: { ...s.removed, [id]: true }, cfg, custom: id === CUSTOM_ID ? null : s.custom, customLesson: id === CUSTOM_ID ? null : s.customLesson };
+    }),
   createCustom: (c) =>
     set((s) => ({
       custom: { ...c, ready: false },

@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 
 import { useAuth } from '@/store/auth';
+import { persistSlice } from '@/store/persist';
+import { useProgress } from '@/store/progress';
+import { useSettings } from '@/store/settings';
 import { useReviews } from '@/store/reviews';
 import { openRepos, type Repos } from './database';
 
@@ -22,16 +25,22 @@ export function DbGate({ children }: { children: React.ReactNode }) {
     }
     let repos: Repos | null = null;
     let cancelled = false;
+    const unsubs: (() => void)[] = [];
     openRepos(accountId)
       .then(async (r) => {
         if (cancelled) return r.close();
         repos = r;
         await attach(r.reviews);
+        unsubs.push(await persistSlice(useSettings, r.kv, 'settings', ['lang', 'theme', 'reminder', 'weekendOff', 'cap', 'mode']));
+        unsubs.push(
+          await persistSlice(useProgress, r.kv, 'progress', ['done', 'removed', 'added', 'custom', 'customLesson', 'prepStage', 'missions', 'cfg', 'reviewLog']),
+        );
         if (!cancelled) setReadyFor(accountId);
       })
       .catch((e) => console.warn('db open failed', e));
     return () => {
       cancelled = true;
+      unsubs.forEach((u) => u());
       detach();
       repos?.close().catch(() => {});
     };

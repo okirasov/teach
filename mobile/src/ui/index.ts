@@ -11,3 +11,6 @@ export { TabTitle } from './TabTitle';
 export { TabBar } from './TabBar';
 export { SessionHeader } from './SessionHeader';
 export { MicButton } from './MicButton';
+export { Toggle } from './Toggle';
+export { PillGroup, type PillOption } from './Pill';
+export { TwoStepConfirm } from './TwoStepConfirm';
