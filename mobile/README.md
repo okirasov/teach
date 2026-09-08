@@ -60,7 +60,11 @@ npm run typecheck
 npm test
 ```
 
-Dev-переменные: `EXPO_PUBLIC_AUTH_LOCAL=1` — вход локальной сессией без провайдера (симулятор, автотесты); `EXPO_PUBLIC_GOOGLE_{IOS,ANDROID,WEB}_CLIENT_ID` — Google-вход.
+Dev-переменные: `EXPO_PUBLIC_AUTH_LOCAL=1` — вход локальной сессией без провайдера (симулятор, автотесты); `EXPO_PUBLIC_GOOGLE_{IOS,ANDROID,WEB}_CLIENT_ID` — Google-вход; `EXPO_PUBLIC_VOICE_SIM=1` — симуляция STT вместо платформенного; `EXPO_PUBLIC_VOICE_SMOKE=1` — дымовая проверка нативного STT при старте (лог `[voice]`).
+
+## Голос
+
+`src/voice/` — адаптер `SpeechRecognizer`: платформенный STT через `expo-speech-recognition` (SFSpeechRecognizer / Android SpeechRecognizer, только dev-сборка) и симуляция прототипа (web, `EXPO_PUBLIC_VOICE_SIM=1`). Режим из Профиля: «Удерживать» — одна реплика на pressIn/pressOut, «Без рук» — continuous до повторного тапа. Язык распознавания — из настроек предмета. Если STT недоступен или разрешение не дано, кнопка микрофона не показывается; текстовый ввод доступен всегда. В iOS-симуляторе SFSpeechRecognizer не инициализируется («Failed to initialize recognizer») — реальное распознавание проверяется на устройстве.
 
 ### iOS-симулятор на этой машине
 
@@ -71,3 +75,5 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 npx expo prebuild --platform ios
 cd ios && xcodebuild -workspace Teach.xcworkspace -scheme Teach -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
 xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/Teach.app && xcrun simctl launch booted app.teach.mobile
 ```
+
+Metro без watchman не видит правок — после изменения кода перезапускать `expo start --clear`. Разрешение на распознавание речи `simctl privacy` не выдаёт; в симуляторе его можно проставить в `~/Library/Developer/CoreSimulator/Devices/<UDID>/data/Library/TCC/TCC.db` (`kTCCServiceSpeechRecognition`, `auth_value=2`).

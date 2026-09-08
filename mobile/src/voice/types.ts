@@ -8,6 +8,8 @@ export interface SpeechOptions {
   lang: string;
   /** Подсказка для симулятора — текст, который «наговаривается». */
   hint?: string;
+  /** Без рук: слушать до явной остановки; удерживать: одна реплика. */
+  continuous?: boolean;
 }
 
 export interface SpeechSession {

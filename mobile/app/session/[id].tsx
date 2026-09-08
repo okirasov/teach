@@ -45,7 +45,7 @@ export default function SessionScreen() {
 
   const step = s ? currentStep(s) : null;
   const hint = step && step.type !== 'explain' ? step.voice : undefined;
-  const voice = useVoiceInput(voiceLangFor(lesson?.name ?? '', cfg, uiLang), hint);
+  const voice = useVoiceInput(voiceLangFor(lesson?.name ?? '', cfg, uiLang), hint, mode === 'hands');
 
   if (!s || !step || !lesson) return <Screen />;
 
@@ -54,7 +54,7 @@ export default function SessionScreen() {
   const action = primaryAction(s);
   const label = { toPractice: t.toPractice, answer: t.answer, next: t.next, toRecap: t.toRecap }[action];
   const isText = step.type === 'input' || step.type === 'free';
-  const showMic = cfg.voice && isText && !s.checked;
+  const showMic = cfg.voice && isText && !s.checked && voice.available === true;
 
   const onPrimary = () => {
     voice.stop();

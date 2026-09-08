@@ -46,7 +46,17 @@
         }
       ],
       "expo-web-browser",
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Teach использует микрофон, чтобы вы могли отвечать голосом.",
+          "speechRecognitionPermission": "Teach распознаёт речь, чтобы превратить ответ в текст.",
+          "androidSpeechServicePackages": [
+            "com.google.android.googlequicksearchbox"
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

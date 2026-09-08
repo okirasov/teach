@@ -8,6 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { DbGate } from '@/db/DbGate';
 import { useAuth } from '@/store/auth';
 import { fontAssets, ThemeProvider, useTheme } from '@/theme';
+import { recognizer } from '@/voice';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -42,6 +43,26 @@ export default function RootLayout() {
 
   useEffect(() => {
     hydrate();
+    if (__DEV__) {
+      recognizer
+        .isAvailable()
+        .then((ok) => {
+          console.log(`[voice] recognizer available at start: ${ok}`);
+          // EXPO_PUBLIC_VOICE_SMOKE=1 — дымовая проверка нативного STT: старт, 3 с, стоп.
+          if (ok && process.env.EXPO_PUBLIC_VOICE_SMOKE === '1') {
+            const session = recognizer.start(
+              { lang: 'en-US' },
+              {
+                onResult: (t, f) => console.log(`[voice] result final=${f}: "${t}"`),
+                onEnd: () => console.log('[voice] end'),
+                onError: (m) => console.log(`[voice] error: ${m}`),
+              },
+            );
+            setTimeout(() => session.stop(), 3000);
+          }
+        })
+        .catch(() => {});
+    }
   }, [hydrate]);
 
   const ready = (fontsLoaded || !!fontError) && authStatus !== 'loading';
