@@ -13,9 +13,13 @@ WebBrowser.maybeCompleteAuthSession();
  */
 export function useGoogleSignIn(): () => Promise<Session> {
   const configured = isGoogleConfigured();
-  const [request, response, promptAsync] = Google.useAuthRequest(
-    configured ? googleClientIds : { webClientId: 'unconfigured.apps.googleusercontent.com' },
-  );
+  // Хук требует client id для текущей платформы даже без реального входа — даём плейсхолдеры.
+  const placeholder = 'unconfigured.apps.googleusercontent.com';
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    iosClientId: googleClientIds.iosClientId || placeholder,
+    androidClientId: googleClientIds.androidClientId || placeholder,
+    webClientId: googleClientIds.webClientId || placeholder,
+  });
   const pending = useRef<{ resolve: (s: Session) => void; reject: (e: Error) => void } | null>(null);
 
   useEffect(() => {

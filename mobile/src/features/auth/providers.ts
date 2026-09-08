@@ -1,23 +1,17 @@
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { Platform } from 'react-native';
 
+import { localDevSession } from './local';
 import { rememberedName } from './session';
-import type { Provider, Session } from './types';
+import type { Session } from './types';
+
+export { localDevSession };
 
 export class AuthCancelled extends Error {
   constructor() {
     super('cancelled');
     this.name = 'AuthCancelled';
   }
-}
-
-/**
- * Локальный вход для разработки: провайдер не сконфигурирован
- * (нет client id, Android без Apple, web) — создаём сессию с локальным id.
- * В production-сборке недоступен.
- */
-export function localDevSession(provider: Provider): Session {
-  return { account: { id: `local-${provider}`, name: 'Олег', provider }, token: 'local-dev-token' };
 }
 
 export async function isAppleAvailable(): Promise<boolean> {

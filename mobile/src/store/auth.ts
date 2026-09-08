@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 
+import { autoLocalSignIn, localDevSession } from '@/features/auth/local';
 import { clearSession, loadSession, saveSession } from '@/features/auth/session';
 import type { Account, Session } from '@/features/auth/types';
 
@@ -19,7 +20,11 @@ export const useAuth = create<AuthState>((set) => ({
   status: 'loading',
   account: null,
   hydrate: async () => {
-    const session = await loadSession().catch(() => null);
+    let session = await loadSession().catch(() => null);
+    if (!session && autoLocalSignIn()) {
+      session = localDevSession('apple');
+      await saveSession(session).catch(() => {});
+    }
     set(session ? { status: 'signedIn', account: session.account } : { status: 'signedOut', account: null });
   },
   signIn: async (session) => {

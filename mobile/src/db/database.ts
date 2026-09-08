@@ -36,5 +36,6 @@ export async function openRepos(accountId: string, now = new Date()): Promise<Re
   await migrate(db);
   const reviews = sqliteReviewsRepo(db);
   if ((await reviews.count()) === 0) await reviews.upsert(prototypeQueue(now));
+  if (__DEV__) console.log(`[db] ${databaseName(accountId)} · ${await reviews.count()} cards`);
   return { reviews, close: () => db.closeAsync() };
 }

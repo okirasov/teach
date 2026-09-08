@@ -44,11 +44,30 @@ mobile/
 
 Тема выбирается в Профиле; до выбора следует системной.
 
+## Хранилище
+
+`src/db/` — expo-sqlite, файл на аккаунт (`teach-<accountId>.db`), миграции через `PRAGMA user_version`, таблицы `review_cards`, `review_log`, `kv`. Выход из аккаунта закрывает БД, файл остаётся. На web (только превью) — in-memory репозиторий с тем же интерфейсом.
+
+Интервалы повторов — FSRS (`ts-fsrs`, без краткосрочных шагов): ошибка → 1 день, успех → 3 дня на новой карточке. Одна ссылка на шаг урока — одна карточка; повторное прохождение пересчитывает срок.
+
 ## Запуск
 
 ```bash
 npm install
-npx expo start          # Expo Go / dev-build
-npx expo start --web    # быстрый просмотр токенов
+npx expo start          # Metro для dev-сборки
+npx expo start --web    # быстрый просмотр (SecureStore и SQLite заменены памятью)
 npm run typecheck
+npm test
+```
+
+Dev-переменные: `EXPO_PUBLIC_AUTH_LOCAL=1` — вход локальной сессией без провайдера (симулятор, автотесты); `EXPO_PUBLIC_GOOGLE_{IOS,ANDROID,WEB}_CLIENT_ID` — Google-вход.
+
+### iOS-симулятор на этой машине
+
+`npx expo run:ios` выбирает спаренный физический iPhone и падает на подписи; CocoaPods под Ruby 4 требует UTF-8 локали. Рабочий путь:
+
+```bash
+LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 npx expo prebuild --platform ios
+cd ios && xcodebuild -workspace Teach.xcworkspace -scheme Teach -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/Teach.app && xcrun simctl launch booted app.teach.mobile
 ```
