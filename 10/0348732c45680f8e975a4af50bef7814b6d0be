@@ -1,0 +1,27 @@
+docs/ai-content.md
+  s_a2145daee18e40::t_6fbba7cfd70137 3,50-64,84-85,87-89,133
+server/README.md
+  s_a2145daee18e40::t_f3d910db44f3f4 39
+server/Teach.Api/Jobs/LessonWorker.cs
+  s_a2145daee18e40::t_3dda14388f3d5c 38-42,89-105
+server/Teach.Api/Model/ClaudeLessonModel.cs
+  s_a2145daee18e40::t_de4a878cb3e1a9 19,25,57-72,90,100-101,105,124-125,127-128,130-143,180,186,232-235,244-245
+server/Teach.Api/Model/Prompts.cs
+  s_a2145daee18e40::t_b4e40d1daf34e0 24,26-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "100348732c45680f8e975a4af50bef7814b6d0be",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
