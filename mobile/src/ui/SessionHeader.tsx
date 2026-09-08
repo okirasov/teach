@@ -11,7 +11,7 @@ interface SessionHeaderProps {
   /** Счётчик n/N справа, mono. */
   counter: string;
   onClose: () => void;
-  /** Сегменты прогресса: количество и текущий индекс. */
+  /** Сегменты прогресса: количество (0 — без прогресса) и текущий индекс. */
   total: number;
   current: number;
 }
@@ -40,11 +40,13 @@ export function SessionHeader({ chip, chipDark, counter, onClose, total, current
         </View>
         <Txt t="monoMeta" color="mut" style={{ width: 36, textAlign: 'right', fontSize: 12 }}>{counter}</Txt>
       </View>
-      <View style={{ flexDirection: 'row', gap: size.progressGap, marginTop: 14 }}>
-        {Array.from({ length: total }, (_, i) => (
-          <View key={i} style={{ flex: 1, height: size.progressH, borderRadius: 2, backgroundColor: i <= current ? c.mintInk : c.mint }} />
-        ))}
-      </View>
+      {total > 0 ? (
+        <View style={{ flexDirection: 'row', gap: size.progressGap, marginTop: 14 }}>
+          {Array.from({ length: total }, (_, i) => (
+            <View key={i} style={{ flex: 1, height: size.progressH, borderRadius: 2, backgroundColor: i <= current ? c.mintInk : c.mint }} />
+          ))}
+        </View>
+      ) : null}
     </View>
   );
 }
