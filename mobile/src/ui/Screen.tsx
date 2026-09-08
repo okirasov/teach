@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme';
 
 interface ScreenProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   style?: ViewStyle;
   /** Без нижнего отступа — когда внизу таб-бар или закреплённая кнопка со своими полями. */
   noBottom?: boolean;

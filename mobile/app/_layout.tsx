@@ -24,6 +24,7 @@ function RootStack() {
           <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
           <Stack.Screen name="profile" options={{ presentation: 'modal' }} />
           <Stack.Screen name="session/[id]" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
+          <Stack.Screen name="recap" options={{ presentation: 'fullScreenModal', gestureEnabled: false, animation: 'fade' }} />
         </Stack.Protected>
       </Stack>
     </>

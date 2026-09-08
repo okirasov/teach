@@ -9,3 +9,5 @@ export { Avatar } from './Avatar';
 export { AppHeader } from './AppHeader';
 export { TabTitle } from './TabTitle';
 export { TabBar } from './TabBar';
+export { SessionHeader } from './SessionHeader';
+export { MicButton } from './MicButton';
