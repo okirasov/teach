@@ -1,0 +1,87 @@
+docs/ai-content.md
+  s_a2145daee18e40::t_4f2d99b806e1b8 3,93-96
+mobile/README.md
+  s_a2145daee18e40::t_03db54580aaf9e 63
+mobile/app/(tabs)/today.tsx
+  s_a2145daee18e40::t_b7396433d83027 4-5,40-44
+mobile/src/content/__tests__/http.test.ts
+  s_a2145daee18e40::t_2146df1c34b351 1-62
+mobile/src/content/http.ts
+  s_a2145daee18e40::t_e8c1d5fd577113 1-65
+mobile/src/content/index.ts
+  s_a2145daee18e40::t_51f58608628e89 1,7-9,11-12,14
+mobile/src/domain/types.ts
+  s_a2145daee18e40::t_edd00109281384 76-77
+mobile/src/features/subjects/__tests__/prepare.test.ts
+  s_a2145daee18e40::t_ee150ed84b2038 3,30-42
+mobile/src/features/subjects/prepare.ts
+  s_a2145daee18e40::t_fde52533c3268f 9-29
+mobile/src/features/today/SubjectCard.tsx
+  s_a2145daee18e40::t_a7bb51782e99d1 16-17,24-28
+mobile/src/features/today/useTodaySubjects.ts
+  s_a2145daee18e40::t_a257f474f4de6c 15,27,33
+mobile/src/i18n/en.ts
+  s_a2145daee18e40::t_d23db6eb424dc3 9
+mobile/src/i18n/ru.ts
+  s_a2145daee18e40::t_f601a07432e8e1 10
+mobile/src/store/progress.ts
+  s_a2145daee18e40::t_04757c3eb5ce6b 36-38,49,67,73-74
+server/.gitignore
+  s_a2145daee18e40::t_18c6c1e5d6f01b 1-4
+server/README.md
+  s_a2145daee18e40::t_dd41b4a0e3671b 1-35
+server/Teach.Api.Tests/ApiTests.cs
+  s_a2145daee18e40::t_c3e4fcc56e6780 1-113
+server/Teach.Api.Tests/LessonValidatorTests.cs
+  s_a2145daee18e40::t_0872fb74ac89f0 1-54
+server/Teach.Api.Tests/Teach.Api.Tests.csproj
+  s_a2145daee18e40::t_7b4c79f4684b39 1-26
+server/Teach.Api/Contracts/Dtos.cs
+  s_a2145daee18e40::t_0b72b35994b2fb 1-36
+server/Teach.Api/Data/TeachDb.cs
+  s_a2145daee18e40::t_fc258e9bfe88f5 1-49
+server/Teach.Api/Domain/Lesson.cs
+  s_a2145daee18e40::t_3b932a7dc56015 1-71
+server/Teach.Api/Domain/LessonValidator.cs
+  s_a2145daee18e40::t_3826b1fdc35ec4 1-81
+server/Teach.Api/Endpoints/ContentEndpoints.cs
+  s_a2145daee18e40::t_3357985d18b321 1-74
+server/Teach.Api/Jobs/LessonWorker.cs
+  s_a2145daee18e40::t_ecc7a026fd96f6 1-89
+server/Teach.Api/Model/ClaudeLessonModel.cs
+  s_a2145daee18e40::t_eaea2cb6195fe5 1-194
+server/Teach.Api/Model/ILessonModel.cs
+  s_a2145daee18e40::t_2bbbd331d73cf7 1-19
+server/Teach.Api/Model/Prompts.cs
+  s_a2145daee18e40::t_aff66cf6add6d4 1-33
+server/Teach.Api/Model/StubLessonModel.cs
+  s_a2145daee18e40::t_4c3bee79f69aa1 1-119
+server/Teach.Api/Program.cs
+  s_a2145daee18e40::t_98afb5f77e57bf 1-48
+server/Teach.Api/Properties/launchSettings.json
+  s_a2145daee18e40::t_6ef544c3a37c69 1-10
+server/Teach.Api/Teach.Api.csproj
+  s_a2145daee18e40::t_0badfbf299d258 1-14
+server/Teach.Api/appsettings.Development.json
+  s_a2145daee18e40::t_5dabdf24529832 1-8
+server/Teach.Api/appsettings.json
+  s_a2145daee18e40::t_d83441de31479e 1-11
+server/Teach.slnx
+  s_a2145daee18e40::t_a4b0dbd6ca3e38 1-4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "65a04aac3b1de60fc18f2b20a65943c9c8adba98",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
