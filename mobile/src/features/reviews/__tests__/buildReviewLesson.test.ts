@@ -1,7 +1,7 @@
 import { prototypeQueue } from '@/db/seedCards';
 import { seedLessons } from '@/domain/seed';
 import { buildReviewLesson } from '../buildReviewLesson';
-import { daysUntil, dueLabel } from '../queue';
+import { daysUntil, dueLabel, estimateMinutes } from '../queue';
 import { ru } from '@/i18n/ru';
 
 const now = new Date(2026, 8, 8, 12);
@@ -30,5 +30,10 @@ describe('due labels', () => {
     expect(dueLabel(ru, d(0), now)).toBe('сегодня');
     expect(dueLabel(ru, d(1), now)).toBe('завтра');
     expect(dueLabel(ru, d(3), now)).toBe('через 3 дня');
+  });
+  it('estimates minutes', () => {
+    expect(estimateMinutes(0)).toBe(0);
+    expect(estimateMinutes(1)).toBe(1);
+    expect(estimateMinutes(12)).toBe(6);
   });
 });

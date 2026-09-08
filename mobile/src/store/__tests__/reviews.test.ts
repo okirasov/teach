@@ -39,6 +39,20 @@ describe('reviews store', () => {
     expect(repo.logs).toHaveLength(2);
   });
 
+  it('addRecords reschedules an existing card with the same step ref instead of duplicating it', async () => {
+    const repo = memoryReviewsRepo(prototypeQueue(now));
+    await useReviews.getState().attach(repo);
+    const result = await useReviews.getState().addRecords(
+      [{ subjectId: 'en', subjectName: 'Английский', title: 'После if не бывает would', note: 'n', source: '', ref: { subjectId: 'en', step: 1 }, ok: true }],
+      now,
+    );
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe('seed-en-1');
+    expect(useReviews.getState().cards).toHaveLength(5);
+    expect(await repo.count()).toBe(5);
+    expect(dueToday(useReviews.getState().cards, now).map((c) => c.id)).not.toContain('seed-en-1');
+  });
+
   it('applyResults reschedules existing cards: success pushes out, mistake keeps it near', async () => {
     const repo = memoryReviewsRepo(prototypeQueue(now));
     await useReviews.getState().attach(repo);

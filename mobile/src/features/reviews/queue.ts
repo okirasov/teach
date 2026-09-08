@@ -33,7 +33,7 @@ export function dueLabel(t: Dict, due: Date, now: Date): string {
   return t.dInDays(n);
 }
 
-/** Примерная длительность: ~2 мин на карточку, минимум 1. */
+/** Примерная длительность: ~30 с на карточку; 0 карточек → 0 мин. */
 export function estimateMinutes(count: number): number {
-  return Math.max(1, Math.round(count * 0.5));
+  return count === 0 ? 0 : Math.max(1, Math.round(count * 0.5));
 }

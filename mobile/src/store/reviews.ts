@@ -35,7 +35,10 @@ export interface ReviewsState {
   ready: boolean;
   attach: (repo: ReviewsRepo) => Promise<void>;
   detach: () => void;
-  /** Записи после сессии урока → новые карточки с первым сроком. */
+  /**
+   * Записи после сессии урока → карточки. Если карточка с той же ссылкой на шаг уже есть,
+   * она пересчитывается по результату, а не дублируется: одна учебная точка — одна карточка.
+   */
   addRecords: (records: NewRecord[], now?: Date) => Promise<ReviewCard[]>;
   /** Результаты сессии повторов → пересчёт сроков существующих карточек. */
   applyResults: (results: ReviewResult[], now?: Date) => Promise<void>;
@@ -52,21 +55,31 @@ export const useReviews = create<ReviewsState>((set, get) => ({
   },
   detach: () => set({ repo: null, cards: [], ready: false }),
   addRecords: async (records, now = new Date()) => {
-    const { repo } = get();
+    const { repo, cards } = get();
+    const existingByRef = new Map(cards.filter((c) => c.ref).map((c) => [`${c.ref!.subjectId}:${c.ref!.step}`, c]));
     const created: ReviewCard[] = [];
+    const updated: ReviewCard[] = [];
     const logs = [];
     for (const r of records) {
+      const prev = r.ref ? existingByRef.get(`${r.ref.subjectId}:${r.ref.step}`) : undefined;
+      if (prev) {
+        const { card, log } = schedule(prev.fsrs, r.ok, now);
+        updated.push({ ...prev, title: r.title, note: r.note, fsrs: card });
+        logs.push({ cardId: prev.id, log });
+        continue;
+      }
       const { card, log } = schedule(emptyCard(now), r.ok, now);
       const id = newCardId(now);
       created.push({ id, subjectId: r.subjectId, subjectName: r.subjectName, title: r.title, note: r.note, source: r.source, ref: r.ref, createdAt: now.getTime(), fsrs: card });
       logs.push({ cardId: id, log });
     }
     if (repo) {
-      await repo.upsert(created);
+      await repo.upsert([...updated, ...created]);
       await repo.addLogs(logs);
     }
-    set((s) => ({ cards: [...s.cards, ...created] }));
-    return created;
+    const upd = new Map(updated.map((c) => [c.id, c]));
+    set((s) => ({ cards: [...s.cards.map((c) => upd.get(c.id) ?? c), ...created] }));
+    return [...updated, ...created];
   },
   applyResults: async (results, now = new Date()) => {
     const { repo, cards } = get();
