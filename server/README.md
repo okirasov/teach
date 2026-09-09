@@ -31,9 +31,14 @@ ASPNETCORE_URLS=http://0.0.0.0:5180 dotnet run --no-launch-profile
   структурированный вывод по JSON-схеме, кэш промпта на методике и контексте предмета, web search для источников;
   `claude-haiku-4-5` для оценки свободных ответов. `StubLessonModel`: данные прототипа.
 - `Model/Prompts.cs` — версионированные промпты; версия пишется в урок.
-- `Jobs/LessonWorker` — фоновая очередь: источники → отбор → генерация диагностики → валидация → `ready`.
-- `Endpoints/ContentEndpoints` — `/subjects/focus`, `/subjects/sources`, `/subjects/plan`, `POST /subjects`,
-  `GET /subjects/{id}/lesson`, `POST /sessions/{id}/recap`, `POST /grade/free`.
+- `Jobs/LessonWorker` — фоновая очередь уроков: источники → отбор → генерация (диагностика для урока 1,
+  дальше урок N по плану и записям об усвоенном) → валидация → `ready`; история уроков в таблице `Lessons`.
+- `Jobs/SourcesJobs` — фоновый поиск источников с опросом статуса (web search дольше таймаута HTTP на телефоне).
+- `Endpoints/ContentEndpoints` — `/subjects/focus`, `/subjects/sources` (+ `GET …/{jobId}`), `/subjects/plan`,
+  `POST /subjects`, `GET /subjects/{id}/lesson` (с номером урока), `POST /sessions/{id}/recap` (записи + следующий урок),
+  `POST /grade/free`. Контракт и поведение — `docs/ai-content.md`.
 
 Подключение клиента: `EXPO_PUBLIC_CONTENT_URL=http://<host>:5180` (на устройстве — IP Mac в той же сети).
-Реальная модель прогнана 2026-09-09: фокусы, источники с web search, план, оценка ответа и стартовая диагностика (20 с, валидна с первой попытки). Сырой ответ модели пишется в лог на уровне Debug.
+Реальная модель прогнана 2026-09-09: фокусы (5 с), источники с web search (~30 с при `effort: low`, 2 запроса), план (6 с),
+оценка ответа на Haiku (1.4 с), стартовая диагностика (20 с) и урок 2 по записям разбора (18 с) — оба валидны с первой попытки.
+Сырой ответ модели пишется в лог на уровне Debug.

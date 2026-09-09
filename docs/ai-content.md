@@ -86,7 +86,10 @@ thinking = { type: "adaptive" }, output_config = { effort: "high", format: { jso
 оценка свободного ответа на `claude-haiku-4-5` 1.4 с и по смыслу («укрепления и проливы» засчитаны
 как «стены и море» без совпадения ключевых слов), стартовая диагностика 20 с и 1034 токена вывода,
 валидна с первой попытки: объяснение с источником, калибровка без правильного ответа, свободный рассказ
-и настоящая проверка по модели Тулмина с записями «данные путают с тезисом».
+и настоящая проверка по модели Тулмина с записями «данные путают с тезисом». Урок 2 по итальянскому
+после разбора с ошибкой «перепутал buongiorno и buonasera»: 18 с, 1191 токен, валиден с первой попытки,
+объяснение начинается с этой ошибки, источник с разделом, три типа практики (выбор, ввод с группами
+синонимов, порядок реплик).
 
 - **Кэш промпта.** Методика и формат урока неизменны для всех, миссия и источники — для предмета.
   Оба слоя помечены `cache_control`, меняется только хвост с записями. Это основная экономия:
@@ -96,6 +99,13 @@ thinking = { type: "adaptive" }, output_config = { effort: "high", format: { jso
   источников, `max_uses: 5`. Уровень доверия проставляет модель по правилам из системного промпта.
 - **Диагностика.** Первый урок не требует поиска: мастер передаёт выбранные источники в `POST /subjects`
   (`sources`), воркер не ищет их заново и сразу генерирует урок.
+- **Следующий урок.** После разбора воркер берёт все записи об усвоенном предмета и просит урок N по
+  этапу плана (2–3 → «каркас», 4–6 → «приёмы», дальше → «применение под миссию»), чуть выше границы,
+  которую показали ошибки: закрыть самую свежую, не повторять верное. Уроки хранятся в истории
+  (`Lessons`), статус несёт номер текущего. Заголовок карточки «Урок N · …» ставит сервер,
+  схема его не содержит.
+- **Язык предмета** определяется на клиенте при создании по таблице языков (`domain/languages.ts`):
+  код для STT и имена ru/en для пилла «Язык распознавания». Модель к этому не привлекается.
 - **Проверка свободного ответа.** Дешёвая задача классификации: критерии + текст → какие покрыты.
   Здесь уместен `claude-haiku-4-5` с `max_tokens` ~256, ответ структурированный.
 - **Фон.** Сервер ставит задачу в очередь после разбора; статус урока клиент читает при открытии
@@ -107,18 +117,27 @@ thinking = { type: "adaptive" }, output_config = { effort: "high", format: { jso
 ## HTTP-контракт для клиента
 
 ```
-POST /subjects/focus            { topic }                       → FocusOption[]
-POST /subjects/sources          { topic, focus }                → SourceCandidate[]
-POST /subjects/plan             { topic, focus, mission }       → PlanStage[]
-POST /subjects                  SubjectDraft                    → { subjectId, status: "preparing" }
-GET  /subjects/{id}/lesson      → { status: "preparing", stage: 0..2 } | { status: "ready", lesson }
-POST /sessions/{id}/recap       { records }                     → 202 (ставит генерацию следующего)
-POST /grade/free                { criteria, text, lang }        → { hits: boolean[] }
+POST /subjects/focus            { topic }                          → FocusOption[]
+POST /subjects/sources          { topic, focus }                   → 202 { jobId, status: "running" }
+GET  /subjects/sources/{jobId}  → { status: "running" } | { status: "ready", items } | { status: "failed", error }
+POST /subjects/plan             { topic, focus, mission }          → PlanStage[]
+POST /subjects                  SubjectDraft (+ sources)           → 202 { subjectId, status: "preparing" }
+GET  /subjects/{id}/lesson      → { status: "preparing"|"failed", stage: 0..2, number }
+                                | { status: "ready", number, lesson }
+POST /sessions/{id}/recap       { records }                        → 202 { status: "preparing" | "stored" }
+POST /grade/free                { criteria, text, lang }           → { hits: boolean[] }
 ```
 
-`HttpContentService` реализует `ContentService`, `prepareFirstLesson` = `POST /subjects` +
-поллинг `GET …/lesson` до `ready` с `onStage` на каждом переходе. Без сети мастер не запускается
-(поиск источников невозможен), остальное приложение работает из SQLite.
+Всё, что у модели занимает больше нескольких секунд, сервер делает фоновой задачей, а клиент
+опрашивает статус: iOS обрывает HTTP-запрос через 60 с, а web search у модели идёт 30–120 с.
+
+`HttpContentService` реализует `ContentService`: `findSources` = `POST` + опрос задачи;
+`prepareFirstLesson` = `POST /subjects` + опрос `GET …/lesson` до `ready` с `onStage` на каждом переходе,
+возвращает урок и `remoteId`; `prepareNextLesson` = `POST /sessions/{remoteId}/recap` + опрос до
+`number ≥ N`. `records` — записи разбора (`title, note, ok, stepIndex`). Для сидовых предметов
+(английский, QA, история) recap только сохраняет записи (`stored`), уроки у них статичны.
+Без сети мастер не запускается (поиск источников невозможен), остальное приложение работает из SQLite;
+сбой генерации не блокирует: карточка предмета предлагает «Повторить».
 
 ## Стоимость (оценка)
 
