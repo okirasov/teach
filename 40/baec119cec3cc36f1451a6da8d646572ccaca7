@@ -1,0 +1,59 @@
+mobile/src/content/http.ts
+  s_a2145daee18e40::t_16446af17e4f66 25,50,57,89
+mobile/src/content/types.ts
+  s_a2145daee18e40::t_60ca4ac65cc024 81-82
+mobile/src/domain/types.ts
+  s_a2145daee18e40::t_2bb9a21a67f7e1 92-93,109-110
+mobile/src/features/subjects/__tests__/plan.test.ts
+  s_a2145daee18e40::t_61d31743bd604f 14-15
+mobile/src/features/subjects/plan.ts
+  s_a2145daee18e40::t_286870c630c844 21-22,24
+mobile/src/features/subjects/prepare.ts
+  s_a2145daee18e40::t_ac7a130ac8b719 19-21,48
+mobile/src/features/today/useTodaySubjects.ts
+  s_a2145daee18e40::t_6487442762d0e7 31
+mobile/src/store/progress.ts
+  s_a2145daee18e40::t_080b7869106df7 35,77,81-84
+server/Teach.Api.Tests/ApiTests.cs
+  s_a2145daee18e40::t_17b42ad3881fbf 146-176
+server/Teach.Api.Tests/StagePolicyTests.cs
+  s_a2145daee18e40::t_00546bb07b2f2a 1-30
+server/Teach.Api/Contracts/Dtos.cs
+  s_a2145daee18e40::t_0ef0db7feddd18 27,45,59-62
+server/Teach.Api/Data/SchemaUpgrader.cs
+  s_a2145daee18e40::t_1bd3f554870d4d 16-19
+server/Teach.Api/Data/TeachDb.cs
+  s_a2145daee18e40::t_2e14c47a108936 26-29,45-48
+server/Teach.Api/Domain/StagePolicy.cs
+  s_a2145daee18e40::t_266d9a1ff88866 1-29
+server/Teach.Api/Endpoints/ContentEndpoints.cs
+  s_a2145daee18e40::t_d2e536aff399fc 48,65,68-70,78,82-84
+server/Teach.Api/Jobs/LessonWorker.cs
+  s_a2145daee18e40::t_459a1c3ddf5a2a 11-28,84,88-100,107
+server/Teach.Api/Model/ClaudeLessonModel.cs
+  s_a2145daee18e40::t_24ba836304f55f 97,105-106
+server/Teach.Api/Model/ILessonModel.cs
+  s_a2145daee18e40::t_6ff24299d7e735 22-23
+server/Teach.Api/Model/Prompts.cs
+  s_a2145daee18e40::t_951c3c65e952ec 36
+server/Teach.Api/Model/StubLessonModel.cs
+  s_a2145daee18e40::t_d499ff448c3174 136,144-145
+mobile/app.json
+  s_a2145daee18e40::t_254c25635df7b8 23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "40baec119cec3cc36f1451a6da8d646572ccaca7",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
