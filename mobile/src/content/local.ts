@@ -155,6 +155,9 @@ export function createLocalContentService(opts: { stageMs?: number; planLater?: 
         return { lesson, references: stubGlossary(lesson, 1) };
       });
     },
+    async prefetchNextLesson() {
+      /* у заглушки генерация мгновенная */
+    },
     prepareNextLesson(_remoteId, number, records, onStage) {
       return stages(onStage).then(() => {
         const lesson = stubNextLesson(number, records);

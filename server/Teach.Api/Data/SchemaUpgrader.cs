@@ -18,6 +18,11 @@ public static class SchemaUpgrader
         ("Records", "LessonNumber", "ALTER TABLE Records ADD COLUMN LessonNumber INTEGER NOT NULL DEFAULT 0"),
         ("Records", "PlanStage", "ALTER TABLE Records ADD COLUMN PlanStage INTEGER NOT NULL DEFAULT 0"),
         ("Subjects", "DurationMinutes", "ALTER TABLE Subjects ADD COLUMN DurationMinutes INTEGER NOT NULL DEFAULT 0"),
+        ("Subjects", "PrefetchJson", "ALTER TABLE Subjects ADD COLUMN PrefetchJson TEXT NULL"),
+        ("Subjects", "PrefetchNumber", "ALTER TABLE Subjects ADD COLUMN PrefetchNumber INTEGER NOT NULL DEFAULT 0"),
+        ("Subjects", "PrefetchStage", "ALTER TABLE Subjects ADD COLUMN PrefetchStage INTEGER NOT NULL DEFAULT 0"),
+        ("Subjects", "PrefetchRunning", "ALTER TABLE Subjects ADD COLUMN PrefetchRunning INTEGER NOT NULL DEFAULT 0"),
+        ("Subjects", "LastFromPrefetch", "ALTER TABLE Subjects ADD COLUMN LastFromPrefetch INTEGER NOT NULL DEFAULT 0"),
     ];
 
     private static readonly (string Table, string Ddl)[] Tables =

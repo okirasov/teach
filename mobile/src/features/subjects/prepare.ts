@@ -23,6 +23,13 @@ export async function prepareNextLesson(service: ContentService, records: Lesson
   await guard((onStage) => service.prepareNextLesson(c.remoteId, (c.lessonNumber ?? 0) + 1, stamped, onStage, { durationMinutes: dur }));
 }
 
+/** При открытии урока: попросить сервер заготовить следующий. Ошибки не мешают уроку. */
+export function prefetchNextLesson(service: ContentService): void {
+  const c = useProgress.getState().custom;
+  if (!c?.ready || !c.remoteId) return;
+  service.prefetchNextLesson(c.remoteId).catch(() => {});
+}
+
 /** Повтор после сбоя: первый урок по черновику или следующий по сохранённым записям. */
 export async function retryPrepare(service: ContentService): Promise<void> {
   const c = useProgress.getState().custom;

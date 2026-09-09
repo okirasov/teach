@@ -29,6 +29,14 @@ public sealed class SubjectRow
     public int PlanStage { get; set; }
     /// <summary>Длительность урока из настроек предмета (3/5/10 мин); 0 — по умолчанию сервера.</summary>
     public int DurationMinutes { get; set; }
+    /// <summary>Заготовка следующего урока (предзагрузка): JSON, номер и этап, на котором она собрана.</summary>
+    public string? PrefetchJson { get; set; }
+    public int PrefetchNumber { get; set; }
+    public int PrefetchStage { get; set; }
+    /// <summary>Идёт предзагрузка — второй раз не ставим.</summary>
+    public bool PrefetchRunning { get; set; }
+    /// <summary>Текущий урок пришёл из заготовки (для статуса и метрик).</summary>
+    public bool LastFromPrefetch { get; set; }
     public string? PromptVersion { get; set; }
     public string? LastError { get; set; }
     public DateTimeOffset CreatedAt { get; set; }

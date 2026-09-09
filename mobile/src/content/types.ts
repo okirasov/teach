@@ -77,6 +77,11 @@ export interface ContentService {
    * чуть выше границы, которую они показали.
    */
   prepareNextLesson(remoteId: string | undefined, number: number, records: LessonRecord[], onStage: (stage: PrepStage) => void, opts?: NextLessonOptions): Promise<PreparedLesson>;
+  /**
+   * Предзагрузка: пока идёт урок N, сервер заготавливает N+1 по записям на этот момент.
+   * Заготовка используется после разбора, если этап не сменился и разбор не провальный.
+   */
+  prefetchNextLesson(remoteId: string | undefined): Promise<void>;
 }
 
 export interface PreparedLesson {

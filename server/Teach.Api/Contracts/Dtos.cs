@@ -60,4 +60,10 @@ public sealed record LessonStatus(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ReferenceDto[]? References = null,
     /// <summary>Текущий этап плана (0-based) и число этапов; этапом владеет сервер по результатам.</summary>
     int PlanStage = 0,
-    int PlanTotal = 3);
+    int PlanTotal = 3,
+    /// <summary>Урок пришёл из заготовки предзагрузки.</summary>
+    bool Prefetched = false,
+    /// <summary>Заготовка следующего урока уже лежит на сервере.</summary>
+    bool PrefetchReady = false);
+
+public sealed record PrefetchAccepted(string Status);

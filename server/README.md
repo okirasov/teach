@@ -53,6 +53,7 @@ fly deploy && curl https://teach-tutor-api.fly.dev/health
 - `Jobs/SourcesJobs` — фоновый поиск источников с опросом статуса (web search дольше таймаута HTTP на телефоне).
 - `Endpoints/ContentEndpoints` — `/subjects/focus`, `/subjects/sources` (+ `GET …/{jobId}`), `/subjects/plan`,
   `POST /subjects`, `GET /subjects/{id}/lesson` (с номером урока), `POST /sessions/{id}/recap` (записи + следующий урок),
+  `POST /subjects/{id}/prefetch` (заготовка урока N+1, пока идёт урок N; используется при разборе, если этап не сменился и ≥ 50 % верных),
   `POST /grade/free`. Контракт и поведение — `docs/ai-content.md`.
 
 Подключение клиента: `EXPO_PUBLIC_CONTENT_URL=http://<host>:5180` (на устройстве — IP Mac в той же сети).

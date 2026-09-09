@@ -175,6 +175,72 @@ public class ApiTests : IClassFixture<ApiFactory>
         Assert.Equal("Урок 5 · Рабочие приёмы малыми шагами", st.Lesson!.LessonTitle);
     }
 
+    [Fact]
+    public async Task PrefetchedLessonIsServedRightAfterAGoodRecap()
+    {
+        var created = await _http.PostAsJsonAsync("/subjects", new SubjectDraft("SQL", "Основы и синтаксис", "писать отчёты", ["src-0"]));
+        var id = (await created.Content.ReadFromJsonAsync<SubjectCreated>(Json))!.SubjectId;
+        await WaitReady(id);
+
+        // Клиент открыл урок 1 → сервер заготавливает урок 2.
+        var pf = await _http.PostAsync($"/subjects/{id}/prefetch", null);
+        Assert.Equal(HttpStatusCode.Accepted, pf.StatusCode);
+        Assert.Equal("queued", (await pf.Content.ReadFromJsonAsync<PrefetchAccepted>(Json))!.Status);
+        var st = await WaitPrefetch(id);
+        Assert.Equal(1, st.Number);
+        Assert.False(st.Prefetched);
+        // Повторный вызов не ставит вторую задачу.
+        var again = await _http.PostAsync($"/subjects/{id}/prefetch", null);
+        Assert.Equal("exists", (await again.Content.ReadFromJsonAsync<PrefetchAccepted>(Json))!.Status);
+
+        // Хороший разбор → заготовка становится уроком 2 без генерации.
+        await _http.PostAsJsonAsync($"/sessions/{id}/recap", new RecapRequest([new("a", "…", true, 1, 1), new("b", "…", true, 2, 1)]));
+        var second = await WaitReady(id, expectNumber: 2);
+        Assert.True(second.Prefetched);
+        Assert.False(second.PrefetchReady);
+        Assert.StartsWith("этап 01", second.Lesson!.Level);
+        Assert.Empty(LessonValidator.Validate(second.Lesson));
+    }
+
+    [Fact]
+    public async Task PrefetchIsDiscardedAfterAFailedRecap()
+    {
+        var created = await _http.PostAsJsonAsync("/subjects", new SubjectDraft("SQL", "Основы и синтаксис", "писать отчёты", ["src-0"]));
+        var id = (await created.Content.ReadFromJsonAsync<SubjectCreated>(Json))!.SubjectId;
+        await WaitReady(id);
+        await _http.PostAsync($"/subjects/{id}/prefetch", null);
+        await WaitPrefetch(id);
+
+        // Меньше половины верных → заготовка выбрасывается, урок 2 собирается заново по записям.
+        await _http.PostAsJsonAsync($"/sessions/{id}/recap", new RecapRequest([new("a", "…", false, 1, 1), new("b", "…", false, 2, 1), new("c", "…", true, 3, 1)]));
+        var second = await WaitReady(id, expectNumber: 2);
+        Assert.False(second.Prefetched);
+        Assert.Equal(2, second.Number);
+    }
+
+    [Fact]
+    public async Task PrefetchIsSkippedWhileTheSubjectIsPreparing()
+    {
+        var created = await _http.PostAsJsonAsync("/subjects", new SubjectDraft("SQL", "Основы и синтаксис", "писать отчёты", ["src-0"]));
+        var id = (await created.Content.ReadFromJsonAsync<SubjectCreated>(Json))!.SubjectId;
+        var pf = await _http.PostAsync($"/subjects/{id}/prefetch", null);
+        Assert.Equal("skipped", (await pf.Content.ReadFromJsonAsync<PrefetchAccepted>(Json))!.Status);
+        Assert.Equal(HttpStatusCode.NotFound, (await _http.PostAsync($"/subjects/{Guid.NewGuid()}/prefetch", null)).StatusCode);
+        await WaitReady(id);
+    }
+
+    private async Task<LessonStatus> WaitPrefetch(string id)
+    {
+        LessonStatus? status = null;
+        for (var i = 0; i < 300; i++)
+        {
+            status = await _http.GetFromJsonAsync<LessonStatus>($"/subjects/{id}/lesson", Json);
+            if (status!.PrefetchReady) return status;
+            await Task.Delay(20);
+        }
+        throw new Xunit.Sdk.XunitException($"prefetch not ready: {status?.Status}/{status?.Number}");
+    }
+
     private async Task<LessonStatus> WaitReady(string id, int expectNumber = 1)
     {
         LessonStatus? status = null;

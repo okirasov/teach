@@ -88,6 +88,10 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
       const r = await waitLesson(created.subjectId, 1, onStage);
       return { lesson: r.lesson, remoteId: created.subjectId, references: r.references, planStage: r.planStage };
     },
+    async prefetchNextLesson(remoteId) {
+      if (!remoteId) return;
+      await call<{ status: string }>('POST', `/subjects/${remoteId}/prefetch`);
+    },
     async prepareNextLesson(remoteId, number, records: LessonRecord[], onStage, opts) {
       if (!remoteId) throw new Error('subject has no server id');
       const r = await call<{ status: string }>('POST', `/sessions/${remoteId}/recap`, { records, durationMinutes: opts?.durationMinutes });

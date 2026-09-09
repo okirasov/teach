@@ -51,7 +51,7 @@ public static class ContentEndpoints
             };
             db.Subjects.Add(row);
             await db.SaveChangesAsync(ct);
-            await queue.EnqueueAsync(row.Id, ct);
+            await queue.EnqueueAsync(row.Id, LessonJobKind.Prepare, ct);
             return Results.Accepted($"/subjects/{row.Id}/lesson", new SubjectCreated(row.Id.ToString(), "preparing"));
         });
 
@@ -64,9 +64,10 @@ public static class ContentEndpoints
                     .Select(r => new ReferenceDto(r.Id.ToString(), r.Group, r.Title, r.UpdatedAfter, JsonSerializer.Deserialize<RefRowDto[]>(r.RowsJson, Json) ?? [])).ToArray()
                 : null;
             var total = Plans.Of(s).Length;
+            var prefetchReady = s.PrefetchJson is not null && s.PrefetchNumber == s.LessonNumber + 1;
             return s.Status switch
             {
-                SubjectStatus.Ready => Results.Ok(new LessonStatus("ready", null, s.LessonNumber, JsonSerializer.Deserialize<Lesson>(s.LessonJson!, Json), refs, s.PlanStage, total)),
+                SubjectStatus.Ready => Results.Ok(new LessonStatus("ready", null, s.LessonNumber, JsonSerializer.Deserialize<Lesson>(s.LessonJson!, Json), refs, s.PlanStage, total, s.LastFromPrefetch, prefetchReady)),
                 SubjectStatus.Failed => Results.Ok(new LessonStatus("failed", s.PrepStage, s.LessonNumber + 1, null, null, s.PlanStage, total)),
                 _ => Results.Ok(new LessonStatus("preparing", s.PrepStage, s.LessonNumber + 1, null, null, s.PlanStage, total)),
             };
@@ -85,17 +86,48 @@ public static class ContentEndpoints
                 PlanStage = subject?.PlanStage ?? 0,
             }));
             if (subject is not null && r.DurationMinutes is > 0) subject.DurationMinutes = r.DurationMinutes.Value;
-            if (subject is not null && subject.Status != SubjectStatus.Preparing)
+            if (subject is null)
+            {
+                await db.SaveChangesAsync(ct);
+                return Results.Accepted(null, new RecapAccepted("stored"));
+            }
+            await db.SaveChangesAsync(ct);
+
+            // Этап по результатам — решается здесь, до генерации (диагностика не в счёт).
+            var plan = Plans.Of(subject);
+            var stageRows = await db.Records.Where(x => x.SubjectId == subjectId && x.PlanStage == subject.PlanStage && x.LessonNumber > 1).ToListAsync(ct);
+            var outcomes = stageRows.GroupBy(x => x.LessonNumber).Select(g => new LessonOutcome(g.Key, g.Count(), g.Count(x => x.Ok))).ToList();
+            if (subject.PlanStage < plan.Length - 1 && StagePolicy.ShouldAdvance(outcomes)) subject.PlanStage += 1;
+
+            // Заготовка годится, если собрана на этом же этапе и разбор не провальный; иначе — заново.
+            var okRate = r.Records.Length == 0 ? 1.0 : (double)r.Records.Count(x => x.Ok) / r.Records.Length;
+            var usePrefetch = subject.PrefetchJson is not null && subject.PrefetchNumber == subject.LessonNumber + 1
+                && subject.PrefetchStage == subject.PlanStage && okRate >= 0.5;
+            if (!usePrefetch) { subject.PrefetchJson = null; subject.PrefetchNumber = 0; }
+            if (subject.Status != SubjectStatus.Preparing)
             {
                 subject.Status = SubjectStatus.Preparing;
-                subject.PrepStage = 0;
+                subject.PrepStage = usePrefetch ? 2 : 0;
                 subject.LastError = null;
                 subject.UpdatedAt = now;
             }
             await db.SaveChangesAsync(ct);
-            if (subject is null) return Results.Accepted(null, new RecapAccepted("stored"));
-            await queue.EnqueueAsync(subject.Id, ct);
+            await queue.EnqueueAsync(subject.Id, usePrefetch ? LessonJobKind.Promote : LessonJobKind.Prepare, ct);
             return Results.Accepted($"/subjects/{subject.Id}/lesson", new RecapAccepted("preparing"));
+        });
+
+        // Предзагрузка: клиент зовёт при открытии урока N, сервер заготавливает N+1 по записям на этот момент.
+        app.MapPost("/subjects/{id:guid}/prefetch", async (Guid id, TeachDb db, LessonQueue queue, CancellationToken ct) =>
+        {
+            var s = await db.Subjects.FindAsync([id], ct);
+            if (s is null) return Results.NotFound();
+            if (s.Status != SubjectStatus.Ready || s.LessonNumber == 0) return Results.Accepted(null, new PrefetchAccepted("skipped"));
+            if (s.PrefetchJson is not null && s.PrefetchNumber == s.LessonNumber + 1) return Results.Accepted(null, new PrefetchAccepted("exists"));
+            if (s.PrefetchRunning) return Results.Accepted(null, new PrefetchAccepted("running"));
+            s.PrefetchRunning = true;
+            await db.SaveChangesAsync(ct);
+            await queue.EnqueueAsync(s.Id, LessonJobKind.Prefetch, ct);
+            return Results.Accepted(null, new PrefetchAccepted("queued"));
         });
 
         app.MapPost("/grade/free", async (GradeRequest r, ILessonModel model, CancellationToken ct) =>

@@ -8,7 +8,9 @@ import { useVoiceInput } from '@/features/session/useVoiceInput';
 import { voiceLangFor } from '@/features/session/voiceLang';
 import { useT } from '@/i18n';
 import { useReviewPlan } from '@/features/reviews/useReviewPlan';
-import { getLesson, REVIEW_ID, subjectConfig, subjectLanguage, useProgress } from '@/store/progress';
+import { content } from '@/content';
+import { prefetchNextLesson } from '@/features/subjects/prepare';
+import { CUSTOM_ID, getLesson, REVIEW_ID, subjectConfig, subjectLanguage, useProgress } from '@/store/progress';
 import { useSession } from '@/store/session';
 import { useSettings } from '@/store/settings';
 import { Button, MicButton, Screen, SessionHeader, Txt } from '@/ui';
@@ -42,6 +44,10 @@ export default function SessionScreen() {
   useEffect(() => {
     if (lesson && lesson.steps.length > 0 && (!s || s.subjectId !== id)) start(id, lesson, cardIds);
   }, [id, lesson, cardIds, s, start]);
+  // Пока идёт урок N, сервер заготавливает N+1 — после разбора он отдаётся без ожидания.
+  useEffect(() => {
+    if (id === CUSTOM_ID) prefetchNextLesson(content);
+  }, [id]);
 
   const step = s ? currentStep(s) : null;
   const hint = step && step.type !== 'explain' ? step.voice : undefined;
