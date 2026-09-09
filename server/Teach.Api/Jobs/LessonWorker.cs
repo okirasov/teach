@@ -85,13 +85,17 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
         var s = await db.Subjects.FindAsync([id], ct);
         if (s is null) return;
 
-        var (draft, chosen) = await SourcesAsync(db, s, ct);
-        await SetStage(db, s, 1, ct);
-        await Task.Delay(opts.StageDelayMs, ct);
-        await SetStage(db, s, 2, ct);
-        await Task.Delay(opts.StageDelayMs, ct);
-
         var number = s.LessonNumber + 1;
+        var (draft, chosen) = await SourcesAsync(db, s, ct);
+        if (number == 1)
+        {
+            // Этапы «ищу источники → отбираю → собираю» видны только на первом уроке.
+            await SetStage(db, s, 1, ct);
+            await Task.Delay(opts.StageDelayMs, ct);
+        }
+        await SetStage(db, s, 2, ct);
+        if (number == 1) await Task.Delay(opts.StageDelayMs, ct);
+
         var (lesson, error) = await GenerateAsync(db, s, draft, chosen, number, s.PlanStage, ct);
         if (lesson is null)
         {
@@ -139,9 +143,12 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
         var db = scope.ServiceProvider.GetRequiredService<TeachDb>();
         var s = await db.Subjects.FindAsync([id], ct);
         if (s is null) return;
-        if (s.PrefetchJson is null || s.PrefetchNumber != s.LessonNumber + 1)
+        if (s.PrefetchJson is null || s.PrefetchNumber != s.LessonNumber + 1 || s.PrefetchStage != s.PlanStage)
         {
-            // Заготовки уже нет — обычная генерация.
+            // Заготовки нет или она с другого этапа — обычная генерация.
+            s.PrefetchJson = null;
+            s.PrefetchNumber = 0;
+            await db.SaveChangesAsync(ct);
             await PrepareAsync(id, ct);
             return;
         }
@@ -150,12 +157,28 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
         log.LogInformation("subject {Subject}: lesson {Number} promoted from prefetch", id, s.LessonNumber);
     }
 
+    /// <summary>
+    /// Источники ищутся один раз — при создании предмета (мастер присылает их в POST /subjects).
+    /// Если их нет (старый клиент), ищем перед первым уроком и сохраняем; дальше никогда не ищем:
+    /// web search — самый долгий и дорогой вызов, а источники предмета не меняются от урока к уроку.
+    /// </summary>
     private async Task<(SubjectDraft Draft, List<SourceCandidate> Chosen)> SourcesAsync(TeachDb db, SubjectRow s, CancellationToken ct)
     {
         var draft = new SubjectDraft(s.Topic, s.Focus, s.Mission, JsonSerializer.Deserialize<string[]>(s.SourceIdsJson) ?? [], Title: s.Title);
-        // Источники, уже найденные мастером, не ищем заново — это самый долгий вызов модели.
         var known = s.SourcesJson is null ? null : JsonSerializer.Deserialize<List<SourceCandidate>>(s.SourcesJson, Json);
-        var all = known is { Count: > 0 } ? known : (await model.FindSourcesAsync(s.Topic, s.Focus, ct)).ToList();
+        List<SourceCandidate> all;
+        if (known is { Count: > 0 }) all = known;
+        else if (s.LessonNumber == 0)
+        {
+            all = (await model.FindSourcesAsync(s.Topic, s.Focus, ct)).ToList();
+            s.SourcesJson = JsonSerializer.Serialize(all, Json);
+            await db.SaveChangesAsync(ct);
+        }
+        else
+        {
+            log.LogWarning("subject {Subject}: no stored sources, generating lesson {Number} without them", s.Id, s.LessonNumber + 1);
+            all = [];
+        }
         var chosen = all.Where(x => draft.SourceIds.Length == 0 || draft.SourceIds.Contains(x.Id)).ToList();
         return (draft, chosen);
     }

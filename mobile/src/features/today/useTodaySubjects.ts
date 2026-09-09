@@ -27,6 +27,7 @@ export function useTodaySubjects(): SubjectCardModel[] {
           lessonTitle: custom.ready ? customLesson?.lessonTitle ?? t.diag : (custom.lessonNumber ?? 0) > 0 ? t.preparing : t.bgLesson,
           done: !!done[id],
           prepStage: custom.ready ? undefined : prepStage,
+          nextLesson: !custom.ready && (custom.lessonNumber ?? 0) > 0 ? (custom.lessonNumber ?? 0) + 1 : undefined,
           prepFailed: !custom.ready && prepError !== null,
           plan: custom.ready ? planProgress(custom.plan, custom.lessonNumber ?? 0, custom.planStage) : undefined,
         };

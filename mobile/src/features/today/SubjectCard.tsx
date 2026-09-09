@@ -14,6 +14,8 @@ export interface SubjectCardModel {
   done: boolean;
   /** Готовится в фоне: индекс текущего этапа (0..PREP_STAGES-1); undefined — готов. */
   prepStage?: number;
+  /** Номер готовящегося следующего урока: этапов поиска нет, только «Собираю урок N». */
+  nextLesson?: number;
   /** Подготовка сорвалась — показываем «Повторить». */
   prepFailed?: boolean;
   /** Сидовый предмет с уроком из прототипа: уроки не генерируются. */
@@ -28,7 +30,7 @@ export function SubjectCard({ m, onPress }: { m: SubjectCardModel; onPress: () =
   const { c, fonts } = useTheme();
   const failed = !!m.prepFailed;
   const preparing = m.prepStage !== undefined && !failed;
-  const status = failed ? t.prepFailed : m.done ? t.doneToday : preparing ? t.prepSteps[Math.min(m.prepStage ?? 0, t.prepSteps.length - 1)] : t.ready;
+  const status = failed ? t.prepFailed : m.done ? t.doneToday : preparing ? (m.nextLesson ? t.prepNext(m.nextLesson) : t.prepSteps[Math.min(m.prepStage ?? 0, t.prepSteps.length - 1)]) : t.ready;
   const cta = failed ? t.retry : preparing ? t.inBg : m.done ? t.more : t.start;
   const chipTone = failed ? 'amber' : !preparing && !m.done ? 'dark' : 'mint';
 
@@ -51,7 +53,7 @@ export function SubjectCard({ m, onPress }: { m: SubjectCardModel; onPress: () =
           </Txt>
         </View>
       ) : null}
-      {preparing ? (
+      {preparing && !m.nextLesson ? (
         <View style={{ gap: 6, marginTop: 10 }}>
           {t.prepSteps.map((name, i) => {
             const isDone = i < (m.prepStage ?? 0);

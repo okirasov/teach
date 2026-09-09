@@ -107,14 +107,17 @@ public static class ContentEndpoints
             if (subject.PlanStage < plan.Length - 1 && StagePolicy.ShouldAdvance(outcomes)) subject.PlanStage += 1;
 
             // Заготовка годится, если собрана на этом же этапе и разбор не провальный; иначе — заново.
+            // Если заготовка ещё собирается, задача «продвинуть» встанет в очередь за ней и проверит её сама.
             var okRate = r.Records.Length == 0 ? 1.0 : (double)r.Records.Count(x => x.Ok) / r.Records.Length;
-            var usePrefetch = subject.PrefetchJson is not null && subject.PrefetchNumber == subject.LessonNumber + 1
-                && subject.PrefetchStage == subject.PlanStage && okRate >= 0.5;
+            var prefetchFits = okRate >= 0.5 && (subject.PrefetchRunning || subject.PrefetchStage == subject.PlanStage);
+            var hasPrefetch = subject.PrefetchRunning || (subject.PrefetchJson is not null && subject.PrefetchNumber == subject.LessonNumber + 1);
+            var usePrefetch = hasPrefetch && prefetchFits;
             if (!usePrefetch) { subject.PrefetchJson = null; subject.PrefetchNumber = 0; }
             if (subject.Status != SubjectStatus.Preparing)
             {
                 subject.Status = SubjectStatus.Preparing;
-                subject.PrepStage = usePrefetch ? 2 : 0;
+                // Источники уже есть, следующий урок сразу «собираю урок».
+                subject.PrepStage = 2;
                 subject.LastError = null;
                 subject.UpdatedAt = now;
             }

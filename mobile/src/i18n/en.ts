@@ -33,7 +33,7 @@ export const en: Dict = {
   capSum: (sum, cap) => (cap ? 'subject quotas: ' + sum + ' → cap ' + cap : 'subject quotas: ' + sum),
   voiceG: 'Voice', recMode: 'Recording', modePtt: 'Hold', modeHands: 'Hands-free',
   weekLine: (n, k) => 'this week: ' + n + ' fixed · ' + k + ' topics stronger',
-  prepSteps: ['Finding sources', 'Filtering by trust', 'Building first lesson'], stage1: 'stage 1',
+  prepSteps: ['Finding sources', 'Filtering by trust', 'Building first lesson'], prepNext: (n: number) => `Building lesson ${n}`, stage1: 'stage 1',
   srcL: 'source:', srcFromPlan: 'Your plan', doubt: 'Doubt this', doubtSent: 'under review',
   criteria: 'WHAT THE ANSWER SHOULD COVER', critHit: 'yes', critMiss: 'no', critScore: (a, b) => a + ' of ' + b + ' points',
   accepted2: 'Accepted', right: 'Correct', notQuite: 'Not quite', orderHint: 'Tap events in order — earliest first',

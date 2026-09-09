@@ -146,7 +146,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         Фокус: {draft.Focus}
         Миссия: {draft.Mission}
         Выбранные источники:
-        {string.Join("\n", sources.Select(s => $"- {s.T} ({s.Trust}): {s.M}"))}
+        {(sources.Count == 0 ? "- не заданы: опирайся на общепризнанные материалы по теме и в поле source называй реальный источник" : string.Join("\n", sources.Select(s => $"- {s.T} ({s.Trust}): {s.M}")))}
         """;
 
     private async Task<T> AskAsync<T>(string task, Dictionary<string, JsonElement>? schema, CancellationToken ct, string? context = null, List<ToolUnion>? tools = null, Effort effort = Effort.High, string model = LessonModel)

@@ -92,7 +92,8 @@ export const useProgress = create<ProgressState>((set, get) => ({
     ),
   /** Разбор пройден, следующий урок готовится: карточка снова показывает этапы. */
   startNextLesson: (records) =>
-    set((s) => (s.custom ? { custom: { ...s.custom, ready: false, pendingRecords: records }, prepStage: 0, prepError: null } : s)),
+    // Источники предмета уже есть — следующий урок начинается сразу с «собираю урок».
+    set((s) => (s.custom ? { custom: { ...s.custom, ready: false, pendingRecords: records }, prepStage: 2, prepError: null } : s)),
   setMission: (id, text) =>
     set((s) => {
       const m = s.missions[id] ?? { cur: '', hist: [] };
