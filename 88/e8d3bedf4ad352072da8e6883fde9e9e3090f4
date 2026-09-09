@@ -1,0 +1,23 @@
+server/.gitignore
+  s_a2145daee18e40::t_66ee9c7b4f9b5f 5
+server/README.md
+  s_a2145daee18e40::t_d3ce887f004cbb 29,32,35
+server/Teach.Api/fly.toml
+  s_a2145daee18e40::t_785671e65ff3ef 1,5,9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "88e8d3bedf4ad352072da8e6883fde9e9e3090f4",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
