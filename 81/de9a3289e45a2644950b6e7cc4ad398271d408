@@ -1,0 +1,27 @@
+docs/ai-content.md
+  s_a2145daee18e40::t_25b236fcbe154a 133-138
+server/README.md
+  s_a2145daee18e40::t_6d2e264743baec 57
+server/Teach.Api/Jobs/DrainingLifetime.cs
+  s_a2145daee18e40::t_8c99648f4c866c 1-48
+server/Teach.Api/Jobs/LessonWorker.cs
+  s_a2145daee18e40::t_d90e2fbc7595a6 56-67,71,73,76
+server/Teach.Api/Program.cs
+  s_a2145daee18e40::t_7a3b775f0fac72 34-37,44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "81de9a3289e45a2644950b6e7cc4ad398271d408",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
