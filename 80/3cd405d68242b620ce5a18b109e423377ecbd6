@@ -1,0 +1,43 @@
+docs/ai-content.md
+  s_a2145daee18e40::t_aabc1624709b82 23-24,110-119,146,148
+mobile/app/session/[id].tsx
+  s_a2145daee18e40::t_1eb62a06403002 11-13,47-50
+mobile/src/content/http.ts
+  s_a2145daee18e40::t_b4263ebeb89e17 91-94
+mobile/src/content/local.ts
+  s_a2145daee18e40::t_6bccee69bbbf35 158-160
+mobile/src/content/types.ts
+  s_a2145daee18e40::t_6ae2ef422eb1b1 80-84
+mobile/src/features/subjects/prepare.ts
+  s_a2145daee18e40::t_ad649cd22d4de3 26-32
+server/README.md
+  s_a2145daee18e40::t_46177c8a65f908 56
+server/Teach.Api.Tests/ApiTests.cs
+  s_a2145daee18e40::t_1b0579ee4ed23e 178-243
+server/Teach.Api/Contracts/Dtos.cs
+  s_a2145daee18e40::t_cac7980d650384 63-69
+server/Teach.Api/Data/SchemaUpgrader.cs
+  s_a2145daee18e40::t_7ebd53b17d07bf 21-25
+server/Teach.Api/Data/TeachDb.cs
+  s_a2145daee18e40::t_ad26828cae9aba 32-39
+server/Teach.Api/Endpoints/ContentEndpoints.cs
+  s_a2145daee18e40::t_fac63d27b1128f 54,67,70,89-107,110,115,119-132
+server/Teach.Api/Jobs/LessonWorker.cs
+  s_a2145daee18e40::t_7e972250c170b9 30-34,37-40,58,60-68,72-74,79,87,94-164,166-167,170,178,184-186,189,191-205,207-209,211-225
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "803cd405d68242b620ce5a18b109e423377ecbd6",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
