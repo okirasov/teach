@@ -98,4 +98,16 @@ Release с встроенным бандлом (без Metro, без dev-вхо�
 
 UDID телефона: `xcrun devicectl list devices`. Проверено 2026-09-09: нативный STT на iPhone 16 Pro Max отдаёт промежуточные результаты по словам и финальную фразу.
 
+### TestFlight
+
+Архив и загрузка идут локально через сессию Apple ID в Xcode, ключ App Store Connect API не нужен:
+
+```bash
+cd ios && cp ../ExportOptions.plist . && export EXPO_PUBLIC_CONTENT_URL=https://teach-tutor-api.fly.dev EXPO_PUBLIC_CONTENT_TOKEN=$(cat ../../server/.secrets/api-token)
+xcodebuild -workspace Teach.xcworkspace -scheme Teach -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -archivePath build-device/Teach.xcarchive -allowProvisioningUpdates DEVELOPMENT_TEAM=PW7867VU3L archive
+xcodebuild -exportArchive -archivePath build-device/Teach.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath build-device/export -allowProvisioningUpdates
+```
+
+Перед каждой новой загрузкой увеличить `ios.buildNumber` в `app.json` и выполнить prebuild. Предупреждения «Upload Symbols Failed» для React/hermes безвредны. Первая сборка 0.1.0 (1) загружена 2026-09-09.
+
 Metro без watchman не видит правок — после изменения кода перезапускать `expo start --clear`. Разрешение на распознавание речи `simctl privacy` не выдаёт; в симуляторе его можно проставить в `~/Library/Developer/CoreSimulator/Devices/<UDID>/data/Library/TCC/TCC.db` (`kTCCServiceSpeechRecognition`, `auth_value=2`).
