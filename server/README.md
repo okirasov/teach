@@ -23,16 +23,22 @@ ASPNETCORE_URLS=http://0.0.0.0:5180 dotnet run --no-launch-profile
 ## Облако
 
 `Teach.Api/Dockerfile` — образ на `mcr.microsoft.com/dotnet/aspnet:10.0`, порт 8080, база на томе `/data`.
-`server/fly.toml` — конфигурация Fly.io: том `teach_data`, HTTPS, health-check. Порядок:
+`Teach.Api/fly.toml` — конфигурация Fly.io: том `teach_data`, HTTPS, health-check, `kill_timeout` 160 с
+под плавную остановку. Команды `fly` запускать из `server/Teach.Api` (там лежат Dockerfile и fly.toml). Порядок:
 
 ```bash
-cd server && fly apps create teach-tutor-api
+cd server/Teach.Api && fly apps create teach-tutor-api
 fly volumes create teach_data --size 1
 fly secrets set ANTHROPIC_API_KEY=... Teach__ApiToken=$(openssl rand -hex 24)
 fly deploy && curl https://teach-tutor-api.fly.dev/health
 ```
 
 Клиент собирается с `EXPO_PUBLIC_CONTENT_URL=https://teach-tutor-api.fly.dev` и `EXPO_PUBLIC_CONTENT_TOKEN=<тот же токен>`.
+
+Деплой безопасен посреди генерации: по SIGINT воркер дорабатывает текущий урок при живом сервере
+(замер на Fly: 22 с дожидания с ответами 200, затем ~10 с на перезапуск машины), незавершённые
+предметы после старта ставятся в очередь заново. Логи: `fly logs --app teach-tutor-api`; копия базы
+для разбора: `fly ssh sftp get /data/teach.db` и `/data/teach.db-wal` (в образе нет sqlite3).
 
 Схема БД: `SchemaUpgrader` создаёт её в пустой базе и доводит существующую (новые таблицы и колонки из списка в коде), поэтому база на томе Fly переживает изменения моделей без ручных шагов. При добавлении колонки или таблицы дописать её в `SchemaUpgrader`.
 
