@@ -1,0 +1,35 @@
+docs/ai-content.md
+  s_a2145daee18e40::t_712406ceb28048 107-113,127-129
+mobile/src/features/today/SubjectCard.tsx
+  s_a2145daee18e40::t_3a4fb0f7b9dd87 17-18,33,56
+mobile/src/features/today/useTodaySubjects.ts
+  s_a2145daee18e40::t_b3db2214568b8b 30
+mobile/src/i18n/en.ts
+  s_a2145daee18e40::t_e93c93c9a334dd 36
+mobile/src/i18n/ru.ts
+  s_a2145daee18e40::t_6883823acade54 37
+mobile/src/store/progress.ts
+  s_a2145daee18e40::t_26c21c4f262884 95-96
+server/Teach.Api/Endpoints/ContentEndpoints.cs
+  s_a2145daee18e40::t_ab0fc63907303d 110,112-114,119-120
+server/Teach.Api/Jobs/LessonWorker.cs
+  s_a2145daee18e40::t_317b36a73a1219 88,90-95,97,146,148-151,160-164,169-181
+server/Teach.Api/Model/ClaudeLessonModel.cs
+  s_a2145daee18e40::t_0dce1535d5cf7a 149
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "fc597bc25fb25947462a7de92872b1d727ae5d3c",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
