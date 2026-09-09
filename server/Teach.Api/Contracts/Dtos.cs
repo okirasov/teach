@@ -24,7 +24,7 @@ public sealed record SourcesRequest(string Topic, string Focus);
 public sealed record PlanRequest(string Topic, string Focus, string Mission);
 
 /// <summary>Sources — кандидаты, уже найденные мастером; если переданы, сервер не ищет их заново.</summary>
-public sealed record SubjectDraft(string Topic, string Focus, string Mission, string[] SourceIds, SourceCandidate[]? Sources = null, string? Title = null);
+public sealed record SubjectDraft(string Topic, string Focus, string Mission, string[] SourceIds, SourceCandidate[]? Sources = null, string? Title = null, PlanStage[]? Plan = null);
 
 public sealed record SubjectCreated(string SubjectId, string Status);
 
@@ -42,7 +42,7 @@ public sealed record GradeRequest(Criterion[] Criteria, string Text, string Lang
 
 public sealed record GradeResponse(bool[] Hits);
 
-public sealed record RecapRecord(string Title, string Note, bool Ok, int StepIndex);
+public sealed record RecapRecord(string Title, string Note, bool Ok, int StepIndex, int LessonNumber = 0);
 
 public sealed record RecapRequest(RecapRecord[] Records);
 
@@ -56,4 +56,7 @@ public sealed record LessonStatus(
     /// <summary>Номер готового урока (1 — диагностика); при preparing — номер урока, который готовится.</summary>
     int Number,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] Domain.Lesson? Lesson,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ReferenceDto[]? References = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ReferenceDto[]? References = null,
+    /// <summary>Текущий этап плана (0-based) и число этапов; этапом владеет сервер по результатам.</summary>
+    int PlanStage = 0,
+    int PlanTotal = 3);

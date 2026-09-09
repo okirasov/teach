@@ -11,5 +11,7 @@ describe('plan progress', () => {
     expect(planProgress(plan, 5)?.title).toBe('Приёмы');
     expect(planProgress(undefined, 2)).toBeUndefined();
     expect(planProgress(plan, 0)).toBeUndefined();
+    expect(planProgress(plan, 2, 2)?.title).toBe('Применение');
+    expect(planProgress(plan, 9, 0)?.index).toBe(0);
   });
 });

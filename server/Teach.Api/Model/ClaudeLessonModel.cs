@@ -94,7 +94,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         }
     }
 
-    public async Task<Lesson> GenerateNextLessonAsync(SubjectDraft draft, IReadOnlyList<SourceCandidate> sources, int number, IReadOnlyList<RecapRecord> records, CancellationToken ct)
+    public async Task<Lesson> GenerateNextLessonAsync(SubjectDraft draft, IReadOnlyList<SourceCandidate> sources, int number, PlanStage stage, int stageIndex, IReadOnlyList<RecapRecord> records, CancellationToken ct)
     {
         Log ??= log;
         var why = "миссия · " + (string.IsNullOrWhiteSpace(draft.Mission) ? "уточняется" : draft.Mission);
@@ -102,7 +102,8 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         var recs = records.Count == 0
             ? "(записей пока нет)"
             : string.Join("\n", records.TakeLast(20).Select(r => $"- [{(r.Ok ? "ok" : "ошибка")}] {r.Title}: {r.Note}"));
-        var task = Prompts.NextLesson.Replace("{N}", number.ToString()) + "\nЗаписи об усвоенном:\n" + recs;
+        var task = Prompts.NextLesson.Replace("{N}", number.ToString()).Replace("{STAGE}", $"{stage.N} «{stage.T}» — {stage.D}")
+            + "\nЗаписи об усвоенном (последние — важнее):\n" + recs;
         try
         {
             var raw = await AskAsync<RawLesson>(task, Schemas.Lesson, ct, context: context, effort: Effort.Medium);

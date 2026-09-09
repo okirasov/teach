@@ -16,8 +16,9 @@ export async function createSubjectAndPrepare(service: ContentService, draft: Su
 export async function prepareNextLesson(service: ContentService, records: LessonRecord[]): Promise<void> {
   const c = useProgress.getState().custom;
   if (!c) return;
-  useProgress.getState().startNextLesson(records);
-  await guard((onStage) => service.prepareNextLesson(c.remoteId, (c.lessonNumber ?? 0) + 1, records, onStage));
+  const stamped = records.map((r) => ({ ...r, lessonNumber: r.lessonNumber ?? c.lessonNumber ?? 0 }));
+  useProgress.getState().startNextLesson(stamped);
+  await guard((onStage) => service.prepareNextLesson(c.remoteId, (c.lessonNumber ?? 0) + 1, stamped, onStage));
 }
 
 /** Повтор после сбоя: первый урок по черновику или следующий по сохранённым записям. */
@@ -44,7 +45,7 @@ async function guard(run: (onStage: (stage: number) => void) => Promise<Prepared
   const cur = useProgress.getState();
   // Предмет могли удалить, пока урок готовился.
   if (!cur.custom || cur.removed[CUSTOM_ID]) return;
-  cur.setCustomReady(result.lesson, result.remoteId);
+  cur.setCustomReady(result.lesson, result.remoteId, result.planStage);
   // Справочники предмета — сжатая суть уроков, приходят вместе с уроком и живут офлайн.
   if (result.references?.length) await useRefs.getState().replaceForSubject(CUSTOM_ID, subjectName(cur, CUSTOM_ID), result.references);
 }

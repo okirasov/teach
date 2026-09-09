@@ -78,4 +78,6 @@ export interface PreparedLesson {
   remoteId?: string;
   /** Справочники предмета после этого урока (полный актуальный набор). */
   references?: ReferenceIn[];
+  /** Этап плана, на котором построен урок (0-based); сервер двигает его по результатам. */
+  planStage?: number;
 }

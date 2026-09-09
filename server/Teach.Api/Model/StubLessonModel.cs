@@ -133,7 +133,7 @@ public sealed partial class StubLessonModel : ILessonModel
     }
 
     /// <summary>Заглушка следующего урока: каркас темы с одной ошибкой из записей в качестве повтора.</summary>
-    public Task<Lesson> GenerateNextLessonAsync(SubjectDraft draft, IReadOnlyList<SourceCandidate> sources, int number, IReadOnlyList<RecapRecord> records, CancellationToken ct)
+    public Task<Lesson> GenerateNextLessonAsync(SubjectDraft draft, IReadOnlyList<SourceCandidate> sources, int number, PlanStage stage, int stageIndex, IReadOnlyList<RecapRecord> records, CancellationToken ct)
     {
         var topic = draft.Title ?? draft.Topic;
         var lastMiss = records.LastOrDefault(r => !r.Ok)?.Title ?? "первые термины";
@@ -141,8 +141,8 @@ public sealed partial class StubLessonModel : ILessonModel
         var lesson = new Lesson
         {
             Name = topic,
-            Level = $"этап 01 · {draft.Focus}",
-            LessonTitle = $"Урок {number} · Каркас темы",
+            Level = $"этап {stage.N} · {draft.Focus}",
+            LessonTitle = $"Урок {number} · {stage.T}",
             Steps =
             [
                 new ExplainStep

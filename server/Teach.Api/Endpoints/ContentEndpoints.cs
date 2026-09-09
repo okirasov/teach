@@ -45,6 +45,7 @@ public static class ContentEndpoints
                 Id = Guid.NewGuid(), Topic = d.Topic.Trim(), Title = string.IsNullOrWhiteSpace(d.Title) ? null : d.Title.Trim(), Focus = (d.Focus ?? "").Trim(), Mission = (d.Mission ?? "").Trim(),
                 SourceIdsJson = JsonSerializer.Serialize(d.SourceIds ?? []), Status = SubjectStatus.Preparing, PrepStage = 0,
                 SourcesJson = d.Sources is { Length: > 0 } ? JsonSerializer.Serialize(d.Sources, Json) : null,
+                PlanJson = d.Plan is { Length: > 0 } ? JsonSerializer.Serialize(d.Plan, Json) : null,
                 CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow,
             };
             db.Subjects.Add(row);
@@ -61,11 +62,12 @@ public static class ContentEndpoints
                 ? (await db.References.AsNoTracking().Where(r => r.SubjectId == id).ToListAsync(ct))
                     .Select(r => new ReferenceDto(r.Id.ToString(), r.Group, r.Title, r.UpdatedAfter, JsonSerializer.Deserialize<RefRowDto[]>(r.RowsJson, Json) ?? [])).ToArray()
                 : null;
+            var total = Plans.Of(s).Length;
             return s.Status switch
             {
-                SubjectStatus.Ready => Results.Ok(new LessonStatus("ready", null, s.LessonNumber, JsonSerializer.Deserialize<Lesson>(s.LessonJson!, Json), refs)),
-                SubjectStatus.Failed => Results.Ok(new LessonStatus("failed", s.PrepStage, s.LessonNumber + 1, null)),
-                _ => Results.Ok(new LessonStatus("preparing", s.PrepStage, s.LessonNumber + 1, null)),
+                SubjectStatus.Ready => Results.Ok(new LessonStatus("ready", null, s.LessonNumber, JsonSerializer.Deserialize<Lesson>(s.LessonJson!, Json), refs, s.PlanStage, total)),
+                SubjectStatus.Failed => Results.Ok(new LessonStatus("failed", s.PrepStage, s.LessonNumber + 1, null, null, s.PlanStage, total)),
+                _ => Results.Ok(new LessonStatus("preparing", s.PrepStage, s.LessonNumber + 1, null, null, s.PlanStage, total)),
             };
         });
 
@@ -73,11 +75,14 @@ public static class ContentEndpoints
         app.MapPost("/sessions/{subjectId}/recap", async (string subjectId, RecapRequest r, TeachDb db, LessonQueue queue, CancellationToken ct) =>
         {
             var now = DateTimeOffset.UtcNow;
+            var subject = Guid.TryParse(subjectId, out var gid) ? await db.Subjects.FindAsync([gid], ct) : null;
             db.Records.AddRange(r.Records.Select(x => new LearningRecordRow
             {
                 SubjectId = subjectId, Title = x.Title, Note = x.Note, Ok = x.Ok, StepIndex = x.StepIndex, CreatedAt = now,
+                // Старый клиент не шлёт номер урока — считаем, что запись про текущий урок предмета.
+                LessonNumber = x.LessonNumber > 0 ? x.LessonNumber : subject?.LessonNumber ?? 0,
+                PlanStage = subject?.PlanStage ?? 0,
             }));
-            var subject = Guid.TryParse(subjectId, out var gid) ? await db.Subjects.FindAsync([gid], ct) : null;
             if (subject is not null && subject.Status != SubjectStatus.Preparing)
             {
                 subject.Status = SubjectStatus.Preparing;

@@ -13,6 +13,10 @@ public static class SchemaUpgrader
         ("Subjects", "SourcesJson", "ALTER TABLE Subjects ADD COLUMN SourcesJson TEXT NULL"),
         ("Subjects", "LessonNumber", "ALTER TABLE Subjects ADD COLUMN LessonNumber INTEGER NOT NULL DEFAULT 0"),
         ("Subjects", "Title", "ALTER TABLE Subjects ADD COLUMN Title TEXT NULL"),
+        ("Subjects", "PlanJson", "ALTER TABLE Subjects ADD COLUMN PlanJson TEXT NULL"),
+        ("Subjects", "PlanStage", "ALTER TABLE Subjects ADD COLUMN PlanStage INTEGER NOT NULL DEFAULT 0"),
+        ("Records", "LessonNumber", "ALTER TABLE Records ADD COLUMN LessonNumber INTEGER NOT NULL DEFAULT 0"),
+        ("Records", "PlanStage", "ALTER TABLE Records ADD COLUMN PlanStage INTEGER NOT NULL DEFAULT 0"),
     ];
 
     private static readonly (string Table, string Ddl)[] Tables =

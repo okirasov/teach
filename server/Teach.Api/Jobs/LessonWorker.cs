@@ -8,6 +8,24 @@ using Teach.Api.Model;
 
 namespace Teach.Api.Jobs;
 
+/// <summary>План предмета: из мастера или по умолчанию.</summary>
+public static class Plans
+{
+    public static readonly PlanStage[] Default =
+    [
+        new("01", "Каркас: термины и карта темы", "глоссарий закладывается с первого урока"),
+        new("02", "Рабочие приёмы малыми шагами", "один урок — одна победа, практика без подсказок"),
+        new("03", "Применение под вашу миссию", "уточним после первых сессий"),
+    ];
+
+    public static PlanStage[] Of(SubjectRow s)
+    {
+        if (s.PlanJson is null) return Default;
+        var plan = JsonSerializer.Deserialize<PlanStage[]>(s.PlanJson, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        return plan is { Length: > 0 } ? plan : Default;
+    }
+}
+
 /// <summary>Очередь подготовки первых уроков: без спиннера у пользователя, этапы видны на карточке.</summary>
 public sealed class LessonQueue
 {
@@ -63,17 +81,30 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
         await Task.Delay(opts.StageDelayMs, ct);
 
         var number = s.LessonNumber + 1;
+        var plan = Plans.Of(s);
         var records = number == 1
             ? []
             : await db.Records.Where(r => r.SubjectId == id.ToString()).OrderBy(r => r.Id)
-                .Select(r => new RecapRecord(r.Title, r.Note, r.Ok, r.StepIndex)).ToListAsync(ct);
+                .Select(r => new RecapRecord(r.Title, r.Note, r.Ok, r.StepIndex, r.LessonNumber)).ToListAsync(ct);
+        if (number > 1)
+        {
+            // Этап по результатам: считаем исходы уроков текущего этапа (диагностика не в счёт).
+            var stageRows = await db.Records.Where(r => r.SubjectId == id.ToString() && r.PlanStage == s.PlanStage && r.LessonNumber > 1).ToListAsync(ct);
+            var outcomes = stageRows.GroupBy(r => r.LessonNumber).Select(g => new LessonOutcome(g.Key, g.Count(), g.Count(r => r.Ok))).ToList();
+            if (s.PlanStage < plan.Length - 1 && StagePolicy.ShouldAdvance(outcomes))
+            {
+                s.PlanStage += 1;
+                log.LogInformation("subject {Subject}: stage {Stage} closed by results ({Lessons} lessons)", id, s.PlanStage, outcomes.Count);
+            }
+        }
+        var stage = plan[Math.Min(s.PlanStage, plan.Length - 1)];
 
         string? lastError = null;
         for (var attempt = 1; attempt <= opts.MaxAttempts; attempt++)
         {
             var lesson = number == 1
                 ? await model.GenerateDiagnosticAsync(draft, chosen, ct)
-                : await model.GenerateNextLessonAsync(draft, chosen, number, records, ct);
+                : await model.GenerateNextLessonAsync(draft, chosen, number, stage, s.PlanStage, records, ct);
             var errors = LessonValidator.Validate(lesson, opts.DurationMinutes);
             if (errors.Count == 0)
             {

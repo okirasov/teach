@@ -18,8 +18,9 @@ export interface PlanProgress {
   lessonNumber: number;
 }
 
-export function planProgress(plan: PlanStage[] | undefined, lessonNumber: number): PlanProgress | undefined {
+/** Этап с сервера (по результатам) имеет приоритет; без него — оценка по номеру урока. */
+export function planProgress(plan: PlanStage[] | undefined, lessonNumber: number, serverStage?: number): PlanProgress | undefined {
   if (!plan || plan.length === 0 || lessonNumber <= 0) return undefined;
-  const index = planStageIndex(lessonNumber, plan.length);
+  const index = serverStage !== undefined ? Math.min(Math.max(0, serverStage), plan.length - 1) : planStageIndex(lessonNumber, plan.length);
   return { index, total: plan.length, title: plan[index].t, lessonNumber };
 }

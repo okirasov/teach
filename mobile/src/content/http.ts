@@ -22,7 +22,7 @@ export class ContentHttpError extends Error {
 
 type LessonStatus =
   | { status: 'preparing' | 'failed'; stage: number | null; number: number }
-  | { status: 'ready'; number: number; lesson: Lesson; references?: ReferenceIn[] };
+  | { status: 'ready'; number: number; lesson: Lesson; references?: ReferenceIn[]; planStage?: number };
 type SourcesJob = { status: 'running' | 'failed'; error?: string } | { status: 'ready'; items: SourceCandidate[] };
 
 /** ContentService поверх HTTP-оркестратора. Ключей модели в клиенте нет. */
@@ -47,14 +47,14 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
   }
 
   /** Опрос статуса урока до готовности урока с нужным номером; этапы уходят на карточку. */
-  async function waitLesson(subjectId: string, number: number, onStage: (s: PrepStage) => void): Promise<{ lesson: Lesson; references?: ReferenceIn[] }> {
+  async function waitLesson(subjectId: string, number: number, onStage: (s: PrepStage) => void): Promise<{ lesson: Lesson; references?: ReferenceIn[]; planStage?: number }> {
     let lastStage = -1;
     const deadline = Date.now() + timeoutMs;
     for (;;) {
       const st = await call<LessonStatus>('GET', `/subjects/${subjectId}/lesson`);
       if (st.status === 'ready' && st.number >= number) {
         if (lastStage < 2) onStage(2);
-        return { lesson: st.lesson, references: st.references };
+        return { lesson: st.lesson, references: st.references, planStage: st.planStage };
       }
       if (st.status === 'failed') throw new Error('lesson generation failed');
       const stage = Math.min(2, Math.max(0, (st.status === 'ready' ? 0 : st.stage) ?? 0)) as PrepStage;
@@ -86,7 +86,7 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
     async prepareFirstLesson(draft: SubjectDraft, onStage) {
       const created = await call<{ subjectId: string; status: string }>('POST', '/subjects', draft);
       const r = await waitLesson(created.subjectId, 1, onStage);
-      return { lesson: r.lesson, remoteId: created.subjectId, references: r.references };
+      return { lesson: r.lesson, remoteId: created.subjectId, references: r.references, planStage: r.planStage };
     },
     async prepareNextLesson(remoteId, number, records: LessonRecord[], onStage) {
       if (!remoteId) throw new Error('subject has no server id');

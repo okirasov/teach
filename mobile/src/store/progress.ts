@@ -32,7 +32,7 @@ export interface ProgressState {
   /** Этап фоновой подготовки первого урока. */
   setPrepStage: (stage: number) => void;
   /** Урок готов (сохраняется, чтобы сессия брала именно его); remoteId — id предмета на сервере. */
-  setCustomReady: (lesson: Lesson, remoteId?: string) => void;
+  setCustomReady: (lesson: Lesson, remoteId?: string, planStage?: number) => void;
   startNextLesson: (records: LessonRecord[]) => void;
   customLesson: Lesson | null;
   /** Подготовка первого урока не удалась (сервер недоступен и т. п.) — карточка предлагает повторить. */
@@ -74,11 +74,14 @@ export const useProgress = create<ProgressState>((set, get) => ({
     })),
   setPrepStage: (stage) => set({ prepStage: stage, prepError: null }),
   setPrepError: (message) => set({ prepError: message }),
-  setCustomReady: (lesson, remoteId) =>
+  setCustomReady: (lesson, remoteId, planStage) =>
     set((s) =>
       s.custom
         ? {
-            custom: { ...s.custom, ready: true, remoteId: remoteId ?? s.custom.remoteId, lessonNumber: (s.custom.lessonNumber ?? 0) + 1, pendingRecords: undefined },
+            custom: {
+              ...s.custom, ready: true, remoteId: remoteId ?? s.custom.remoteId, lessonNumber: (s.custom.lessonNumber ?? 0) + 1, pendingRecords: undefined,
+              planStage: planStage ?? s.custom.planStage,
+            },
             customLesson: lesson,
             prepStage: PREP_STAGES,
             prepError: null,

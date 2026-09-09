@@ -89,6 +89,8 @@ export interface CustomSubject {
   pendingRecords?: LessonRecord[];
   /** План из мастера — для индикатора этапа на карточке. */
   plan?: PlanStage[];
+  /** Текущий этап плана с сервера (0-based); без него этап считается по номеру урока. */
+  planStage?: number;
 }
 
 /** Этап плана из мастера: «01 · Каркас: термины и карта темы». */
@@ -104,6 +106,8 @@ export interface LessonRecord {
   note: string;
   ok: boolean;
   stepIndex: number;
+  /** Урок, на котором сделана запись — по нему сервер считает переход между этапами. */
+  lessonNumber?: number;
 }
 
 export interface SubjectConfig {

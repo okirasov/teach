@@ -143,6 +143,37 @@ public class ApiTests : IClassFixture<ApiFactory>
         Assert.Empty(LessonValidator.Validate(second.Lesson));
     }
 
+    [Fact]
+    public async Task PlanStageAdvancesByResultsNotByLessonNumber()
+    {
+        var created = await _http.PostAsJsonAsync("/subjects", new SubjectDraft("SQL", "Основы", "отчёты", ["src-0"], Title: "SQL"));
+        var id = (await created.Content.ReadFromJsonAsync<SubjectCreated>(Json))!.SubjectId;
+        var st = await WaitReady(id);
+        Assert.Equal(0, st.PlanStage);
+        Assert.Equal(3, st.PlanTotal);
+
+        async Task<LessonStatus> Recap(int lesson, params bool[] oks)
+        {
+            var recs = oks.Select((ok, i) => new RecapRecord($"r{lesson}-{i}", "n", ok, i + 1, lesson)).ToArray();
+            var r = await _http.PostAsJsonAsync($"/sessions/{id}/recap", new RecapRequest(recs));
+            Assert.Equal(HttpStatusCode.Accepted, r.StatusCode);
+            return await WaitReady(id, lesson + 1);
+        }
+
+        // Диагностика не в счёт; урок 2 сделан слабо → остаёмся на этапе 0 и после урока 3.
+        st = await Recap(1, true, true);
+        Assert.Equal(0, st.PlanStage);
+        st = await Recap(2, false, false, true);
+        Assert.Equal(0, st.PlanStage);
+        // Уроки 3 и 4 уверенные → следующий урок уже на этапе 1 (по номеру это был бы ещё этап 0).
+        st = await Recap(3, true, true, true);
+        Assert.Equal(0, st.PlanStage); // предыдущий (2) слабый
+        st = await Recap(4, true, true, true);
+        Assert.Equal(1, st.PlanStage);
+        Assert.Equal(5, st.Number);
+        Assert.Equal("Урок 5 · Рабочие приёмы малыми шагами", st.Lesson!.LessonTitle);
+    }
+
     private async Task<LessonStatus> WaitReady(string id, int expectNumber = 1)
     {
         LessonStatus? status = null;

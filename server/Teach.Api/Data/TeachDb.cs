@@ -23,6 +23,10 @@ public sealed class SubjectRow
     public string? LessonJson { get; set; }
     /// <summary>Номер текущего урока: 0 — ещё нет, 1 — диагностика.</summary>
     public int LessonNumber { get; set; }
+    /// <summary>План из мастера (JSON PlanStage[]); null — план по умолчанию из трёх этапов.</summary>
+    public string? PlanJson { get; set; }
+    /// <summary>Текущий этап плана, 0-based. Меняется только по результатам (StagePolicy).</summary>
+    public int PlanStage { get; set; }
     public string? PromptVersion { get; set; }
     public string? LastError { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
@@ -38,6 +42,10 @@ public sealed class LearningRecordRow
     public required string Note { get; set; }
     public bool Ok { get; set; }
     public int StepIndex { get; set; }
+    /// <summary>Урок, на котором сделана запись (0 — неизвестно, старые клиенты).</summary>
+    public int LessonNumber { get; set; }
+    /// <summary>Этап плана, к которому относился урок.</summary>
+    public int PlanStage { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 }
 

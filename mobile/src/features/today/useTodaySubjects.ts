@@ -28,7 +28,7 @@ export function useTodaySubjects(): SubjectCardModel[] {
           done: !!done[id],
           prepStage: custom.ready ? undefined : prepStage,
           prepFailed: !custom.ready && prepError !== null,
-          plan: custom.ready ? planProgress(custom.plan, custom.lessonNumber ?? 0) : undefined,
+          plan: custom.ready ? planProgress(custom.plan, custom.lessonNumber ?? 0, custom.planStage) : undefined,
         };
       }
       const l = seedLessons[id];
