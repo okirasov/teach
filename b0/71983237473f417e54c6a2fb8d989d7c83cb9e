@@ -1,0 +1,23 @@
+docs/ai-content.md
+  s_a2145daee18e40::t_fa6099240e51c6 138-140
+mobile/README.md
+  s_a2145daee18e40::t_3ee3fbea8f4c19 59
+server/README.md
+  s_a2145daee18e40::t_c961be6edff08a 26-27,30,38-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "b071983237473f417e54c6a2fb8d989d7c83cb9e",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
