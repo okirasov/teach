@@ -14,10 +14,13 @@
       "infoPlist": {
         "CFBundleAllowMixedLocalizations": true,
         "NSLocalNetworkUsageDescription": "Teach подключается к серверу уроков в вашей локальной сети.",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "Teach не использует фото. Строка нужна библиотекам, на которые опирается приложение.",
+        "NSPhotoLibraryAddUsageDescription": "Teach не сохраняет фото. Строка нужна библиотекам, на которые опирается приложение.",
+        "NSCameraUsageDescription": "Teach не использует камеру. Строка нужна библиотекам, на которые опирается приложение."
       },
       "appleTeamId": "PW7867VU3L",
-      "buildNumber": "1"
+      "buildNumber": "2"
     },
     "android": {
       "package": "app.teach.mobile",
