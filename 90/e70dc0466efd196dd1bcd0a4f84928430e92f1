@@ -1,0 +1,31 @@
+docs/ai-content.md
+  s_a2145daee18e40::t_30abb50a764390 133-137
+mobile/src/content/__tests__/http.test.ts
+  s_a2145daee18e40::t_c448b7a8534e20 87-108
+mobile/src/content/http.ts
+  s_a2145daee18e40::t_6855550b714266 13-14,35,56,58-69
+server/README.md
+  s_a2145daee18e40::t_585346918a9aa8 57
+server/Teach.Api/Jobs/LessonWorker.cs
+  s_a2145daee18e40::t_b6868a92f671bd 41,57,59-60,62-77,79-81,84-89
+server/Teach.Api/Program.cs
+  s_a2145daee18e40::t_cbc91a232a5920 35-36
+server/Teach.Api/fly.toml
+  s_a2145daee18e40::t_32a53174a37848 7-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "90e70dc0466efd196dd1bcd0a4f84928430e92f1",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
