@@ -38,8 +38,13 @@ public sealed record RecapRecord(string Title, string Note, bool Ok, int StepInd
 
 public sealed record RecapRequest(RecapRecord[] Records);
 
+/// <summary>Ответ на разбор: preparing — следующий урок ставится в очередь; stored — записи сохранены (сидовый предмет).</summary>
+public sealed record RecapAccepted(string Status);
+
 /// <summary>GET /subjects/{id}/lesson: preparing → stage, ready → lesson.</summary>
 public sealed record LessonStatus(
     string Status,
     int? Stage,
+    /// <summary>Номер готового урока (1 — диагностика); при preparing — номер урока, который готовится.</summary>
+    int Number,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] Domain.Lesson? Lesson);

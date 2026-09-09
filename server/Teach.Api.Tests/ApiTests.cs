@@ -96,6 +96,37 @@ public class ApiTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task RecapOnAServerSubjectPreparesTheNextLesson()
+    {
+        var created = await _http.PostAsJsonAsync("/subjects", new SubjectDraft("SQL", "Основы и синтаксис", "писать отчёты", ["src-0"]));
+        var id = (await created.Content.ReadFromJsonAsync<SubjectCreated>(Json))!.SubjectId;
+        var first = await WaitReady(id);
+        Assert.Equal(1, first.Number);
+
+        var recap = await _http.PostAsJsonAsync($"/sessions/{id}/recap", new RecapRequest([new("Стартовая уверенность", "…", true, 1), new("Карта того, что уже есть", "…", false, 2)]));
+        Assert.Equal(HttpStatusCode.Accepted, recap.StatusCode);
+        Assert.Equal("preparing", (await recap.Content.ReadFromJsonAsync<RecapAccepted>(Json))!.Status);
+
+        var second = await WaitReady(id, expectNumber: 2);
+        Assert.Equal(2, second.Number);
+        Assert.Equal("Урок 2 · Каркас темы", second.Lesson!.LessonTitle);
+        Assert.Contains("Карта того, что уже есть", ((ExplainStep)second.Lesson.Steps[0]).Paras[0]);
+        Assert.Empty(LessonValidator.Validate(second.Lesson));
+    }
+
+    private async Task<LessonStatus> WaitReady(string id, int expectNumber = 1)
+    {
+        LessonStatus? status = null;
+        for (var i = 0; i < 300; i++)
+        {
+            status = await _http.GetFromJsonAsync<LessonStatus>($"/subjects/{id}/lesson", Json);
+            if (status!.Status == "ready" && status.Number >= expectNumber) return status;
+            await Task.Delay(20);
+        }
+        throw new Xunit.Sdk.XunitException($"lesson {expectNumber} not ready: {status?.Status}/{status?.Number}");
+    }
+
+    [Fact]
     public async Task UnknownSubjectIs404()
     {
         var r = await _http.GetAsync($"/subjects/{Guid.NewGuid()}/lesson");
@@ -107,6 +138,7 @@ public class ApiTests : IClassFixture<ApiFactory>
     {
         var recap = await _http.PostAsJsonAsync("/sessions/en/recap", new RecapRequest([new("После if не бывает would", "…", false, 1)]));
         Assert.Equal(HttpStatusCode.Accepted, recap.StatusCode);
+        Assert.Equal("stored", (await recap.Content.ReadFromJsonAsync<RecapAccepted>(Json))!.Status);
 
         var grade = await Post<GradeResponse>("/grade/free", new GradeRequest(
             [new("Богаче налоговая база Востока", ["налог", "богат"]), new("Константинополь труднее взять", ["стен", "море"])],

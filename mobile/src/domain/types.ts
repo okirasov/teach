@@ -1,3 +1,5 @@
+import type { LanguageInfo } from './languages';
+
 /** Модель урока — из прототипа (README «State Management», DESIGN.md §6). */
 
 export type SubjectId = string;
@@ -75,6 +77,22 @@ export interface CustomSubject {
   ready: boolean;
   /** Выбранные источники — нужны, чтобы повторить подготовку после сбоя. */
   sourceIds?: string[];
+  /** Язык предмета, определяется при создании; null — предмет не языковой. */
+  language?: LanguageInfo | null;
+  /** Id предмета на сервере (HttpContentService); у локальной заглушки нет. */
+  remoteId?: string;
+  /** Номер текущего урока: 1 — диагностика. */
+  lessonNumber?: number;
+  /** Записи последнего разбора — чтобы повторить генерацию следующего урока после сбоя. */
+  pendingRecords?: LessonRecord[];
+}
+
+/** Запись об усвоенном, уходящая на сервер после разбора. */
+export interface LessonRecord {
+  title: string;
+  note: string;
+  ok: boolean;
+  stepIndex: number;
 }
 
 export interface SubjectConfig {

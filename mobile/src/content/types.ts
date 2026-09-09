@@ -1,4 +1,4 @@
-import type { Lesson } from '@/domain/types';
+import type { Lesson, LessonRecord } from '@/domain/types';
 
 /**
  * Сервис контента — единственная дверь клиента к генерации (бриф §5.1: клиент не держит
@@ -44,8 +44,18 @@ export interface ContentService {
   findSources(topic: string, focus: string): Promise<SourceCandidate[]>;
   buildPlan(draft: Omit<SubjectDraft, 'sourceIds'>): Promise<PlanStage[]>;
   /**
-   * Готовит первый урок в фоне. onStage вызывается на каждом этапе, промис резолвится уроком.
-   * В проде: сервер ставит задачу, клиент получает push/поллит статус.
+   * Готовит первый урок в фоне. onStage вызывается на каждом этапе, промис резолвится уроком
+   * и id предмета на сервере (у локальной заглушки его нет).
    */
-  prepareFirstLesson(draft: SubjectDraft, onStage: (stage: PrepStage) => void): Promise<Lesson>;
+  prepareFirstLesson(draft: SubjectDraft, onStage: (stage: PrepStage) => void): Promise<PreparedLesson>;
+  /**
+   * Следующий урок по записям разбора: сервер сохраняет записи и генерирует урок number
+   * чуть выше границы, которую они показали.
+   */
+  prepareNextLesson(remoteId: string | undefined, number: number, records: LessonRecord[], onStage: (stage: PrepStage) => void): Promise<Lesson>;
+}
+
+export interface PreparedLesson {
+  lesson: Lesson;
+  remoteId?: string;
 }

@@ -1,6 +1,6 @@
 import { createLocalContentService } from '@/content/local';
 import { CUSTOM_ID, PREP_STAGES, useProgress } from '@/store/progress';
-import { createSubjectAndPrepare, retryPrepare } from '../prepare';
+import { createSubjectAndPrepare, prepareNextLesson, retryPrepare } from '../prepare';
 
 const initial = useProgress.getInitialState();
 beforeEach(() => useProgress.setState(initial, true));
@@ -39,5 +39,25 @@ describe('createSubjectAndPrepare', () => {
     s = useProgress.getState();
     expect(s.prepError).toBeNull();
     expect(s.custom?.ready).toBe(true);
+  });
+
+  it('after a recap the next lesson is prepared and replaces the current one; done resets', async () => {
+    const svc = createLocalContentService({ stageMs: 5 });
+    await createSubjectAndPrepare(svc, draft);
+    useProgress.getState().markDone(CUSTOM_ID, [{ t: 'a', s: 'SQL' }]);
+    expect(useProgress.getState().custom).toMatchObject({ ready: true, lessonNumber: 1, language: null });
+
+    const p = prepareNextLesson(svc, [{ title: 'Стартовая уверенность', note: '', ok: true, stepIndex: 1 }, { title: 'Карта того, что уже есть', note: '', ok: false, stepIndex: 2 }]);
+    expect(useProgress.getState().custom?.ready).toBe(false);
+    await p;
+    const s = useProgress.getState();
+    expect(s.custom).toMatchObject({ ready: true, lessonNumber: 2 });
+    expect(s.customLesson?.lessonTitle).toBe('Урок 2 · Каркас темы');
+    expect(s.done[CUSTOM_ID]).toBe(false);
+  });
+
+  it('language is detected at creation', async () => {
+    await createSubjectAndPrepare(createLocalContentService({ stageMs: 5 }), { ...draft, topic: 'Итальянский язык с самого начала' });
+    expect(useProgress.getState().custom?.language).toMatchObject({ code: 'it-IT', en: 'Italian' });
   });
 });

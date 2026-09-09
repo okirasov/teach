@@ -105,6 +105,58 @@ public sealed partial class StubLessonModel : ILessonModel
         return Task.FromResult(lesson);
     }
 
+    /// <summary>Заглушка следующего урока: каркас темы с одной ошибкой из записей в качестве повтора.</summary>
+    public Task<Lesson> GenerateNextLessonAsync(SubjectDraft draft, IReadOnlyList<SourceCandidate> sources, int number, IReadOnlyList<RecapRecord> records, CancellationToken ct)
+    {
+        var topic = draft.Topic;
+        var lastMiss = records.LastOrDefault(r => !r.Ok)?.Title ?? "первые термины";
+        var src = sources.FirstOrDefault()?.T ?? "Ваш план · этап 01";
+        var lesson = new Lesson
+        {
+            Name = topic,
+            Level = $"этап 01 · {draft.Focus}",
+            LessonTitle = $"Урок {number} · Каркас темы",
+            Steps =
+            [
+                new ExplainStep
+                {
+                    Why = "миссия · " + (string.IsNullOrWhiteSpace(draft.Mission) ? "уточняется" : draft.Mission),
+                    Title = $"{topic}: карта темы",
+                    Paras =
+                    [
+                        $"Каркас темы — три-четыре термина, через которые описывается всё остальное. Прошлый разбор показал слабое место: «{lastMiss}». Начинаем с него.",
+                        "Один урок — одна победа: сегодня только карта, без деталей. Детали появятся, когда карта перестанет путаться.",
+                    ],
+                    Example = "Термин без места на карте забывается через день; термин с местом — держится неделями.",
+                    Source = src + " · доверие высокое",
+                },
+                new ChoiceStep
+                {
+                    Prompt = $"С чего начинается каркас темы «{topic}»?",
+                    Options = ["С самых частых терминов", "С самых сложных случаев", "С исторической справки"],
+                    Correct = 0,
+                    Explain = "Каркас строится от частого к редкому: сначала то, что встречается в каждом втором тексте.",
+                    RecTitle = "Каркас — от частого к редкому",
+                    RecNote = "Соблазн начать со сложного: кажется, что так быстрее. Но без частых терминов сложное не к чему привязать.",
+                },
+                new FreeStep
+                {
+                    Prompt = $"Назовите три термина, без которых нельзя говорить о «{topic}», и по одной фразе к каждому.",
+                    Placeholder = "Три термина и по фразе",
+                    Criteria =
+                    [
+                        new FreeCriterion { T = "Названы три термина", Keys = ["1", "2", "3", "три", "первый", "второй"] },
+                        new FreeCriterion { T = "К каждому есть фраза-пояснение", Keys = ["это", "значит", "—", ":"] },
+                    ],
+                    Explain = "Термины с фразами — первая строка вашего справочника по теме.",
+                    RecTitle = "Карта темы своими словами",
+                    RecNote = "Формулировки своими словами точнее заученных определений: по ним видно, что понято.",
+                },
+            ],
+        };
+        return Task.FromResult(lesson);
+    }
+
     /// <summary>Офлайн-правило клиента: критерий засчитан, если встретилось любое ключевое слово.</summary>
     public Task<bool[]> GradeFreeAsync(IReadOnlyList<Criterion> criteria, string text, string lang, CancellationToken ct)
     {

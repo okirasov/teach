@@ -56,22 +56,32 @@ public static class ContentEndpoints
             if (s is null) return Results.NotFound();
             return s.Status switch
             {
-                SubjectStatus.Ready => Results.Ok(new LessonStatus("ready", null, JsonSerializer.Deserialize<Lesson>(s.LessonJson!, Json))),
-                SubjectStatus.Failed => Results.Ok(new LessonStatus("failed", s.PrepStage, null)),
-                _ => Results.Ok(new LessonStatus("preparing", s.PrepStage, null)),
+                SubjectStatus.Ready => Results.Ok(new LessonStatus("ready", null, s.LessonNumber, JsonSerializer.Deserialize<Lesson>(s.LessonJson!, Json))),
+                SubjectStatus.Failed => Results.Ok(new LessonStatus("failed", s.PrepStage, s.LessonNumber + 1, null)),
+                _ => Results.Ok(new LessonStatus("preparing", s.PrepStage, s.LessonNumber + 1, null)),
             };
         });
 
-        app.MapPost("/sessions/{subjectId}/recap", async (string subjectId, RecapRequest r, TeachDb db, CancellationToken ct) =>
+        // Разбор: записи об усвоенном сохраняются; для предмета с сервера ставится генерация следующего урока.
+        app.MapPost("/sessions/{subjectId}/recap", async (string subjectId, RecapRequest r, TeachDb db, LessonQueue queue, CancellationToken ct) =>
         {
             var now = DateTimeOffset.UtcNow;
             db.Records.AddRange(r.Records.Select(x => new LearningRecordRow
             {
                 SubjectId = subjectId, Title = x.Title, Note = x.Note, Ok = x.Ok, StepIndex = x.StepIndex, CreatedAt = now,
             }));
+            var subject = Guid.TryParse(subjectId, out var gid) ? await db.Subjects.FindAsync([gid], ct) : null;
+            if (subject is not null && subject.Status != SubjectStatus.Preparing)
+            {
+                subject.Status = SubjectStatus.Preparing;
+                subject.PrepStage = 0;
+                subject.LastError = null;
+                subject.UpdatedAt = now;
+            }
             await db.SaveChangesAsync(ct);
-            // Следующий урок по записям — следующий шаг сервера; записи уже накапливаются.
-            return Results.Accepted();
+            if (subject is null) return Results.Accepted(null, new RecapAccepted("stored"));
+            await queue.EnqueueAsync(subject.Id, ct);
+            return Results.Accepted($"/subjects/{subject.Id}/lesson", new RecapAccepted("preparing"));
         });
 
         app.MapPost("/grade/free", async (GradeRequest r, ILessonModel model, CancellationToken ct) =>

@@ -5,7 +5,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { deleteSubject } from '@/features/subjects/deleteSubject';
 import { voiceLangOptions } from '@/features/subjects/voiceLangOptions';
 import { useT } from '@/i18n';
-import { subjectConfig, subjectName, useProgress } from '@/store/progress';
+import { subjectConfig, subjectLanguage, subjectName, useProgress } from '@/store/progress';
 import { useSettings } from '@/store/settings';
 import { useTheme } from '@/theme';
 import { Card, PillGroup, Screen, SessionHeader, Toggle, TwoStepConfirm, Txt } from '@/ui';
@@ -21,9 +21,10 @@ export default function SubjectSettingsScreen() {
   const mission = useProgress((s) => s.missions[id]?.cur ?? '');
   const cfg = useProgress(useShallow((s) => subjectConfig(s, id)));
   const rawCfg = useProgress((s) => s.cfg[id]);
+  const custom = useProgress((s) => s.custom);
   const setCfg = useProgress((s) => s.setCfg);
   const patch = (p: Parameters<typeof setCfg>[1]) => setCfg(id, p);
-  const vl = voiceLangOptions(t, name, uiLang, rawCfg ?? {});
+  const vl = voiceLangOptions(t, subjectLanguage({ custom }, id), uiLang, rawCfg ?? {});
 
   const rowTitle = (label: string, desc?: string) => (
     <View style={{ flexShrink: 1 }}>

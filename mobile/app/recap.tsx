@@ -4,7 +4,9 @@ import { Pressable, ScrollView, View } from 'react-native';
 import { previewDays } from '@/domain/fsrs';
 import { recapRecords } from '@/features/session/engine';
 import { useT } from '@/i18n';
-import { REVIEW_ID, useProgress } from '@/store/progress';
+import { content } from '@/content';
+import { prepareNextLesson } from '@/features/subjects/prepare';
+import { CUSTOM_ID, REVIEW_ID, useProgress } from '@/store/progress';
 import { useReviews } from '@/store/reviews';
 import { useSession } from '@/store/session';
 import { useTheme } from '@/theme';
@@ -50,6 +52,9 @@ export default function RecapScreen() {
         now,
       );
       markDone(s.subjectId, records.map((r) => ({ t: r.title, s: s.lesson.name })));
+      // Пользовательский предмет: записи уходят на сервер, следующий урок готовится в фоне.
+      if (s.subjectId === CUSTOM_ID)
+        void prepareNextLesson(content, records.map((r) => ({ title: r.title, note: r.note, ok: r.ok, stepIndex: r.stepIndex })));
     }
     leave();
   };

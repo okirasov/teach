@@ -24,7 +24,7 @@ describe('local content service', () => {
 
   it('prepares the first lesson through three stages', async () => {
     const stages: number[] = [];
-    const lesson = await svc.prepareFirstLesson({ topic: 'SQL', focus: 'f', mission: 'm', sourceIds: [] }, (s) => stages.push(s));
+    const { lesson } = await svc.prepareFirstLesson({ topic: 'SQL', focus: 'f', mission: 'm', sourceIds: [] }, (s) => stages.push(s));
     expect(stages).toEqual([0, 1, 2]);
     expect(lesson.name).toBe('SQL');
     expect(lesson.steps[0].type).toBe('explain');

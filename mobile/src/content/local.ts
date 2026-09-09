@@ -1,5 +1,5 @@
 import { customLesson, topicKind } from '@/domain/seed';
-import type { TopicKind } from '@/domain/types';
+import type { Lesson, TopicKind } from '@/domain/types';
 import type { ContentService, FocusOption, PlanStage, PrepStage, SourceCandidate } from './types';
 
 /** Интервал между этапами подготовки в прототипе. */
@@ -74,9 +74,45 @@ export function localPlan(mission: string, later: string): PlanStage[] {
   ];
 }
 
+/** Следующий урок заглушки: каркас темы, отталкиваясь от последней ошибки разбора. */
+export function stubNextLesson(number: number, records: { title: string; ok: boolean }[]): Lesson {
+  const lastMiss = [...records].reverse().find((r) => !r.ok)?.title ?? 'первые термины';
+  return {
+    name: 'Предмет',
+    level: 'этап 01',
+    lessonTitle: `Урок ${number} · Каркас темы`,
+    steps: [
+      { type: 'explain', why: 'миссия · по плану', title: 'Карта темы',
+        paras: [`Каркас темы — три-четыре термина, через которые описывается всё остальное. Прошлый разбор показал слабое место: «${lastMiss}». Начинаем с него.`,
+                'Один урок — одна победа: сегодня только карта, без деталей.'],
+        example: 'Термин без места на карте забывается через день; термин с местом — держится неделями.',
+        source: 'Ваш план · этап 01 — каркас темы' },
+      { type: 'choice', prompt: 'С чего начинается каркас темы?', options: ['С самых частых терминов', 'С самых сложных случаев', 'С исторической справки'], correct: 0,
+        explain: 'Каркас строится от частого к редкому.', recTitle: 'Каркас — от частого к редкому', recNote: 'Без частых терминов сложное не к чему привязать.' },
+      { type: 'free', prompt: 'Назовите три термина темы и по одной фразе к каждому.', placeholder: 'Три термина и по фразе',
+        criteria: [{ t: 'Названы три термина', keys: ['1', '2', '3', 'три'] }, { t: 'К каждому есть фраза', keys: ['это', 'значит', ':'] }],
+        explain: 'Термины с фразами — первая строка вашего справочника.', recTitle: 'Карта темы своими словами', recNote: 'По формулировкам видно, что понято.' },
+    ],
+  };
+}
+
 /** Заглушка прототипа: данные по типу темы, подготовка — таймер 3 × 1.8 с. */
 export function createLocalContentService(opts: { stageMs?: number; planLater?: string } = {}): ContentService {
   const stageMs = opts.stageMs ?? PREP_STAGE_MS;
+  const stages = (onStage: (s: PrepStage) => void) =>
+    new Promise<void>((resolve) => {
+      let stage = 0;
+      onStage(0);
+      const timer = setInterval(() => {
+        stage += 1;
+        if (stage >= 3) {
+          clearInterval(timer);
+          resolve();
+          return;
+        }
+        onStage(stage as PrepStage);
+      }, stageMs);
+    });
   return {
     async suggestFocus(topic) {
       return focusByKind[topicKind(topic)](topic || 'тема');
@@ -88,19 +124,10 @@ export function createLocalContentService(opts: { stageMs?: number; planLater?: 
       return localPlan(draft.mission, opts.planLater ?? 'уточним после первых сессий');
     },
     prepareFirstLesson(draft, onStage) {
-      return new Promise((resolve) => {
-        let stage = 0;
-        onStage(0);
-        const timer = setInterval(() => {
-          stage += 1;
-          if (stage >= 3) {
-            clearInterval(timer);
-            resolve(customLesson(draft.topic, draft.mission));
-            return;
-          }
-          onStage(stage as PrepStage);
-        }, stageMs);
-      });
+      return stages(onStage).then(() => ({ lesson: customLesson(draft.topic, draft.mission) }));
+    },
+    prepareNextLesson(_remoteId, number, records, onStage) {
+      return stages(onStage).then(() => stubNextLesson(number, records));
     },
   };
 }

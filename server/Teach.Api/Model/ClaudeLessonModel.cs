@@ -72,6 +72,34 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         }
     }
 
+    public async Task<Lesson> GenerateNextLessonAsync(SubjectDraft draft, IReadOnlyList<SourceCandidate> sources, int number, IReadOnlyList<RecapRecord> records, CancellationToken ct)
+    {
+        Log ??= log;
+        var why = "миссия · " + (string.IsNullOrWhiteSpace(draft.Mission) ? "уточняется" : draft.Mission);
+        var context = $"""
+            Предмет: {draft.Topic}
+            Фокус: {draft.Focus}
+            Миссия: {draft.Mission}
+            Выбранные источники:
+            {string.Join("\n", sources.Select(s => $"- {s.T} ({s.Trust}): {s.M}"))}
+            """;
+        var recs = records.Count == 0
+            ? "(записей пока нет)"
+            : string.Join("\n", records.TakeLast(20).Select(r => $"- [{(r.Ok ? "ok" : "ошибка")}] {r.Title}: {r.Note}"));
+        var task = Prompts.NextLesson.Replace("{N}", number.ToString()) + "\nЗаписи об усвоенном:\n" + recs;
+        try
+        {
+            var raw = await AskAsync<RawLesson>(task, Schemas.Lesson, ct, context: context, effort: Effort.Medium);
+            return raw.ToLesson(why);
+        }
+        catch (Exception e) when (e is JsonException or InvalidOperationException)
+        {
+            log.LogWarning(e, "next lesson: structured output failed, retrying without schema");
+            var raw = await AskAsync<RawLesson>(task + "\nОтветь только одним JSON-объектом без пояснений: " + Schemas.LessonShape, null, ct, context: context, effort: Effort.Medium);
+            return raw.ToLesson(why);
+        }
+    }
+
     public async Task<bool[]> GradeFreeAsync(IReadOnlyList<Criterion> criteria, string text, string lang, CancellationToken ct)
     {
         var list = string.Join("\n", criteria.Select((c, i) => $"{i + 1}. {c.T}"));

@@ -36,17 +36,38 @@ describe('http content service', () => {
       if (url.endsWith('/subjects') && init?.method === 'POST') return { status: 202, body: { subjectId: 'abc', status: 'preparing' } };
       if (url.endsWith('/subjects/abc/lesson')) {
         polls += 1;
-        if (polls === 1) return { body: { status: 'preparing', stage: 0 } };
-        if (polls === 2) return { body: { status: 'preparing', stage: 1 } };
-        return { body: { status: 'ready', lesson } };
+        if (polls === 1) return { body: { status: 'preparing', stage: 0, number: 1 } };
+        if (polls === 2) return { body: { status: 'preparing', stage: 1, number: 1 } };
+        return { body: { status: 'ready', number: 1, lesson } };
       }
       return { status: 404, body: null };
     });
     const svc = createHttpContentService({ baseUrl: 'http://srv', fetchFn: fn, pollMs: 1 });
     const stages: number[] = [];
     const result = await svc.prepareFirstLesson({ topic: 'SQL', focus: 'f', mission: 'm', sourceIds: ['src-0'] }, (s) => stages.push(s));
-    expect(result).toEqual(lesson);
+    expect(result).toEqual({ lesson, remoteId: 'abc' });
     expect(stages).toEqual([0, 1, 2]);
+  });
+
+  it('prepareNextLesson posts the recap and waits for the next lesson number', async () => {
+    let polls = 0;
+    const lesson2 = { name: 'SQL', level: 'этап 01', lessonTitle: 'Урок 2 · X', steps: [] };
+    const { fn, calls } = fakeFetch((url, init) => {
+      if (url.endsWith('/sessions/abc/recap') && init?.method === 'POST') return { status: 202, body: { status: 'preparing' } };
+      if (url.endsWith('/subjects/abc/lesson')) {
+        polls += 1;
+        if (polls === 1) return { body: { status: 'ready', number: 1, lesson: { name: 'old', level: '', steps: [] } } };
+        if (polls === 2) return { body: { status: 'preparing', stage: 2, number: 2 } };
+        return { body: { status: 'ready', number: 2, lesson: lesson2 } };
+      }
+      return { status: 404, body: null };
+    });
+    const svc = createHttpContentService({ baseUrl: 'http://srv', fetchFn: fn, pollMs: 1 });
+    const stages: number[] = [];
+    const result = await svc.prepareNextLesson('abc', 2, [{ title: 't', note: 'n', ok: false, stepIndex: 1 }], (s) => stages.push(s));
+    expect(result).toEqual(lesson2);
+    expect(JSON.parse(calls[0].init!.body as string)).toEqual({ records: [{ title: 't', note: 'n', ok: false, stepIndex: 1 }] });
+    expect(stages[stages.length - 1]).toBe(2);
   });
 
   it('fails loudly on server errors and failed generation', async () => {

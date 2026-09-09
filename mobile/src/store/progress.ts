@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 
+import { detectLanguage, type LanguageInfo } from '@/domain/languages';
 import { customLesson, reviewLesson, seedLessons, seedMissions } from '@/domain/seed';
-import type { CustomSubject, Lesson, Mission, SubjectConfig, SubjectId } from '@/domain/types';
+import type { CustomSubject, Lesson, LessonRecord, Mission, SubjectConfig, SubjectId } from '@/domain/types';
 import { defaultSubjectConfig } from '@/domain/types';
 
 export const CUSTOM_ID: SubjectId = 'custom';
@@ -30,8 +31,9 @@ export interface ProgressState {
   createCustom: (c: Omit<CustomSubject, 'ready'>) => void;
   /** Этап фоновой подготовки первого урока. */
   setPrepStage: (stage: number) => void;
-  /** Первый урок готов (сохраняется, чтобы сессия брала именно его). */
-  setCustomReady: (lesson: Lesson) => void;
+  /** Урок готов (сохраняется, чтобы сессия брала именно его); remoteId — id предмета на сервере. */
+  setCustomReady: (lesson: Lesson, remoteId?: string) => void;
+  startNextLesson: (records: LessonRecord[]) => void;
   customLesson: Lesson | null;
   /** Подготовка первого урока не удалась (сервер недоступен и т. п.) — карточка предлагает повторить. */
   prepError: string | null;
@@ -62,7 +64,7 @@ export const useProgress = create<ProgressState>((set, get) => ({
     }),
   createCustom: (c) =>
     set((s) => ({
-      custom: { ...c, ready: false },
+      custom: { ...c, ready: false, language: c.language === undefined ? detectLanguage(c.topic) : c.language, lessonNumber: 0 },
       customLesson: null,
       prepError: null,
       prepStage: 0,
@@ -72,8 +74,22 @@ export const useProgress = create<ProgressState>((set, get) => ({
     })),
   setPrepStage: (stage) => set({ prepStage: stage, prepError: null }),
   setPrepError: (message) => set({ prepError: message }),
-  setCustomReady: (lesson) =>
-    set((s) => (s.custom ? { custom: { ...s.custom, ready: true }, customLesson: lesson, prepStage: PREP_STAGES } : s)),
+  setCustomReady: (lesson, remoteId) =>
+    set((s) =>
+      s.custom
+        ? {
+            custom: { ...s.custom, ready: true, remoteId: remoteId ?? s.custom.remoteId, lessonNumber: (s.custom.lessonNumber ?? 0) + 1, pendingRecords: undefined },
+            customLesson: lesson,
+            prepStage: PREP_STAGES,
+            prepError: null,
+            // Новый урок — предмет снова «не пройден сегодня».
+            done: { ...s.done, [CUSTOM_ID]: false },
+          }
+        : s,
+    ),
+  /** Разбор пройден, следующий урок готовится: карточка снова показывает этапы. */
+  startNextLesson: (records) =>
+    set((s) => (s.custom ? { custom: { ...s.custom, ready: false, pendingRecords: records }, prepStage: 0, prepError: null } : s)),
   setMission: (id, text) =>
     set((s) => {
       const m = s.missions[id] ?? { cur: '', hist: [] };
@@ -88,6 +104,12 @@ export function activeSubjectIds(s: Pick<ProgressState, 'removed' | 'custom'>): 
   const ids = Object.keys(seedLessons).filter((id) => !s.removed[id]);
   if (s.custom && !s.removed[CUSTOM_ID]) ids.push(CUSTOM_ID);
   return ids;
+}
+
+/** Язык предмета: у пользовательского — сохранённый при создании, у сидовых — по имени. */
+export function subjectLanguage(s: Pick<ProgressState, 'custom'>, id: SubjectId): LanguageInfo | null {
+  if (id === CUSTOM_ID) return s.custom?.language ?? (s.custom ? detectLanguage(s.custom.topic) : null);
+  return detectLanguage(seedLessons[id]?.name ?? '');
 }
 
 export function subjectName(s: Pick<ProgressState, 'custom'>, id: SubjectId): string {

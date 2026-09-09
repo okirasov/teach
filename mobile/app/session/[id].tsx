@@ -8,7 +8,7 @@ import { useVoiceInput } from '@/features/session/useVoiceInput';
 import { voiceLangFor } from '@/features/session/voiceLang';
 import { useT } from '@/i18n';
 import { useReviewPlan } from '@/features/reviews/useReviewPlan';
-import { getLesson, REVIEW_ID, subjectConfig, useProgress } from '@/store/progress';
+import { getLesson, REVIEW_ID, subjectConfig, subjectLanguage, useProgress } from '@/store/progress';
 import { useSession } from '@/store/session';
 import { useSettings } from '@/store/settings';
 import { Button, MicButton, Screen, SessionHeader, Txt } from '@/ui';
@@ -45,7 +45,7 @@ export default function SessionScreen() {
 
   const step = s ? currentStep(s) : null;
   const hint = step && step.type !== 'explain' ? step.voice : undefined;
-  const voice = useVoiceInput(voiceLangFor(lesson?.name ?? '', cfg, uiLang), hint, mode === 'hands');
+  const voice = useVoiceInput(voiceLangFor(subjectLanguage({ custom }, id), cfg, uiLang), hint, mode === 'hands');
 
   if (!s || !step || !lesson) return <Screen />;
 

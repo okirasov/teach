@@ -13,6 +13,7 @@ export function useTodaySubjects(): SubjectCardModel[] {
   const custom = useProgress((s) => s.custom);
   const prepStage = useProgress((s) => s.prepStage);
   const prepError = useProgress((s) => s.prepError);
+  const customLesson = useProgress((s) => s.customLesson);
 
   return useMemo(() => {
     return activeSubjectIds({ removed, custom }).map((id): SubjectCardModel => {
@@ -21,7 +22,7 @@ export function useTodaySubjects(): SubjectCardModel[] {
           id,
           name: custom.topic,
           level: custom.focus ? `${t.stage1} · ${custom.focus}` : t.stage1,
-          lessonTitle: custom.ready ? t.diag : t.bgLesson,
+          lessonTitle: custom.ready ? customLesson?.lessonTitle ?? t.diag : (custom.lessonNumber ?? 0) > 0 ? t.preparing : t.bgLesson,
           done: !!done[id],
           prepStage: custom.ready ? undefined : prepStage,
           prepFailed: !custom.ready && prepError !== null,
@@ -30,5 +31,5 @@ export function useTodaySubjects(): SubjectCardModel[] {
       const l = seedLessons[id];
       return { id, name: l.name, level: l.level, lessonTitle: l.lessonTitle ?? '', done: !!done[id] };
     });
-  }, [t, done, removed, custom, prepStage, prepError]);
+  }, [t, done, removed, custom, prepStage, prepError, customLesson]);
 }
