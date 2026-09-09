@@ -1,3 +1,6 @@
+import { content } from '@/content';
+import { resumePrepare } from '@/features/subjects/prepare';
+import { useEffect } from 'react';
 import { Tabs } from 'expo-router';
 
 import { useT } from '@/i18n';
@@ -5,6 +8,11 @@ import { TabBar } from '@/ui';
 
 /** 4 вкладки: Сегодня · Повторы · Справочники · Предметы. */
 export default function TabsLayout() {
+  // Подготовка урока могла прерваться вместе с приложением — продолжаем ждать сервер.
+  useEffect(() => {
+    void resumePrepare(content);
+  }, []);
+
   const t = useT();
   return (
     <Tabs screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: 'transparent' } }} tabBar={(props) => <TabBar {...props} />}>

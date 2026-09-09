@@ -2,7 +2,7 @@ import { createLocalContentService } from '@/content/local';
 import { memoryRefsRepo } from '@/db/refsRepo';
 import { CUSTOM_ID, PREP_STAGES, useProgress } from '@/store/progress';
 import { useRefs } from '@/store/refs';
-import { createSubjectAndPrepare, prepareNextLesson, retryPrepare } from '../prepare';
+import { createSubjectAndPrepare, prefetchNextLesson, prepareNextLesson, resumePrepare, retryPrepare } from '../prepare';
 
 const initial = useProgress.getInitialState();
 const refsInitial = useRefs.getInitialState();
@@ -80,5 +80,35 @@ describe('createSubjectAndPrepare', () => {
     const after = useRefs.getState().refs.filter((r) => r.subjectId === CUSTOM_ID);
     expect(after).toHaveLength(1);
     expect(after[0].updatedAfter).toBe(2);
+  });
+
+  it('prefetch asks the service only for a ready remote subject and swallows errors', async () => {
+    const svc = createLocalContentService({ stageMs: 5 });
+    const spy = jest.spyOn(svc, 'prefetchNextLesson').mockRejectedValue(new Error('offline'));
+    prefetchNextLesson(svc);
+    expect(spy).not.toHaveBeenCalled(); // предмета нет
+    await createSubjectAndPrepare(svc, draft);
+    useProgress.setState((st) => ({ custom: { ...st.custom!, remoteId: 'r1' } }));
+    prefetchNextLesson(svc);
+    expect(spy).toHaveBeenCalledWith('r1');
+    await new Promise((r) => setTimeout(r, 0));
+    expect(useProgress.getState().prepError).toBeNull();
+  });
+
+  it('resume after a restart waits for the server lesson without re-sending the recap', async () => {
+    const svc = createLocalContentService({ stageMs: 5 });
+    await createSubjectAndPrepare(svc, draft);
+    // Приложение закрыли посреди подготовки урока 2: ready=false, записи уже ушли.
+    useProgress.setState((st) => ({ custom: { ...st.custom!, ready: false, remoteId: 'r1', pendingRecords: [] }, prepStage: 1 }));
+    const next = jest.spyOn(svc, 'prepareNextLesson');
+    await resumePrepare(svc);
+    expect(next).not.toHaveBeenCalled();
+    expect(useProgress.getState().custom).toMatchObject({ ready: true, lessonNumber: 2 });
+    // Готовый предмет и предмет с ошибкой не трогаем.
+    const resume = jest.spyOn(svc, 'resumeLesson');
+    await resumePrepare(svc);
+    useProgress.setState((st) => ({ custom: { ...st.custom!, ready: false }, prepError: 'boom' }));
+    await resumePrepare(svc);
+    expect(resume).not.toHaveBeenCalled();
   });
 });

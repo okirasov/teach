@@ -30,6 +30,20 @@ export function prefetchNextLesson(service: ContentService): void {
   service.prefetchNextLesson(c.remoteId).catch(() => {});
 }
 
+/**
+ * После перезапуска приложения: подготовка шла, но опрос прервался. Записи и задача уже на сервере,
+ * поэтому только ждём готовности; без remoteId (черновик не дошёл до сервера) — обычный повтор.
+ */
+export async function resumePrepare(service: ContentService): Promise<void> {
+  const { custom, prepError } = useProgress.getState();
+  if (!custom || custom.ready || prepError !== null) return;
+  if (!custom.remoteId) {
+    await retryPrepare(service);
+    return;
+  }
+  await guard((onStage) => service.resumeLesson(custom.remoteId, (custom.lessonNumber ?? 0) + 1, onStage));
+}
+
 /** Повтор после сбоя: первый урок по черновику или следующий по сохранённым записям. */
 export async function retryPrepare(service: ContentService): Promise<void> {
   const c = useProgress.getState().custom;

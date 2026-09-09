@@ -229,6 +229,25 @@ public class ApiTests : IClassFixture<ApiFactory>
         await WaitReady(id);
     }
 
+    [Fact]
+    public async Task RepeatedRecapOfTheSameLessonIsIdempotent()
+    {
+        var created = await _http.PostAsJsonAsync("/subjects", new SubjectDraft("SQL", "Основы и синтаксис", "писать отчёты", ["src-0"]));
+        var id = (await created.Content.ReadFromJsonAsync<SubjectCreated>(Json))!.SubjectId;
+        await WaitReady(id);
+        var recs = new RecapRecord[] { new("a", "…", true, 1, 1), new("b", "…", false, 2, 1) };
+        await _http.PostAsJsonAsync($"/sessions/{id}/recap", new RecapRequest(recs));
+        var second = await WaitReady(id, expectNumber: 2);
+
+        // Клиент перезапустился и прислал тот же разбор ещё раз: урок 3 не собирается, записи не дублируются.
+        var again = await _http.PostAsJsonAsync($"/sessions/{id}/recap", new RecapRequest(recs));
+        Assert.Equal("ready", (await again.Content.ReadFromJsonAsync<RecapAccepted>(Json))!.Status);
+        await Task.Delay(200);
+        var st = await _http.GetFromJsonAsync<LessonStatus>($"/subjects/{id}/lesson", Json);
+        Assert.Equal(2, st!.Number);
+        Assert.Equal(second.Lesson!.LessonTitle, st.Lesson!.LessonTitle);
+    }
+
     private async Task<LessonStatus> WaitPrefetch(string id)
     {
         LessonStatus? status = null;

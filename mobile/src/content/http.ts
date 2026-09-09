@@ -92,6 +92,10 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
       if (!remoteId) return;
       await call<{ status: string }>('POST', `/subjects/${remoteId}/prefetch`);
     },
+    async resumeLesson(remoteId, number, onStage) {
+      if (!remoteId) throw new Error('no remote subject');
+      return { remoteId, ...(await waitLesson(remoteId, number, onStage)) };
+    },
     async prepareNextLesson(remoteId, number, records: LessonRecord[], onStage, opts) {
       if (!remoteId) throw new Error('subject has no server id');
       const r = await call<{ status: string }>('POST', `/sessions/${remoteId}/recap`, { records, durationMinutes: opts?.durationMinutes });

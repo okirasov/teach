@@ -78,7 +78,10 @@ public static class ContentEndpoints
         {
             var now = DateTimeOffset.UtcNow;
             var subject = Guid.TryParse(subjectId, out var gid) ? await db.Subjects.FindAsync([gid], ct) : null;
-            db.Records.AddRange(r.Records.Select(x => new LearningRecordRow
+            // Повторный разбор того же урока (клиент перезапустился или нажал «Повторить»): записи не дублируем.
+            var lessonNo = r.Records.Length > 0 ? r.Records[0].LessonNumber : 0;
+            var repeated = subject is not null && lessonNo > 0 && await db.Records.AnyAsync(x => x.SubjectId == subjectId && x.LessonNumber == lessonNo, ct);
+            if (!repeated) db.Records.AddRange(r.Records.Select(x => new LearningRecordRow
             {
                 SubjectId = subjectId, Title = x.Title, Note = x.Note, Ok = x.Ok, StepIndex = x.StepIndex, CreatedAt = now,
                 // Старый клиент не шлёт номер урока — считаем, что запись про текущий урок предмета.
@@ -92,6 +95,10 @@ public static class ContentEndpoints
                 return Results.Accepted(null, new RecapAccepted("stored"));
             }
             await db.SaveChangesAsync(ct);
+            if (repeated && subject.Status == SubjectStatus.Ready && subject.LessonNumber > lessonNo)
+                return Results.Accepted($"/subjects/{subject.Id}/lesson", new RecapAccepted("ready"));
+            if (repeated && subject.Status == SubjectStatus.Preparing)
+                return Results.Accepted($"/subjects/{subject.Id}/lesson", new RecapAccepted("preparing"));
 
             // Этап по результатам — решается здесь, до генерации (диагностика не в счёт).
             var plan = Plans.Of(subject);

@@ -158,6 +158,12 @@ export function createLocalContentService(opts: { stageMs?: number; planLater?: 
     async prefetchNextLesson() {
       /* у заглушки генерация мгновенная */
     },
+    resumeLesson(_remoteId, number, onStage) {
+      return stages(onStage).then(() => {
+        const lesson = stubNextLesson(number, []);
+        return { lesson, references: stubGlossary(lesson, number) };
+      });
+    },
     prepareNextLesson(_remoteId, number, records, onStage) {
       return stages(onStage).then(() => {
         const lesson = stubNextLesson(number, records);

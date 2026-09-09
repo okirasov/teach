@@ -55,6 +55,7 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
 
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
+        await RequeueInterruptedAsync(ct);
         await foreach (var job in queue.ReadAllAsync(ct))
         {
             try
@@ -209,6 +210,25 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
         await UpdateGlossaryAsync(db, s, lesson, number, ct);
         await db.SaveChangesAsync(ct);
         log.LogInformation("subject {Subject} lesson {Number} ready ({Model}, prefetch={Prefetch})", s.Id, number, model.Name, fromPrefetch);
+    }
+
+    /// <summary>Очередь живёт в памяти: после перезапуска сервера предметы «в подготовке» ставим заново.</summary>
+    private async Task RequeueInterruptedAsync(CancellationToken ct)
+    {
+        using var scope = scopes.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<TeachDb>();
+        var stale = await db.Subjects.Where(s => s.Status == SubjectStatus.Preparing || s.PrefetchRunning).ToListAsync(ct);
+        foreach (var s in stale)
+        {
+            s.PrefetchRunning = false;
+            if (s.Status == SubjectStatus.Preparing)
+            {
+                s.PrepStage = 0;
+                await queue.EnqueueAsync(s.Id, LessonJobKind.Prepare, ct);
+                log.LogInformation("subject {Subject}: requeued after restart", s.Id);
+            }
+        }
+        if (stale.Count > 0) await db.SaveChangesAsync(ct);
     }
 
     private async Task ClearPrefetchAsync(Guid id, CancellationToken ct)
