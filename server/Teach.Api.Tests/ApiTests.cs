@@ -138,7 +138,7 @@ public class ApiTests : IClassFixture<ApiFactory>
 
         var second = await WaitReady(id, expectNumber: 2);
         Assert.Equal(2, second.Number);
-        Assert.Equal("Урок 2 · Каркас темы", second.Lesson!.LessonTitle);
+        Assert.Equal("Урок 2 · Каркас: термины и карта темы", second.Lesson!.LessonTitle);
         Assert.Contains("Карта того, что уже есть", ((ExplainStep)second.Lesson.Steps[0]).Paras[0]);
         Assert.Empty(LessonValidator.Validate(second.Lesson));
     }
