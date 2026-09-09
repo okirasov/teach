@@ -38,6 +38,7 @@ public sealed class LessonQueue
     public ValueTask EnqueueAsync(Guid subjectId, LessonJobKind kind = LessonJobKind.Prepare, CancellationToken ct = default) =>
         _ch.Writer.WriteAsync(new LessonJob(subjectId, kind), ct);
     public IAsyncEnumerable<LessonJob> ReadAllAsync(CancellationToken ct) => _ch.Reader.ReadAllAsync(ct);
+    public ValueTask<LessonJob> ReadAsync(CancellationToken ct) => _ch.Reader.ReadAsync(ct);
 }
 
 public sealed class WorkerOptions
@@ -53,27 +54,38 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
-    protected override async Task ExecuteAsync(CancellationToken ct)
+    protected override async Task ExecuteAsync(CancellationToken stopping)
     {
-        await RequeueInterruptedAsync(ct);
-        await foreach (var job in queue.ReadAllAsync(ct))
+        await RequeueInterruptedAsync(stopping);
+        while (!stopping.IsCancellationRequested)
         {
-            try
+            LessonJob job;
+            try { job = await queue.ReadAsync(stopping); }
+            catch (OperationCanceledException) { break; }
+            // Плавная остановка: начатый урок дорабатывается до конца, а не обрывается сигналом деплоя —
+            // обрыв стоил бы повторного вызова модели. Хост ждёт до HostOptions.ShutdownTimeout,
+            // Fly — до kill_timeout; всё это время сервер продолжает отвечать на опросы клиента.
+            await RunAsync(job, CancellationToken.None);
+        }
+        log.LogInformation("worker stopped; queued jobs will be requeued on start");
+    }
+
+    private async Task RunAsync(LessonJob job, CancellationToken ct)
+    {
+        try
+        {
+            switch (job.Kind)
             {
-                switch (job.Kind)
-                {
-                    case LessonJobKind.Prepare: await PrepareAsync(job.SubjectId, ct); break;
-                    case LessonJobKind.Prefetch: await PrefetchAsync(job.SubjectId, ct); break;
-                    case LessonJobKind.Promote: await PromoteAsync(job.SubjectId, ct); break;
-                }
+                case LessonJobKind.Prepare: await PrepareAsync(job.SubjectId, ct); break;
+                case LessonJobKind.Prefetch: await PrefetchAsync(job.SubjectId, ct); break;
+                case LessonJobKind.Promote: await PromoteAsync(job.SubjectId, ct); break;
             }
-            catch (OperationCanceledException) when (ct.IsCancellationRequested) { return; }
-            catch (Exception e)
-            {
-                log.LogError(e, "{Kind} {Subject} failed", job.Kind, job.SubjectId);
-                if (job.Kind == LessonJobKind.Prefetch) await ClearPrefetchAsync(job.SubjectId, ct);
-                else await MarkFailedAsync(job.SubjectId, e.Message, ct);
-            }
+        }
+        catch (Exception e)
+        {
+            log.LogError(e, "{Kind} {Subject} failed", job.Kind, job.SubjectId);
+            if (job.Kind == LessonJobKind.Prefetch) await ClearPrefetchAsync(job.SubjectId, ct);
+            else await MarkFailedAsync(job.SubjectId, e.Message, ct);
         }
     }
 

@@ -84,4 +84,26 @@ describe('http content service', () => {
     const svc2 = createHttpContentService({ baseUrl: 'http://srv', fetchFn: failed.fn, pollMs: 1 });
     await expect(svc2.prepareFirstLesson({ topic: 'x', focus: '', mission: '', sourceIds: [] }, () => {})).rejects.toThrow('failed');
   });
+
+  it('polling survives a short server outage and gives up after outageMs', async () => {
+    let n = 0;
+    const { fn } = fakeFetch((url, init) => {
+      if (url.endsWith('/subjects') && init?.method === 'POST') return { status: 202, body: { subjectId: 'x' } };
+      n += 1;
+      if (n <= 3) return { status: 503, body: null };
+      return { body: { status: 'ready', number: 1, lesson: { name: 'x', level: '', lessonTitle: 'L', why: '', steps: [] } } };
+    });
+    const svc = createHttpContentService({ baseUrl: 'http://srv', fetchFn: fn, pollMs: 1, outageMs: 1000 });
+    const r = await svc.prepareFirstLesson({ topic: 'x', focus: '', mission: '', sourceIds: [] }, () => {});
+    expect(r.lesson.lessonTitle).toBe('L');
+    expect(n).toBe(4);
+
+    const down = fakeFetch((url, init) => (url.endsWith('/subjects') && init?.method === 'POST' ? { status: 202, body: { subjectId: 'x' } } : { status: 503, body: null }));
+    const svc2 = createHttpContentService({ baseUrl: 'http://srv', fetchFn: down.fn, pollMs: 1, outageMs: 20 });
+    await expect(svc2.prepareFirstLesson({ topic: 'x', focus: '', mission: '', sourceIds: [] }, () => {})).rejects.toMatchObject({ status: 503 });
+
+    const gone = fakeFetch((url, init) => (url.endsWith('/subjects') && init?.method === 'POST' ? { status: 202, body: { subjectId: 'x' } } : { status: 404, body: null }));
+    const svc3 = createHttpContentService({ baseUrl: 'http://srv', fetchFn: gone.fn, pollMs: 1, outageMs: 1000 });
+    await expect(svc3.prepareFirstLesson({ topic: 'x', focus: '', mission: '', sourceIds: [] }, () => {})).rejects.toMatchObject({ status: 404 });
+  });
 });

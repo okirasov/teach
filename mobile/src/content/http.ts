@@ -10,6 +10,8 @@ export interface HttpContentOptions {
   pollMs?: number;
   /** Максимальное время ожидания урока, мс. */
   timeoutMs?: number;
+  /** Сколько подряд сбоев сети терпит опрос (деплой сервера, потеря сети), мс. */
+  outageMs?: number;
   fetchFn?: typeof fetch;
 }
 
@@ -30,6 +32,7 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
   const base = opts.baseUrl.replace(/\/+$/, '');
   const pollMs = opts.pollMs ?? 3000;
   const timeoutMs = opts.timeoutMs ?? 600_000;
+  const outageMs = opts.outageMs ?? 180_000;
   const f = opts.fetchFn ?? fetch;
 
   async function call<T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T> {
@@ -50,8 +53,20 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
   async function waitLesson(subjectId: string, number: number, onStage: (s: PrepStage) => void): Promise<{ lesson: Lesson; references?: ReferenceIn[]; planStage?: number }> {
     let lastStage = -1;
     const deadline = Date.now() + timeoutMs;
+    let outageSince: number | null = null;
     for (;;) {
-      const st = await call<LessonStatus>('GET', `/subjects/${subjectId}/lesson`);
+      let st: LessonStatus;
+      try {
+        st = await call<LessonStatus>('GET', `/subjects/${subjectId}/lesson`);
+        outageSince = null;
+      } catch (e) {
+        // Ответ 4xx — ошибка по существу (предмет не найден); сбой сети или 5xx во время деплоя — ждём.
+        if (e instanceof ContentHttpError && e.status < 500) throw e;
+        outageSince ??= Date.now();
+        if (Date.now() - outageSince > outageMs) throw e;
+        await new Promise((r) => setTimeout(r, pollMs));
+        continue;
+      }
       if (st.status === 'ready' && st.number >= number) {
         if (lastStage < 2) onStage(2);
         return { lesson: st.lesson, references: st.references, planStage: st.planStage };

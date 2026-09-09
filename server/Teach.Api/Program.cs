@@ -32,6 +32,8 @@ builder.Services.AddSingleton(new WorkerOptions
 builder.Services.AddSingleton<LessonQueue>();
 builder.Services.AddSingleton<SourcesJobs>();
 builder.Services.AddHostedService<LessonWorker>();
+// Плавная остановка: воркер дорабатывает текущий урок (до ~2 мин с повторами), Fly ждёт kill_timeout из fly.toml.
+builder.Services.Configure<HostOptions>(o => o.ShutdownTimeout = TimeSpan.FromSeconds(cfg.GetValue("ShutdownSeconds", 150)));
 builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull);
 // CORS нужен только web-превью клиента; нативные приложения его не используют.
 builder.Services.AddCors(o => o.AddDefaultPolicy(p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));

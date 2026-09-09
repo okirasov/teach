@@ -4,6 +4,8 @@
 # fly deploy
 app = "teach-tutor-api"
 primary_region = "ams"
+# Плавная остановка: после SIGINT воркер дорабатывает текущий урок, Fly ждёт до этого срока перед SIGKILL.
+kill_timeout = "160s"
 
 [build]
   dockerfile = "Dockerfile"
