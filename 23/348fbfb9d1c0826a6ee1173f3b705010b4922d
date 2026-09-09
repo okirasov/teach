@@ -1,0 +1,55 @@
+mobile/app/recap.tsx
+  s_a2145daee18e40::t_9652cca59bc8dc 64
+mobile/src/content/__tests__/http.test.ts
+  s_a2145daee18e40::t_560a55f6c710b7 68,70,72
+mobile/src/content/http.ts
+  s_a2145daee18e40::t_da4b3262444cdf 91,93
+mobile/src/content/types.ts
+  s_a2145daee18e40::t_9ef387b385e571 37-42,79
+mobile/src/domain/types.ts
+  s_a2145daee18e40::t_4b0b441b1f015a 122
+mobile/src/features/subjects/prepare.ts
+  s_a2145daee18e40::t_678aa9dce2e151 3,12-13,22-23,32
+mobile/src/store/__tests__/progress.test.ts
+  s_a2145daee18e40::t_ee06db24514c36 57
+server/Teach.Api/Contracts/Dtos.cs
+  s_a2145daee18e40::t_541252b253b8ec 27-28,48
+server/Teach.Api/Data/SchemaUpgrader.cs
+  s_a2145daee18e40::t_4c583dfdef9c98 20
+server/Teach.Api/Data/TeachDb.cs
+  s_a2145daee18e40::t_01bf6def8bbda3 30-31
+server/Teach.Api/Domain/LessonValidator.cs
+  s_a2145daee18e40::t_70d56d5fee355a 17
+server/Teach.Api/Endpoints/ContentEndpoints.cs
+  s_a2145daee18e40::t_980a3453876322 49,87
+server/Teach.Api/Jobs/LessonWorker.cs
+  s_a2145daee18e40::t_0cba0f50d03f3c 43,101-102,109-110
+server/Teach.Api/Model/ClaudeLessonModel.cs
+  s_a2145daee18e40::t_cd03fc2d44fa54 89,97,103,112
+server/Teach.Api/Model/ILessonModel.cs
+  s_a2145daee18e40::t_cd16438cadde52 23
+server/Teach.Api/Model/Prompts.cs
+  s_a2145daee18e40::t_516d911164cac6 29,39-46
+server/Teach.Api/Model/StubLessonModel.cs
+  s_a2145daee18e40::t_c1b4af354839ff 162
+server/Teach.Api/Program.cs
+  s_a2145daee18e40::t_417554b41efa9f 30
+server/Teach.Api/appsettings.json
+  s_a2145daee18e40::t_8190c09db5f301 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "23348fbfb9d1c0826a6ee1173f3b705010b4922d",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
