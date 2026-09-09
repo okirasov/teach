@@ -90,6 +90,7 @@ public class ApiTests : IClassFixture<ApiFactory>
         Assert.Equal("ready", status!.Status);
         Assert.NotNull(status.Lesson);
         Assert.Equal("SQL", status.Lesson!.Name);
+        Assert.Equal("Урок 1 · Стартовая диагностика", status.Lesson.LessonTitle);
         Assert.IsType<ExplainStep>(status.Lesson.Steps[0]);
         Assert.Equal(-1, ((ChoiceStep)status.Lesson.Steps[1]).Correct);
         Assert.Empty(LessonValidator.Validate(status.Lesson));

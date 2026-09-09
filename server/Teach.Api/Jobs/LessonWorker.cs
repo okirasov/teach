@@ -77,6 +77,9 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
             var errors = LessonValidator.Validate(lesson, opts.DurationMinutes);
             if (errors.Count == 0)
             {
+                // Заголовок карточки: схема структурированного вывода его не содержит, ставим сами.
+                if (string.IsNullOrWhiteSpace(lesson.LessonTitle))
+                    lesson.LessonTitle = $"Урок {number} · {(lesson.Steps[0] as ExplainStep)?.Title ?? lesson.Name}";
                 var json = JsonSerializer.Serialize(lesson, Json);
                 s.LessonJson = json;
                 s.LessonNumber = number;
