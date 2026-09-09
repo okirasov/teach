@@ -53,18 +53,28 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
     : BackgroundService
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+    private readonly CancellationTokenSource _drain = new();
+
+    /// <summary>
+    /// Плавная остановка: перестать брать задачи и дождаться конца текущей. Вызывается по SIGINT/SIGTERM
+    /// до остановки хоста, поэтому сервер всё это время отвечает на опросы клиента; обрыв генерации
+    /// стоил бы повторного вызова модели.
+    /// </summary>
+    public Task DrainAsync()
+    {
+        _drain.Cancel();
+        return ExecuteTask ?? Task.CompletedTask;
+    }
 
     protected override async Task ExecuteAsync(CancellationToken stopping)
     {
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(stopping, _drain.Token);
         await RequeueInterruptedAsync(stopping);
-        while (!stopping.IsCancellationRequested)
+        while (!linked.IsCancellationRequested)
         {
             LessonJob job;
-            try { job = await queue.ReadAsync(stopping); }
+            try { job = await queue.ReadAsync(linked.Token); }
             catch (OperationCanceledException) { break; }
-            // Плавная остановка: начатый урок дорабатывается до конца, а не обрывается сигналом деплоя —
-            // обрыв стоил бы повторного вызова модели. Хост ждёт до HostOptions.ShutdownTimeout,
-            // Fly — до kill_timeout; всё это время сервер продолжает отвечать на опросы клиента.
             await RunAsync(job, CancellationToken.None);
         }
         log.LogInformation("worker stopped; queued jobs will be requeued on start");

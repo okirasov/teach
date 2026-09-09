@@ -54,7 +54,7 @@ fly deploy && curl https://teach-tutor-api.fly.dev/health
 - `Endpoints/ContentEndpoints` — `/subjects/focus`, `/subjects/sources` (+ `GET …/{jobId}`), `/subjects/plan`,
   `POST /subjects`, `GET /subjects/{id}/lesson` (с номером урока), `POST /sessions/{id}/recap` (записи + следующий урок),
   `POST /subjects/{id}/prefetch` (заготовка урока N+1, пока идёт урок N; используется при разборе, если этап не сменился и ≥ 50 % верных),
-  плавная остановка: воркер дорабатывает текущий урок после SIGINT (`Teach:ShutdownSeconds`, `kill_timeout` в fly.toml),
+  плавная остановка (`DrainingLifetime`): после SIGINT/SIGTERM воркер дорабатывает текущий урок при живом сервере, потом хост останавливается (`Teach:ShutdownSeconds`, `kill_timeout` в fly.toml),
   `POST /grade/free`. Контракт и поведение — `docs/ai-content.md`.
 
 Подключение клиента: `EXPO_PUBLIC_CONTENT_URL=http://<host>:5180` (на устройстве — IP Mac в той же сети).
