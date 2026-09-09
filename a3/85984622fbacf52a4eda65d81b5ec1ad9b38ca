@@ -1,0 +1,23 @@
+server/Teach.Api.Tests/ApiTests.cs
+  s_a2145daee18e40::t_998aa1be9fe5c5 7,195-197
+server/Teach.Api/Model/ClaudeLessonModel.cs
+  s_a2145daee18e40::t_7bf3061c06e2ae 38-39
+server/Teach.Api/Model/StubLessonModel.cs
+  s_a2145daee18e40::t_51cf84b16687dd 39-40,43,45,48-58,71-74,78-81
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "a385984622fbacf52a4eda65d81b5ec1ad9b38ca",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
