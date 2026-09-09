@@ -24,7 +24,8 @@ public sealed record SourcesRequest(string Topic, string Focus);
 public sealed record PlanRequest(string Topic, string Focus, string Mission);
 
 /// <summary>Sources — кандидаты, уже найденные мастером; если переданы, сервер не ищет их заново.</summary>
-public sealed record SubjectDraft(string Topic, string Focus, string Mission, string[] SourceIds, SourceCandidate[]? Sources = null, string? Title = null, PlanStage[]? Plan = null);
+/// <summary>DurationMinutes — «Длительность урока» из настроек предмета (3/5/10): задаёт бюджет текста и число практик.</summary>
+public sealed record SubjectDraft(string Topic, string Focus, string Mission, string[] SourceIds, SourceCandidate[]? Sources = null, string? Title = null, PlanStage[]? Plan = null, int? DurationMinutes = null);
 
 public sealed record SubjectCreated(string SubjectId, string Status);
 
@@ -44,7 +45,7 @@ public sealed record GradeResponse(bool[] Hits);
 
 public sealed record RecapRecord(string Title, string Note, bool Ok, int StepIndex, int LessonNumber = 0);
 
-public sealed record RecapRequest(RecapRecord[] Records);
+public sealed record RecapRequest(RecapRecord[] Records, int? DurationMinutes = null);
 
 /// <summary>Ответ на разбор: preparing — следующий урок ставится в очередь; stored — записи сохранены (сидовый предмет).</summary>
 public sealed record RecapAccepted(string Status);

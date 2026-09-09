@@ -46,6 +46,7 @@ public static class ContentEndpoints
                 SourceIdsJson = JsonSerializer.Serialize(d.SourceIds ?? []), Status = SubjectStatus.Preparing, PrepStage = 0,
                 SourcesJson = d.Sources is { Length: > 0 } ? JsonSerializer.Serialize(d.Sources, Json) : null,
                 PlanJson = d.Plan is { Length: > 0 } ? JsonSerializer.Serialize(d.Plan, Json) : null,
+                DurationMinutes = d.DurationMinutes ?? 0,
                 CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow,
             };
             db.Subjects.Add(row);
@@ -83,6 +84,7 @@ public static class ContentEndpoints
                 LessonNumber = x.LessonNumber > 0 ? x.LessonNumber : subject?.LessonNumber ?? 0,
                 PlanStage = subject?.PlanStage ?? 0,
             }));
+            if (subject is not null && r.DurationMinutes is > 0) subject.DurationMinutes = r.DurationMinutes.Value;
             if (subject is not null && subject.Status != SubjectStatus.Preparing)
             {
                 subject.Status = SubjectStatus.Preparing;

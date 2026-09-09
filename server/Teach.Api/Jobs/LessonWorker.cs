@@ -40,7 +40,7 @@ public sealed class WorkerOptions
     /// <summary>Пауза между этапами подготовки (мс) — только чтобы этапы были видны; у реальной модели время задаёт сама генерация.</summary>
     public int StageDelayMs { get; set; } = 1500;
     public int MaxAttempts { get; set; } = 3;
-    public int DurationMinutes { get; set; } = 5;
+    public int DurationMinutes { get; set; } = 10;
 }
 
 public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes, ILessonModel model, WorkerOptions opts, ILogger<LessonWorker> log)
@@ -98,14 +98,16 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
             }
         }
         var stage = plan[Math.Min(s.PlanStage, plan.Length - 1)];
+        // Длительность из настроек предмета; диагностика всегда короткая.
+        var duration = s.DurationMinutes > 0 ? s.DurationMinutes : opts.DurationMinutes;
 
         string? lastError = null;
         for (var attempt = 1; attempt <= opts.MaxAttempts; attempt++)
         {
             var lesson = number == 1
                 ? await model.GenerateDiagnosticAsync(draft, chosen, ct)
-                : await model.GenerateNextLessonAsync(draft, chosen, number, stage, s.PlanStage, records, ct);
-            var errors = LessonValidator.Validate(lesson, opts.DurationMinutes);
+                : await model.GenerateNextLessonAsync(draft, chosen, number, stage, s.PlanStage, records, duration, ct);
+            var errors = LessonValidator.Validate(lesson, number == 1 ? 5 : duration);
             if (errors.Count == 0)
             {
                 // Заголовок карточки: схема структурированного вывода его не содержит, ставим сами.

@@ -20,6 +20,6 @@ public interface ILessonModel
     /// <summary>Первый урок — стартовая диагностика: калибровка без правильного ответа + свободный рассказ.</summary>
     Task<Lesson> GenerateDiagnosticAsync(SubjectDraft draft, IReadOnlyList<SourceCandidate> sources, CancellationToken ct);
     /// <summary>Урок N на этапе stage плана по записям об усвоенном: чуть выше границы, что показали ошибки.</summary>
-    Task<Lesson> GenerateNextLessonAsync(SubjectDraft draft, IReadOnlyList<SourceCandidate> sources, int number, PlanStage stage, int stageIndex, IReadOnlyList<RecapRecord> records, CancellationToken ct);
+    Task<Lesson> GenerateNextLessonAsync(SubjectDraft draft, IReadOnlyList<SourceCandidate> sources, int number, PlanStage stage, int stageIndex, IReadOnlyList<RecapRecord> records, int durationMinutes, CancellationToken ct);
     Task<bool[]> GradeFreeAsync(IReadOnlyList<Criterion> criteria, string text, string lang, CancellationToken ct);
 }

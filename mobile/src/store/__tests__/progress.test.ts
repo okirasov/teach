@@ -54,6 +54,6 @@ describe('progress store', () => {
   it('subject config merges over defaults', () => {
     expect(subjectConfig(useProgress.getState(), 'en').voice).toBe(true);
     useProgress.getState().setCfg('en', { voice: false });
-    expect(subjectConfig(useProgress.getState(), 'en')).toMatchObject({ voice: false, dur: 5 });
+    expect(subjectConfig(useProgress.getState(), 'en')).toMatchObject({ voice: false, dur: 10 });
   });
 });

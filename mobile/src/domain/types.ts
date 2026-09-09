@@ -119,4 +119,4 @@ export interface SubjectConfig {
   vlang: 'ui' | 'lesson';
 }
 
-export const defaultSubjectConfig: SubjectConfig = { pause: false, dur: 5, lim: 20, diff: 'edge', voice: true, vlang: 'lesson' };
+export const defaultSubjectConfig: SubjectConfig = { pause: false, dur: 10, lim: 20, diff: 'edge', voice: true, vlang: 'lesson' };

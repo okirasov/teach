@@ -1,6 +1,6 @@
 import type { ContentService, PreparedLesson, SubjectDraft } from '@/content';
 import type { LessonRecord } from '@/domain/types';
-import { CUSTOM_ID, subjectName, useProgress } from '@/store/progress';
+import { CUSTOM_ID, subjectConfig, subjectName, useProgress } from '@/store/progress';
 import { useRefs } from '@/store/refs';
 
 /**
@@ -9,7 +9,8 @@ import { useRefs } from '@/store/refs';
  */
 export async function createSubjectAndPrepare(service: ContentService, draft: SubjectDraft): Promise<void> {
   useProgress.getState().createCustom({ topic: draft.topic, title: draft.title, focus: draft.focus, mission: draft.mission, sourceIds: draft.sourceIds, plan: draft.plan });
-  await guard((onStage) => service.prepareFirstLesson(draft, onStage));
+  const dur = subjectConfig(useProgress.getState(), CUSTOM_ID).dur;
+  await guard((onStage) => service.prepareFirstLesson({ ...draft, durationMinutes: dur }, onStage));
 }
 
 /** После разбора: записи уходят на сервер, следующий урок готовится в фоне, карточка показывает этапы. */
@@ -18,7 +19,8 @@ export async function prepareNextLesson(service: ContentService, records: Lesson
   if (!c) return;
   const stamped = records.map((r) => ({ ...r, lessonNumber: r.lessonNumber ?? c.lessonNumber ?? 0 }));
   useProgress.getState().startNextLesson(stamped);
-  await guard((onStage) => service.prepareNextLesson(c.remoteId, (c.lessonNumber ?? 0) + 1, stamped, onStage));
+  const dur = subjectConfig(useProgress.getState(), CUSTOM_ID).dur;
+  await guard((onStage) => service.prepareNextLesson(c.remoteId, (c.lessonNumber ?? 0) + 1, stamped, onStage, { durationMinutes: dur }));
 }
 
 /** Повтор после сбоя: первый урок по черновику или следующий по сохранённым записям. */
@@ -27,7 +29,7 @@ export async function retryPrepare(service: ContentService): Promise<void> {
   if (!c || c.ready) return;
   useProgress.getState().setPrepStage(0);
   if ((c.lessonNumber ?? 0) > 0 && c.pendingRecords) {
-    await guard((onStage) => service.prepareNextLesson(c.remoteId, (c.lessonNumber ?? 0) + 1, c.pendingRecords!, onStage));
+    await guard((onStage) => service.prepareNextLesson(c.remoteId, (c.lessonNumber ?? 0) + 1, c.pendingRecords!, onStage, { durationMinutes: subjectConfig(useProgress.getState(), CUSTOM_ID).dur }));
     return;
   }
   await guard((onStage) => service.prepareFirstLesson({ topic: c.topic, title: c.title, focus: c.focus, mission: c.mission, sourceIds: c.sourceIds ?? [] }, onStage));

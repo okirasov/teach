@@ -61,7 +61,7 @@ export default function RecapScreen() {
 
   return (
     <Screen>
-      <SessionHeader chip={t.recapChip} chipDark onClose={leave} />
+      <SessionHeader chip={t.recapChip} chipDark onClose={() => void finish()} />
       <ScrollView showsVerticalScrollIndicator={false} style={{ marginHorizontal: -4 }} contentContainerStyle={{ paddingHorizontal: 4, paddingBottom: 8 }}>
         <Txt t="h1" style={{ marginTop: 24, fontSize: 24, lineHeight: 29 }}>{okCount === records.length ? t.cleanSession : t.toFix}</Txt>
         <Txt t="row" color="mut" style={{ marginTop: 6, fontSize: 14, lineHeight: 21 }}>{t.firstTry(okCount, records.length)} · {s.lesson.name}</Txt>

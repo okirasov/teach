@@ -88,9 +88,9 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
       const r = await waitLesson(created.subjectId, 1, onStage);
       return { lesson: r.lesson, remoteId: created.subjectId, references: r.references, planStage: r.planStage };
     },
-    async prepareNextLesson(remoteId, number, records: LessonRecord[], onStage) {
+    async prepareNextLesson(remoteId, number, records: LessonRecord[], onStage, opts) {
       if (!remoteId) throw new Error('subject has no server id');
-      const r = await call<{ status: string }>('POST', `/sessions/${remoteId}/recap`, { records });
+      const r = await call<{ status: string }>('POST', `/sessions/${remoteId}/recap`, { records, durationMinutes: opts?.durationMinutes });
       if (r.status !== 'preparing') throw new Error('server did not schedule the next lesson');
       return waitLesson(remoteId, number, onStage);
     },

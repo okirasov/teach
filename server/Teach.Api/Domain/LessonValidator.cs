@@ -14,7 +14,7 @@ public static class LessonValidator
         var errors = new List<string>();
         if (string.IsNullOrWhiteSpace(lesson.Name)) errors.Add("name is empty");
         if (lesson.Steps is null || lesson.Steps.Count == 0) { errors.Add("no steps"); return errors; }
-        if (lesson.Steps.Count > 6) errors.Add("more than 6 steps");
+        if (lesson.Steps.Count > 7) errors.Add("more than 7 steps");
         if (lesson.Steps.Count(s => s is ExplainStep) > 1) errors.Add("more than one explain step");
         if (!lesson.Steps.Any(s => s is PracticeStep)) errors.Add("no practice step");
 

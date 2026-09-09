@@ -27,6 +27,8 @@ public sealed class SubjectRow
     public string? PlanJson { get; set; }
     /// <summary>Текущий этап плана, 0-based. Меняется только по результатам (StagePolicy).</summary>
     public int PlanStage { get; set; }
+    /// <summary>Длительность урока из настроек предмета (3/5/10 мин); 0 — по умолчанию сервера.</summary>
+    public int DurationMinutes { get; set; }
     public string? PromptVersion { get; set; }
     public string? LastError { get; set; }
     public DateTimeOffset CreatedAt { get; set; }

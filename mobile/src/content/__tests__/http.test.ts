@@ -65,10 +65,11 @@ describe('http content service', () => {
     });
     const svc = createHttpContentService({ baseUrl: 'http://srv', fetchFn: fn, pollMs: 1 });
     const stages: number[] = [];
-    const result = await svc.prepareNextLesson('abc', 2, [{ title: 't', note: 'n', ok: false, stepIndex: 1 }], (s) => stages.push(s));
+    const result = await svc.prepareNextLesson('abc', 2, [{ title: 't', note: 'n', ok: false, stepIndex: 1 }], (s) => stages.push(s), { durationMinutes: 10 });
     expect(result.references?.[0].rows[0].k).toBe('JOIN');
+    expect(JSON.parse(calls[0].init!.body as string).durationMinutes).toBe(10);
     expect(result.lesson).toEqual(lesson2);
-    expect(JSON.parse(calls[0].init!.body as string)).toEqual({ records: [{ title: 't', note: 'n', ok: false, stepIndex: 1 }] });
+    expect(JSON.parse(calls[0].init!.body as string).records).toEqual([{ title: 't', note: 'n', ok: false, stepIndex: 1 }]);
     expect(stages[stages.length - 1]).toBe(2);
   });
 

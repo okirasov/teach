@@ -27,7 +27,7 @@ builder.Services.AddSingleton(new WorkerOptions
 {
     StageDelayMs = cfg.GetValue("StageDelayMs", 1500),
     MaxAttempts = cfg.GetValue("MaxAttempts", 3),
-    DurationMinutes = cfg.GetValue("DurationMinutes", 5),
+    DurationMinutes = cfg.GetValue("DurationMinutes", 10),
 });
 builder.Services.AddSingleton<LessonQueue>();
 builder.Services.AddSingleton<SourcesJobs>();

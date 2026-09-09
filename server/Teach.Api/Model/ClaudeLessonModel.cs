@@ -86,7 +86,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         var why = "миссия · " + (string.IsNullOrWhiteSpace(draft.Mission) ? "уточняется" : draft.Mission);
         try
         {
-            var raw = await AskAsync<RawLesson>(Prompts.Diagnostic, Schemas.Lesson, ct, context: context, effort: Effort.Medium);
+            var raw = await AskAsync<RawLesson>(Prompts.Diagnostic + "\n" + Prompts.Limits(5), Schemas.Lesson, ct, context: context, effort: Effort.Medium);
             return raw.ToLesson(why);
         }
         catch (Exception e) when (e is JsonException or InvalidOperationException)
@@ -94,13 +94,13 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
             // Ограниченная грамматика структурированного вывода изредка зацикливается внутри строки;
             // запасной путь — тот же формат без схемы, JSON вырезается из текста, валидатор проверит смысл.
             log.LogWarning(e, "diagnostic: structured output failed, retrying without schema");
-            var raw = await AskAsync<RawLesson>(Prompts.Diagnostic + "\nОтветь только одним JSON-объектом без пояснений: " + Schemas.LessonShape,
+            var raw = await AskAsync<RawLesson>(Prompts.Diagnostic + "\n" + Prompts.Limits(5) + "\nОтветь только одним JSON-объектом без пояснений: " + Schemas.LessonShape,
                 null, ct, context: context, effort: Effort.Medium);
             return raw.ToLesson(why);
         }
     }
 
-    public async Task<Lesson> GenerateNextLessonAsync(SubjectDraft draft, IReadOnlyList<SourceCandidate> sources, int number, PlanStage stage, int stageIndex, IReadOnlyList<RecapRecord> records, CancellationToken ct)
+    public async Task<Lesson> GenerateNextLessonAsync(SubjectDraft draft, IReadOnlyList<SourceCandidate> sources, int number, PlanStage stage, int stageIndex, IReadOnlyList<RecapRecord> records, int durationMinutes, CancellationToken ct)
     {
         Log ??= log;
         var why = "миссия · " + (string.IsNullOrWhiteSpace(draft.Mission) ? "уточняется" : draft.Mission);
@@ -109,6 +109,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
             ? "(записей пока нет)"
             : string.Join("\n", records.TakeLast(20).Select(r => $"- [{(r.Ok ? "ok" : "ошибка")}] {r.Title}: {r.Note}"));
         var task = Prompts.NextLesson.Replace("{N}", number.ToString()).Replace("{STAGE}", $"{stage.N} «{stage.T}» — {stage.D}")
+            + "\n" + Prompts.Limits(durationMinutes)
             + "\nЗаписи об усвоенном (последние — важнее):\n" + recs;
         try
         {

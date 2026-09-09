@@ -34,6 +34,12 @@ export interface SubjectDraft {
   sources?: SourceCandidate[];
   /** План из мастера — остаётся в предмете для индикатора этапа. */
   plan?: PlanStage[];
+  /** «Длительность урока» из настроек предмета: бюджет текста и число практик на сервере. */
+  durationMinutes?: number;
+}
+
+export interface NextLessonOptions {
+  durationMinutes?: number;
 }
 
 /** Этапы фоновой подготовки первого урока — ровно как на карточке «Готовится…». */
@@ -70,7 +76,7 @@ export interface ContentService {
    * Следующий урок по записям разбора: сервер сохраняет записи и генерирует урок number
    * чуть выше границы, которую они показали.
    */
-  prepareNextLesson(remoteId: string | undefined, number: number, records: LessonRecord[], onStage: (stage: PrepStage) => void): Promise<PreparedLesson>;
+  prepareNextLesson(remoteId: string | undefined, number: number, records: LessonRecord[], onStage: (stage: PrepStage) => void, opts?: NextLessonOptions): Promise<PreparedLesson>;
 }
 
 export interface PreparedLesson {
