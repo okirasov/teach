@@ -6,7 +6,7 @@ export const ru = {
   today: 'Сегодня', reviews: 'Повторы', refs: 'Справочники', mission: 'Предметы',
   queueKicker: 'ПОВТОРЫ · СЕГОДНЯ', queueNote: 'то, что пора вспомнить именно сегодня',
   queueLine: (n: number, min: number) => n + ' ' + (n % 10 === 1 && n % 100 !== 11 ? 'карточка' : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 'карточки' : 'карточек') + ' · ~' + min + ' мин',
-  subjects: 'ПРЕДМЕТЫ', demo: 'демо', newSubj: 'Новый предмет', ready: 'Урок готов', doneToday: 'Пройдено сегодня', start: 'Начать', more: 'Ещё урок',
+  subjects: 'ПРЕДМЕТЫ', demo: 'демо', stageOf: (n: number, total: number) => 'Этап ' + n + '/' + total, lessonN: (n: number) => 'урок ' + n, newSubj: 'Новый предмет', ready: 'Урок готов', doneToday: 'Пройдено сегодня', start: 'Начать', more: 'Ещё урок',
   preparing: 'Готовится…', inBg: 'в фоне', prepFailed: 'Не удалось собрать урок', retry: 'Повторить', diag: 'Урок · Стартовая диагностика', bgLesson: 'Первый урок собирается в фоне…',
   dueToday: 'СЕГОДНЯ', dueLater: 'ПОЗЖЕ', startReviews: 'Начать повторы', reviewsSummary: (n: number) => n + ' в очереди',
   refsNote: 'офлайн', offline: 'ОФЛАЙН',

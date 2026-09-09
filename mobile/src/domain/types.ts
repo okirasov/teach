@@ -87,6 +87,15 @@ export interface CustomSubject {
   lessonNumber?: number;
   /** Записи последнего разбора — чтобы повторить генерацию следующего урока после сбоя. */
   pendingRecords?: LessonRecord[];
+  /** План из мастера — для индикатора этапа на карточке. */
+  plan?: PlanStage[];
+}
+
+/** Этап плана из мастера: «01 · Каркас: термины и карта темы». */
+export interface PlanStage {
+  n: string;
+  t: string;
+  d: string;
 }
 
 /** Запись об усвоенном, уходящая на сервер после разбора. */

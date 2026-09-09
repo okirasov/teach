@@ -8,7 +8,7 @@ import { useRefs } from '@/store/refs';
  * Живёт вне React: уход с экрана мастера подготовку не прерывает.
  */
 export async function createSubjectAndPrepare(service: ContentService, draft: SubjectDraft): Promise<void> {
-  useProgress.getState().createCustom({ topic: draft.topic, title: draft.title, focus: draft.focus, mission: draft.mission, sourceIds: draft.sourceIds });
+  useProgress.getState().createCustom({ topic: draft.topic, title: draft.title, focus: draft.focus, mission: draft.mission, sourceIds: draft.sourceIds, plan: draft.plan });
   await guard((onStage) => service.prepareFirstLesson(draft, onStage));
 }
 

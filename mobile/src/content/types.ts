@@ -1,4 +1,4 @@
-import type { Lesson, LessonRecord } from '@/domain/types';
+import type { Lesson, LessonRecord, PlanStage } from '@/domain/types';
 
 /**
  * Сервис контента — единственная дверь клиента к генерации (бриф §5.1: клиент не держит
@@ -20,11 +20,7 @@ export interface SourceCandidate {
   trust: Trust;
 }
 
-export interface PlanStage {
-  n: string;
-  t: string;
-  d: string;
-}
+export type { PlanStage } from '@/domain/types';
 
 export interface SubjectDraft {
   topic: string;
@@ -36,6 +32,8 @@ export interface SubjectDraft {
   sourceIds: string[];
   /** Сами выбранные источники — сервер не ищет их заново. */
   sources?: SourceCandidate[];
+  /** План из мастера — остаётся в предмете для индикатора этапа. */
+  plan?: PlanStage[];
 }
 
 /** Этапы фоновой подготовки первого урока — ровно как на карточке «Готовится…». */

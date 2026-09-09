@@ -5,7 +5,7 @@ export const en: Dict = {
   today: 'Today', reviews: 'Reviews', refs: 'References', mission: 'Subjects',
   queueKicker: 'REVIEWS · TODAY', queueNote: 'what is due to be recalled today',
   queueLine: (n, min) => n + (n === 1 ? ' card' : ' cards') + ' · ~' + min + ' min',
-  subjects: 'SUBJECTS', demo: 'demo', newSubj: 'New subject', ready: 'Lesson ready', doneToday: 'Done today', start: 'Start', more: 'One more',
+  subjects: 'SUBJECTS', demo: 'demo', stageOf: (n, total) => 'Stage ' + n + '/' + total, lessonN: (n) => 'lesson ' + n, newSubj: 'New subject', ready: 'Lesson ready', doneToday: 'Done today', start: 'Start', more: 'One more',
   preparing: 'Preparing…', inBg: 'in background', prepFailed: 'Could not build the lesson', retry: 'Retry', diag: 'Lesson · Initial check-in', bgLesson: 'First lesson is being prepared…',
   dueToday: 'TODAY', dueLater: 'LATER', startReviews: 'Start reviews', reviewsSummary: (n) => n + ' in queue',
   refsNote: 'offline', offline: 'OFFLINE',

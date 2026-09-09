@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { seedLessons } from '@/domain/seed';
 import { useT } from '@/i18n';
 import { activeSubjectIds, CUSTOM_ID, useProgress } from '@/store/progress';
+import { planProgress } from '@/features/subjects/plan';
 import type { SubjectCardModel } from './SubjectCard';
 
 /** Карточки предметов для «Сегодня»: сид-предметы + пользовательский (с фоновой подготовкой). */
@@ -21,11 +22,13 @@ export function useTodaySubjects(): SubjectCardModel[] {
         return {
           id,
           name: custom.title ?? custom.topic,
-          level: custom.focus ? `${t.stage1} · ${custom.focus}` : t.stage1,
+          // Этап показывает индикатор плана ниже; справа — только фокус.
+          level: custom.focus || t.stage1,
           lessonTitle: custom.ready ? customLesson?.lessonTitle ?? t.diag : (custom.lessonNumber ?? 0) > 0 ? t.preparing : t.bgLesson,
           done: !!done[id],
           prepStage: custom.ready ? undefined : prepStage,
           prepFailed: !custom.ready && prepError !== null,
+          plan: custom.ready ? planProgress(custom.plan, custom.lessonNumber ?? 0) : undefined,
         };
       }
       const l = seedLessons[id];
