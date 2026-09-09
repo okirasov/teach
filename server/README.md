@@ -34,7 +34,7 @@ fly deploy && curl https://teach-tutor-api.fly.dev/health
 
 Клиент собирается с `EXPO_PUBLIC_CONTENT_URL=https://teach-tutor-api.fly.dev` и `EXPO_PUBLIC_CONTENT_TOKEN=<тот же токен>`.
 
-Схема БД создаётся через `EnsureCreated`, миграций пока нет: при изменении моделей dev-базу `teach.db` нужно удалить.
+Схема БД: `SchemaUpgrader` создаёт её в пустой базе и доводит существующую (новые таблицы и колонки из списка в коде), поэтому база на томе Fly переживает изменения моделей без ручных шагов. При добавлении колонки или таблицы дописать её в `SchemaUpgrader`.
 
 ## Как устроено
 

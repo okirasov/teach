@@ -20,7 +20,7 @@
         "NSCameraUsageDescription": "Teach не использует камеру. Строка нужна библиотекам, на которые опирается приложение."
       },
       "appleTeamId": "PW7867VU3L",
-      "buildNumber": "3"
+      "buildNumber": "4"
     },
     "android": {
       "package": "app.teach.mobile",

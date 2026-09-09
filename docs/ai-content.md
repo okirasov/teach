@@ -104,6 +104,12 @@ thinking = { type: "adaptive" }, output_config = { effort: "high", format: { jso
   которую показали ошибки: закрыть самую свежую, не повторять верное. Уроки хранятся в истории
   (`Lessons`), статус несёт номер текущего. Заголовок карточки «Урок N · …» ставит сервер,
   схема его не содержит.
+- **Справочники.** После каждого урока сервер извлекает 3–6 терминов (`claude-haiku-4-5`, структурированный
+  вывод) и сливает их в глоссарий предмета без дублей по термину; он приходит с уроком в `references`
+  и ложится в SQLite клиента, вкладка «Справочники» показывает предмет сразу. Другие группы справочников
+  (грамматика, цель) — следующий шаг конденсации.
+- **Короткое имя предмета** (`POST /subjects/title`) модель даёт из формулировки темы; оно идёт в карточки,
+  пиллы и в поле `name` уроков, полная формулировка хранится как описание.
 - **Язык предмета** определяется на клиенте при создании по таблице языков (`domain/languages.ts`):
   код для STT и имена ru/en для пилла «Язык распознавания». Модель к этому не привлекается.
 - **Проверка свободного ответа.** Дешёвая задача классификации: критерии + текст → какие покрыты.
@@ -118,12 +124,13 @@ thinking = { type: "adaptive" }, output_config = { effort: "high", format: { jso
 
 ```
 POST /subjects/focus            { topic }                          → FocusOption[]
+POST /subjects/title            { topic }                          → { title }   короткое имя ≤ 24 символов
 POST /subjects/sources          { topic, focus }                   → 202 { jobId, status: "running" }
 GET  /subjects/sources/{jobId}  → { status: "running" } | { status: "ready", items } | { status: "failed", error }
 POST /subjects/plan             { topic, focus, mission }          → PlanStage[]
 POST /subjects                  SubjectDraft (+ sources)           → 202 { subjectId, status: "preparing" }
 GET  /subjects/{id}/lesson      → { status: "preparing"|"failed", stage: 0..2, number }
-                                | { status: "ready", number, lesson }
+                                | { status: "ready", number, lesson, references[] }
 POST /sessions/{id}/recap       { records }                        → 202 { status: "preparing" | "stored" }
 POST /grade/free                { criteria, text, lang }           → { hits: boolean[] }
 ```
@@ -152,4 +159,4 @@ POST /grade/free                { criteria, text, lang }           → { hits: b
 2. ✅ Сервер: `POST /subjects/*`, схема урока, валидация, фоновая диагностика (`server/README.md`). Прогнано с реальным Claude 2026-09-09.
 3. ✅ Следующий урок после разбора: `POST /sessions/{id}/recap` сохраняет записи и ставит генерацию урока N по плану и записям; клиент опрашивает `GET /subjects/{id}/lesson` до `number ≥ N`, карточка показывает этапы. Push пока нет.
 4. Оценка свободных ответов моделью в клиенте (`/grade/free` готов на сервере) с офлайн-фолбэком по ключам.
-5. Конденсация справочников из уроков.
+5. ✅ Глоссарий из уроков; остальные группы справочников и пометки «ОШИБКА» по записям — впереди.
