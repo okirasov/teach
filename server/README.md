@@ -44,7 +44,7 @@ fly deploy && curl https://teach-tutor-api.fly.dev/health
   (варианты, перестановки, критерии, записи об усвоенном, бюджет текста по длительности). Не прошло — повтор генерации, до `MaxAttempts`.
 - Схема структурированного вывода урока компактная: плоский шаг из 13 полей, вложенные массивы свёрнуты в строки
   (полная схема отвергается API как `Schema is too complex`). Таблица соответствия — `docs/ai-content.md`, «Контракт урока».
-- `Model/ILessonModel` — провайдер модели. `ClaudeLessonModel`: Anthropic SDK, `claude-opus-5` для уроков с адаптивным thinking,
+- `Model/ILessonModel` — провайдер модели. `ClaudeLessonModel`: Anthropic SDK, `claude-opus-5` для уроков и поиска источников с адаптивным thinking, `claude-sonnet-5` для фокусов, имени и плана,
   структурированный вывод по JSON-схеме, кэш промпта на методике и контексте предмета, web search для источников;
   `claude-haiku-4-5` для оценки свободных ответов. `StubLessonModel`: данные прототипа.
 - `Model/Prompts.cs` — версионированные промпты; версия пишется в урок.

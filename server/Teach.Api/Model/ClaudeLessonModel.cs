@@ -12,7 +12,11 @@ namespace Teach.Api.Model;
 /// </summary>
 public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLessonModel> log) : ILessonModel
 {
+    /// <summary>Уроки — качество и есть продукт.</summary>
     public const string LessonModel = "claude-opus-5";
+    /// <summary>Шаги мастера (фокусы, имя, план) — быстрее и дешевле; источники остаются на Opus из-за web search.</summary>
+    public const string WizardModel = "claude-sonnet-5";
+    /// <summary>Извлечение и классификация: оценка ответа, глоссарий.</summary>
     public const string GradeModel = "claude-haiku-4-5";
 
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
@@ -25,7 +29,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         Log ??= log;
         var r = await AskAsync<FocusList>(
             $"Тема ученика: «{topic}». Предложи ровно 3 фокуса — с чего начать, чтобы один урок не был «про всё». t — короткое название, d — одна строка пояснения.",
-            Schemas.FocusList, ct, effort: Effort.Medium);
+            Schemas.FocusList, ct, effort: Effort.Medium, model: WizardModel);
         return r.Items;
     }
 
@@ -33,7 +37,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
     {
         var r = await AskAsync<TitleOut>(
             $"Тема ученика: «{topic}». Дай короткое имя предмета для карточки: 1–3 слова, до 24 символов, без кавычек и точки, с заглавной буквы. Для языка — просто название языка («Итальянский»).",
-            Schemas.Title, ct, effort: Effort.Low);
+            Schemas.Title, ct, effort: Effort.Low, model: WizardModel);
         var t = r.Title.Trim().Trim('«', '»', '"', '.');
         return t.Length == 0 ? StubLessonModel.ShortTitle(topic) : t.Length > 24 ? t[..24].TrimEnd() : t;
     }
@@ -69,7 +73,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
     {
         var r = await AskAsync<PlanList>(
             $"Тема «{topic}», фокус «{focus}», миссия ученика: «{mission}». Составь план из 3 этапов: n — «01/02/03», t — название этапа, d — одна строка. Этап 01 — каркас и термины, 02 — рабочие приёмы малыми шагами, 03 — применение под миссию (повтори её формулировку).",
-            Schemas.PlanList, ct, effort: Effort.Medium);
+            Schemas.PlanList, ct, effort: Effort.Medium, model: WizardModel);
         return r.Items;
     }
 
@@ -142,7 +146,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         {string.Join("\n", sources.Select(s => $"- {s.T} ({s.Trust}): {s.M}"))}
         """;
 
-    private async Task<T> AskAsync<T>(string task, Dictionary<string, JsonElement>? schema, CancellationToken ct, string? context = null, List<ToolUnion>? tools = null, Effort effort = Effort.High)
+    private async Task<T> AskAsync<T>(string task, Dictionary<string, JsonElement>? schema, CancellationToken ct, string? context = null, List<ToolUnion>? tools = null, Effort effort = Effort.High, string model = LessonModel)
     {
         var content = new List<ContentBlockParam>();
         if (context is not null)
@@ -151,7 +155,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
 
         var p = new MessageCreateParams
         {
-            Model = LessonModel,
+            Model = model,
             // Thinking считается в max_tokens: запас, чтобы длинное размышление не обрезало JSON урока.
             MaxTokens = 32000,
             System = new List<TextBlockParam> { new() { Text = Prompts.System, CacheControl = new CacheControlEphemeral() } },
@@ -166,10 +170,10 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         try { response = await client.Messages.Create(p, ct); }
         catch (Exception e)
         {
-            log.LogError(e, "claude {Model} failed after {Sec:F0}s", LessonModel, (DateTimeOffset.UtcNow - started).TotalSeconds);
+            log.LogError(e, "claude {Model} failed after {Sec:F0}s", model, (DateTimeOffset.UtcNow - started).TotalSeconds);
             throw;
         }
-        log.LogInformation("claude {Model}: in={In} cached={Cached} out={Out} stop={Stop} {Sec:F0}s", LessonModel, response.Usage.InputTokens,
+        log.LogInformation("claude {Model}: in={In} cached={Cached} out={Out} stop={Stop} {Sec:F0}s", model, response.Usage.InputTokens,
             response.Usage.CacheReadInputTokens, response.Usage.OutputTokens, response.StopReason, (DateTimeOffset.UtcNow - started).TotalSeconds);
         return Parse<T>(response);
     }
