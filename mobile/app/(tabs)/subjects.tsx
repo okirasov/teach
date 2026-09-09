@@ -5,9 +5,9 @@ import Svg, { Circle, Path } from 'react-native-svg';
 
 import { useT } from '@/i18n';
 import { useAuth } from '@/store/auth';
-import { activeSubjectIds, subjectName, useProgress } from '@/store/progress';
+import { activeSubjectIds, CUSTOM_ID, subjectName, useProgress } from '@/store/progress';
 import { useTheme } from '@/theme';
-import { AppHeader, Button, Card, Screen, TabTitle, Txt } from '@/ui';
+import { AppHeader, Button, Card, Chip, Screen, TabTitle, Txt } from '@/ui';
 
 function Gear({ color }: { color: string }) {
   return (
@@ -34,6 +34,7 @@ function MissionCard({ id }: { id: string }) {
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
         <Txt t="body" style={{ fontFamily: fonts.sans600, lineHeight: 20, flexShrink: 1 }}>{name}</Txt>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          {id !== CUSTOM_ID ? <Chip label={t.demo} tone="sand" small /> : null}
           <View style={{ backgroundColor: c.sand, paddingVertical: 6, paddingHorizontal: 9, borderRadius: radius.chip }}>
             <Txt t="chipSm" color="sandInk">{`v${m.hist.length + 1}`}</Txt>
           </View>

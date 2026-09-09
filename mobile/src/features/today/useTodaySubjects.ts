@@ -29,7 +29,7 @@ export function useTodaySubjects(): SubjectCardModel[] {
         };
       }
       const l = seedLessons[id];
-      return { id, name: l.name, level: l.level, lessonTitle: l.lessonTitle ?? '', done: !!done[id] };
+      return { id, name: l.name, level: l.level, lessonTitle: l.lessonTitle ?? '', done: !!done[id], demo: true };
     });
   }, [t, done, removed, custom, prepStage, prepError, customLesson]);
 }

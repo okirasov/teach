@@ -21,12 +21,13 @@ describe('http content service', () => {
       if (url.endsWith('/subjects/plan')) return { body: [{ n: '01', t: 'p', d: 'd' }] };
       return { status: 404, body: null };
     });
-    const svc = createHttpContentService({ baseUrl: 'http://srv/', fetchFn: fn, pollMs: 1 });
+    const svc = createHttpContentService({ baseUrl: 'http://srv/', fetchFn: fn, pollMs: 1, token: 'tok-1' });
     expect((await svc.suggestFocus('История'))[0].t).toBe('A');
     expect((await svc.findSources('SQL', 'f'))[0].trust).toBe('high');
     expect((await svc.buildPlan({ topic: 'SQL', focus: 'f', mission: 'm' }))[0].n).toBe('01');
     expect(calls.map((c) => c.url)).toEqual(['http://srv/subjects/focus', 'http://srv/subjects/sources', 'http://srv/subjects/sources/j1', 'http://srv/subjects/plan']);
     expect(JSON.parse(calls[0].init!.body as string)).toEqual({ topic: 'История' });
+    expect((calls[0].init!.headers as Record<string, string>).Authorization).toBe('Bearer tok-1');
   });
 
   it('prepareFirstLesson creates the subject, reports stages while polling and resolves with the lesson', async () => {

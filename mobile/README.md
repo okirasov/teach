@@ -44,6 +44,10 @@ mobile/
 
 Тема выбирается в Профиле; до выбора следует системной.
 
+## Иконки и релиз
+
+`scripts/make-icons.py` рисует все иконки из знака бренда без внешних зависимостей (iOS без альфа-канала, adaptive-иконки Android, сплэш, favicon). Версия `expo.version` и `ios.buildNumber` в `app.json`; `ITSAppUsesNonExemptEncryption=false` снимает вопрос про шифрование в App Store Connect. Кнопка Google показывается только при заданных client id (в dev-сборке всегда). Сидовые предметы (английский, QA, история) помечены чипом «демо».
+
 ## Хранилище
 
 `src/db/` — expo-sqlite, файл на аккаунт (`teach-<accountId>.db`), миграции через `PRAGMA user_version`, таблицы `review_cards`, `review_log`, `kv`. Выход из аккаунта закрывает БД, файл остаётся. На web (только превью) — in-memory репозиторий с тем же интерфейсом.
@@ -64,7 +68,7 @@ npm run typecheck
 npm test
 ```
 
-Dev-переменные: `EXPO_PUBLIC_AUTH_LOCAL=1` — вход локальной сессией без провайдера (симулятор, автотесты); `EXPO_PUBLIC_GOOGLE_{IOS,ANDROID,WEB}_CLIENT_ID` — Google-вход; `EXPO_PUBLIC_CONTENT_URL=http://<host>:5180` — сервер-оркестратор (`server/`), без него мастер работает на локальной заглушке; `EXPO_PUBLIC_VOICE_SIM=1` — симуляция STT вместо платформенного; `EXPO_PUBLIC_VOICE_SMOKE=1` — дымовая проверка нативного STT при старте (лог `[voice]`).
+Dev-переменные: `EXPO_PUBLIC_AUTH_LOCAL=1` — вход локальной сессией без провайдера (симулятор, автотесты); `EXPO_PUBLIC_GOOGLE_{IOS,ANDROID,WEB}_CLIENT_ID` — Google-вход; `EXPO_PUBLIC_CONTENT_URL=http://<host>:5180` — сервер-оркестратор (`server/`), без него мастер работает на локальной заглушке; `EXPO_PUBLIC_CONTENT_TOKEN` — bearer-токен сервера; `EXPO_PUBLIC_VOICE_SIM=1` — симуляция STT вместо платформенного; `EXPO_PUBLIC_VOICE_SMOKE=1` — дымовая проверка нативного STT при старте (лог `[voice]`).
 
 ## Голос
 

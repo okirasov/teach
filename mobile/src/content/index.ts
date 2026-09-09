@@ -11,4 +11,6 @@ export const contentUrl = process.env.EXPO_PUBLIC_CONTENT_URL?.trim() || null;
  * Активный сервис контента. Сервер подключается через EXPO_PUBLIC_CONTENT_URL,
  * интерфейс для экранов тот же.
  */
-export const content: ContentService = contentUrl ? createHttpContentService({ baseUrl: contentUrl }) : createLocalContentService();
+export const content: ContentService = contentUrl
+  ? createHttpContentService({ baseUrl: contentUrl, token: process.env.EXPO_PUBLIC_CONTENT_TOKEN?.trim() || undefined })
+  : createLocalContentService();

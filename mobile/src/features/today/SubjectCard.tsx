@@ -15,6 +15,8 @@ export interface SubjectCardModel {
   prepStage?: number;
   /** Подготовка сорвалась — показываем «Повторить». */
   prepFailed?: boolean;
+  /** Сидовый предмет с уроком из прототипа: уроки не генерируются. */
+  demo?: boolean;
 }
 
 /** Карточка предмета на «Сегодня» (DESIGN.md §4.2): имя + уровень, урок, чип-статус, CTA. */
@@ -51,7 +53,10 @@ export function SubjectCard({ m, onPress }: { m: SubjectCardModel; onPress: () =
         </View>
       ) : null}
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 }}>
-        <Chip label={status} tone={chipTone} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <Chip label={status} tone={chipTone} />
+          {m.demo ? <Chip label={t.demo} tone="sand" small /> : null}
+        </View>
         <Txt t="metaMed" color="mintInk">{cta} →</Txt>
       </View>
     </Card>

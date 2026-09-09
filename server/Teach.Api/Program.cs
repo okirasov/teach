@@ -42,6 +42,25 @@ using (var scope = app.Services.CreateScope())
     scope.ServiceProvider.GetRequiredService<TeachDb>().Database.EnsureCreated();
 
 app.UseCors();
+
+// Общий bearer-токен (Teach:ApiToken). Пустой — открытый режим только для локальной разработки.
+var apiToken = cfg["ApiToken"];
+if (!string.IsNullOrEmpty(apiToken))
+{
+    app.Use(async (ctx, next) =>
+    {
+        if (ctx.Request.Path == "/health" || HttpMethods.IsOptions(ctx.Request.Method)) { await next(); return; }
+        var header = ctx.Request.Headers.Authorization.ToString();
+        if (header.StartsWith("Bearer ", StringComparison.Ordinal) && header[7..].Trim() == apiToken) { await next(); return; }
+        ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        await ctx.Response.WriteAsJsonAsync(new { error = "unauthorized" });
+    });
+}
+else
+{
+    app.Logger.LogWarning("Teach:ApiToken is not set — the API is open; fine locally, never in the cloud");
+}
+
 app.MapContent();
 app.Logger.LogInformation("Teach.Api: model={Model}, prompts={Prompts}", app.Services.GetRequiredService<ILessonModel>().Name, Prompts.Version);
 app.Run();

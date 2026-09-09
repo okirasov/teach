@@ -7,7 +7,7 @@ using Teach.Api.Domain;
 
 namespace Teach.Api.Tests;
 
-public sealed class ApiFactory : WebApplicationFactory<Program>
+public class ApiFactory : WebApplicationFactory<Program>
 {
     private readonly string _db = Path.Combine(Path.GetTempPath(), $"teach-test-{Guid.NewGuid():N}.db");
 
@@ -22,6 +22,34 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
     {
         base.Dispose(disposing);
         try { File.Delete(_db); } catch { /* temp */ }
+    }
+}
+
+public sealed class SecuredApiFactory : ApiFactory
+{
+    protected override void ConfigureWebHost(Microsoft.AspNetCore.Hosting.IWebHostBuilder builder)
+    {
+        base.ConfigureWebHost(builder);
+        builder.UseSetting("Teach:ApiToken", "secret-1");
+    }
+}
+
+public class AuthTests(SecuredApiFactory f) : IClassFixture<SecuredApiFactory>
+{
+    [Fact]
+    public async Task TokenIsRequiredEverywhereExceptHealth()
+    {
+        var anon = f.CreateClient();
+        Assert.Equal(HttpStatusCode.OK, (await anon.GetAsync("/health")).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await anon.PostAsJsonAsync("/subjects/focus", new FocusRequest("SQL"))).StatusCode);
+
+        var wrong = f.CreateClient();
+        wrong.DefaultRequestHeaders.Authorization = new("Bearer", "nope");
+        Assert.Equal(HttpStatusCode.Unauthorized, (await wrong.PostAsJsonAsync("/subjects/focus", new FocusRequest("SQL"))).StatusCode);
+
+        var ok = f.CreateClient();
+        ok.DefaultRequestHeaders.Authorization = new("Bearer", "secret-1");
+        Assert.Equal(HttpStatusCode.OK, (await ok.PostAsJsonAsync("/subjects/focus", new FocusRequest("SQL"))).StatusCode);
     }
 }
 

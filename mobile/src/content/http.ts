@@ -4,6 +4,8 @@ import type { ContentService, FocusOption, PlanStage, PrepStage, SourceCandidate
 /** Контракт сервера — docs/ai-content.md, server/Teach.Api. */
 export interface HttpContentOptions {
   baseUrl: string;
+  /** Общий bearer-токен сервера (EXPO_PUBLIC_CONTENT_TOKEN). */
+  token?: string;
   /** Интервал опроса статуса подготовки, мс. */
   pollMs?: number;
   /** Максимальное время ожидания урока, мс. */
@@ -31,7 +33,11 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
   async function call<T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T> {
     const res = await f(base + path, {
       method,
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        ...(opts.token ? { Authorization: `Bearer ${opts.token}` } : {}),
+      },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
     if (!res.ok) throw new ContentHttpError(res.status, `${method} ${path} → ${res.status}`);

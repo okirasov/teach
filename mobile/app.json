@@ -13,9 +13,11 @@
       "bundleIdentifier": "app.teach.mobile",
       "infoPlist": {
         "CFBundleAllowMixedLocalizations": true,
-        "NSLocalNetworkUsageDescription": "Teach подключается к серверу уроков в вашей локальной сети."
+        "NSLocalNetworkUsageDescription": "Teach подключается к серверу уроков в вашей локальной сети.",
+        "ITSAppUsesNonExemptEncryption": false
       },
-      "appleTeamId": "PW7867VU3L"
+      "appleTeamId": "PW7867VU3L",
+      "buildNumber": "1"
     },
     "android": {
       "package": "app.teach.mobile",
@@ -25,7 +27,8 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png",
