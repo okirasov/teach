@@ -156,6 +156,28 @@ public class ApiTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task TitleEndpointShortensTheTopic()
+    {
+        var r = await Post<TitleResponse>("/subjects/title", new FocusRequest("Итальянский язык с самого начала"));
+        Assert.Equal("Итальянский", r!.Title);
+    }
+
+    [Fact]
+    public async Task ReadyLessonCarriesTheGlossaryReference()
+    {
+        var created = await _http.PostAsJsonAsync("/subjects", new SubjectDraft("SQL для аналитиков", "Основы", "писать отчёты", ["src-0"], Title: "SQL"));
+        var id = (await created.Content.ReadFromJsonAsync<SubjectCreated>(Json))!.SubjectId;
+        var st = await WaitReady(id);
+        Assert.Equal("SQL", st.Lesson!.Name);
+        Assert.NotNull(st.References);
+        var g = Assert.Single(st.References!);
+        Assert.Equal("Глоссарий", g.Group);
+        Assert.Equal("Термины · SQL", g.Title);
+        Assert.Equal(1, g.UpdatedAfter);
+        Assert.Equal(2, g.Rows.Length);
+    }
+
+    [Fact]
     public async Task UnknownSubjectIs404()
     {
         var r = await _http.GetAsync($"/subjects/{Guid.NewGuid()}/lesson");

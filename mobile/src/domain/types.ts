@@ -72,6 +72,8 @@ export interface Mission {
 
 export interface CustomSubject {
   topic: string;
+  /** Короткое имя для карточек; topic — полная формулировка из мастера. */
+  title?: string;
   focus: string;
   mission: string;
   ready: boolean;

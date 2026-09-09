@@ -52,7 +52,7 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
         if (s is null) return;
 
         // Этап 0 «Ищу источники» → 1 «Отбираю по доверию» → 2 «Собираю урок».
-        var draft = new SubjectDraft(s.Topic, s.Focus, s.Mission, JsonSerializer.Deserialize<string[]>(s.SourceIdsJson) ?? []);
+        var draft = new SubjectDraft(s.Topic, s.Focus, s.Mission, JsonSerializer.Deserialize<string[]>(s.SourceIdsJson) ?? [], Title: s.Title);
         // Источники, уже найденные мастером, не ищем заново — это самый долгий вызов модели.
         var known = s.SourcesJson is null ? null : JsonSerializer.Deserialize<List<SourceCandidate>>(s.SourcesJson, Json);
         var all = known is { Count: > 0 } ? known : (await model.FindSourcesAsync(s.Topic, s.Focus, ct)).ToList();
@@ -88,6 +88,8 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
                 s.LastError = null;
                 s.UpdatedAt = DateTimeOffset.UtcNow;
                 db.Lessons.Add(new LessonRow { SubjectId = id, Number = number, Json = json, PromptVersion = Prompts.Version, CreatedAt = DateTimeOffset.UtcNow });
+                // Глоссарий собираем до статуса ready: клиент забирает урок и справочник одним опросом.
+                await UpdateGlossaryAsync(db, s, lesson, number, ct);
                 await db.SaveChangesAsync(ct);
                 log.LogInformation("subject {Subject} lesson {Number} ready ({Model}, attempt {Attempt})", id, number, model.Name, attempt);
                 return;
@@ -99,6 +101,33 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
         s.LastError = lastError;
         s.UpdatedAt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync(ct);
+    }
+
+    /// <summary>Глоссарий предмета конденсируется из каждого урока; сбой извлечения урок не отменяет.</summary>
+    private async Task UpdateGlossaryAsync(TeachDb db, SubjectRow s, Lesson lesson, int number, CancellationToken ct)
+    {
+        try
+        {
+            var fresh = await model.ExtractGlossaryAsync(lesson, ct);
+            if (fresh.Count == 0) return;
+            var name = s.Title ?? s.Topic;
+            var row = await db.References.FirstOrDefaultAsync(r => r.SubjectId == s.Id && r.Group == "Глоссарий", ct);
+            var rows = row is null ? [] : JsonSerializer.Deserialize<List<RefRowDto>>(row.RowsJson, Json) ?? [];
+            foreach (var f in fresh)
+                if (!rows.Any(r => string.Equals(r.K, f.K, StringComparison.OrdinalIgnoreCase))) rows.Add(f);
+            if (row is null)
+            {
+                row = new ReferenceRow { Id = Guid.NewGuid(), SubjectId = s.Id, Group = "Глоссарий", Title = $"Термины · {name}", RowsJson = "[]" };
+                db.References.Add(row);
+            }
+            row.RowsJson = JsonSerializer.Serialize(rows, Json);
+            row.UpdatedAfter = number;
+            row.UpdatedAt = DateTimeOffset.UtcNow;
+            await db.SaveChangesAsync(ct);
+            log.LogInformation("subject {Subject} glossary: {Rows} rows after lesson {Number}", s.Id, rows.Count, number);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
+        catch (Exception e) { log.LogWarning(e, "glossary for {Subject} failed", s.Id); }
     }
 
     /// <summary>Сбой генерации не должен оставлять предмет в вечном «Готовится…»: клиент увидит failed и предложит повторить.</summary>

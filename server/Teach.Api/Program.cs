@@ -39,7 +39,7 @@ builder.Services.AddCors(o => o.AddDefaultPolicy(p => p.AllowAnyOrigin().AllowAn
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
-    scope.ServiceProvider.GetRequiredService<TeachDb>().Database.EnsureCreated();
+    await SchemaUpgrader.UpgradeAsync(scope.ServiceProvider.GetRequiredService<TeachDb>(), app.Logger);
 
 app.UseCors();
 

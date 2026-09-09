@@ -24,6 +24,7 @@ export default function SetupScreen() {
   const [focusOpts, setFocusOpts] = useState<FocusOption[]>([]);
   const [sources, setSources] = useState<SourceCandidate[]>([]);
   const [plan, setPlan] = useState<PlanStage[]>([]);
+  const [title, setTitle] = useState<string>('');
 
   const topicT = topic.trim();
   const focusT = focus.trim();
@@ -34,7 +35,7 @@ export default function SetupScreen() {
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     const req =
-      step === 1 ? content.suggestFocus(topicT).then(setFocusOpts)
+      step === 1 ? Promise.all([content.suggestFocus(topicT).then(setFocusOpts), content.suggestTitle(topicT).then(setTitle).catch(() => setTitle(''))])
       : step === 3 ? content.findSources(topicT, focusT).then(setSources)
       : step === 4 ? content.buildPlan({ topic: topicT, focus: focusT, mission: missionT }).then(setPlan)
       : null;
@@ -71,7 +72,7 @@ export default function SetupScreen() {
       return;
     }
     // Подготовка идёт в фоне, экран закрывается сразу (без спиннера).
-    void createSubjectAndPrepare(content, { topic: topicT, focus: focusT, mission: missionT, sourceIds: kept.map((s) => s.id), sources: kept });
+    void createSubjectAndPrepare(content, { topic: topicT, title: title || undefined, focus: focusT, mission: missionT, sourceIds: kept.map((s) => s.id), sources: kept });
     router.dismissTo('/(tabs)/today');
   };
 

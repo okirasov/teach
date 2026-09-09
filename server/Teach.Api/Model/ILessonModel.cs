@@ -11,6 +11,10 @@ public interface ILessonModel
 {
     string Name { get; }
     Task<IReadOnlyList<FocusOption>> SuggestFocusAsync(string topic, CancellationToken ct);
+    /// <summary>Короткое имя предмета (≤ 24 символов) из формулировки темы.</summary>
+    Task<string> SuggestTitleAsync(string topic, CancellationToken ct);
+    /// <summary>Термины урока для глоссария: термин → определение в одну строку.</summary>
+    Task<IReadOnlyList<RefRowDto>> ExtractGlossaryAsync(Lesson lesson, CancellationToken ct);
     Task<IReadOnlyList<SourceCandidate>> FindSourcesAsync(string topic, string focus, CancellationToken ct);
     Task<IReadOnlyList<PlanStage>> BuildPlanAsync(string topic, string focus, string mission, CancellationToken ct);
     /// <summary>Первый урок — стартовая диагностика: калибровка без правильного ответа + свободный рассказ.</summary>

@@ -28,6 +28,8 @@ export interface PlanStage {
 
 export interface SubjectDraft {
   topic: string;
+  /** Короткое имя для карточек (≤ 24 символов); topic остаётся полной формулировкой. */
+  title?: string;
   focus: string;
   mission: string;
   /** Выбранные источники (id из findSources). */
@@ -39,8 +41,26 @@ export interface SubjectDraft {
 /** Этапы фоновой подготовки первого урока — ровно как на карточке «Готовится…». */
 export type PrepStage = 0 | 1 | 2;
 
+/** Строка справочника с сервера. */
+export interface ReferenceRowIn {
+  k: string;
+  v: string;
+  sec?: string;
+}
+
+/** Справочник предмета с сервера (глоссарий и т. п.). */
+export interface ReferenceIn {
+  id: string;
+  group: string;
+  title: string;
+  updatedAfter: number;
+  rows: ReferenceRowIn[];
+}
+
 export interface ContentService {
   suggestFocus(topic: string): Promise<FocusOption[]>;
+  /** Короткое имя предмета из формулировки темы. */
+  suggestTitle(topic: string): Promise<string>;
   findSources(topic: string, focus: string): Promise<SourceCandidate[]>;
   buildPlan(draft: Omit<SubjectDraft, 'sourceIds'>): Promise<PlanStage[]>;
   /**
@@ -52,10 +72,12 @@ export interface ContentService {
    * Следующий урок по записям разбора: сервер сохраняет записи и генерирует урок number
    * чуть выше границы, которую они показали.
    */
-  prepareNextLesson(remoteId: string | undefined, number: number, records: LessonRecord[], onStage: (stage: PrepStage) => void): Promise<Lesson>;
+  prepareNextLesson(remoteId: string | undefined, number: number, records: LessonRecord[], onStage: (stage: PrepStage) => void): Promise<PreparedLesson>;
 }
 
 export interface PreparedLesson {
   lesson: Lesson;
   remoteId?: string;
+  /** Справочники предмета после этого урока (полный актуальный набор). */
+  references?: ReferenceIn[];
 }

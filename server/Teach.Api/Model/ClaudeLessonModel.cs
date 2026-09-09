@@ -29,6 +29,34 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         return r.Items;
     }
 
+    public async Task<string> SuggestTitleAsync(string topic, CancellationToken ct)
+    {
+        var r = await AskAsync<TitleOut>(
+            $"Тема ученика: «{topic}». Дай короткое имя предмета для карточки: 1–3 слова, до 24 символов, без кавычек и точки, с заглавной буквы. Для языка — просто название языка («Итальянский»).",
+            Schemas.Title, ct, effort: Effort.Low);
+        var t = r.Title.Trim().Trim('«', '»', '"', '.');
+        return t.Length == 0 ? StubLessonModel.ShortTitle(topic) : t.Length > 24 ? t[..24].TrimEnd() : t;
+    }
+
+    public async Task<IReadOnlyList<RefRowDto>> ExtractGlossaryAsync(Lesson lesson, CancellationToken ct)
+    {
+        var text = string.Join("\n", lesson.Steps.Select(s => s switch
+        {
+            ExplainStep e => $"{e.Title}\n{string.Join("\n", e.Paras)}\nПример: {e.Example}",
+            PracticeStep p => $"{p.Prompt}\n{p.Explain}\n{p.RecTitle}: {p.RecNote}",
+            _ => "",
+        }));
+        var response = await client.Messages.Create(new MessageCreateParams
+        {
+            Model = GradeModel,
+            MaxTokens = 2000,
+            System = "Ты составляешь глоссарий предмета из текста урока. Выбери 3–6 терминов или конструкций, которые ученик должен помнить, и дай каждому определение в одну строку (до 90 символов) с примером, если он есть в уроке. Термин на языке предмета, определение на русском. Без общих слов вроде «диагностика» или «самооценка».",
+            Messages = [new() { Role = Role.User, Content = text }],
+            OutputConfig = new OutputConfig { Format = new JsonOutputFormat { Schema = Schemas.Glossary } },
+        }, ct);
+        return Parse<GlossaryOut>(response).Items.Select(i => new RefRowDto(i.K.Trim(), i.V.Trim())).Where(i => i.K.Length > 0).ToList();
+    }
+
     public async Task<IReadOnlyList<SourceCandidate>> FindSourcesAsync(string topic, string focus, CancellationToken ct)
     {
         var r = await AskAsync<SourceList>(
@@ -47,13 +75,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
 
     public async Task<Lesson> GenerateDiagnosticAsync(SubjectDraft draft, IReadOnlyList<SourceCandidate> sources, CancellationToken ct)
     {
-        var context = $"""
-            Предмет: {draft.Topic}
-            Фокус: {draft.Focus}
-            Миссия: {draft.Mission}
-            Выбранные источники:
-            {string.Join("\n", sources.Select(s => $"- {s.T} ({s.Trust}): {s.M}"))}
-            """;
+        var context = SubjectContext(draft, sources);
         Log ??= log;
         var why = "миссия · " + (string.IsNullOrWhiteSpace(draft.Mission) ? "уточняется" : draft.Mission);
         try
@@ -76,13 +98,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
     {
         Log ??= log;
         var why = "миссия · " + (string.IsNullOrWhiteSpace(draft.Mission) ? "уточняется" : draft.Mission);
-        var context = $"""
-            Предмет: {draft.Topic}
-            Фокус: {draft.Focus}
-            Миссия: {draft.Mission}
-            Выбранные источники:
-            {string.Join("\n", sources.Select(s => $"- {s.T} ({s.Trust}): {s.M}"))}
-            """;
+        var context = SubjectContext(draft, sources);
         var recs = records.Count == 0
             ? "(записей пока нет)"
             : string.Join("\n", records.TakeLast(20).Select(r => $"- [{(r.Ok ? "ok" : "ошибка")}] {r.Title}: {r.Note}"));
@@ -114,6 +130,16 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         var hits = Parse<GradeResponse>(response).Hits;
         return hits.Length == criteria.Count ? hits : criteria.Select((_, i) => i < hits.Length && hits[i]).ToArray();
     }
+
+    /// <summary>Контекст предмета — стабильный префикс под кэш промпта.</summary>
+    private static string SubjectContext(SubjectDraft draft, IReadOnlyList<SourceCandidate> sources) => $"""
+        Предмет: {draft.Title ?? draft.Topic}
+        Тема целиком: {draft.Topic}
+        Фокус: {draft.Focus}
+        Миссия: {draft.Mission}
+        Выбранные источники:
+        {string.Join("\n", sources.Select(s => $"- {s.T} ({s.Trust}): {s.M}"))}
+        """;
 
     private async Task<T> AskAsync<T>(string task, Dictionary<string, JsonElement>? schema, CancellationToken ct, string? context = null, List<ToolUnion>? tools = null, Effort effort = Effort.High)
     {
@@ -172,6 +198,9 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
     }
 
     private sealed record FocusList(List<FocusOption> Items);
+    private sealed record TitleOut(string Title);
+    private sealed record GlossaryItem(string K, string V);
+    private sealed record GlossaryOut(List<GlossaryItem> Items);
     private sealed record SourceItem(string T, string M, string Trust);
     private sealed record SourceList(List<SourceItem> Items);
     private sealed record PlanList(List<PlanStage> Items);
@@ -251,6 +280,14 @@ public static class Schemas
 
     public static readonly Dictionary<string, JsonElement> PlanList = Parse("""
         {"type":"object","properties":{"items":{"type":"array","items":{"type":"object","properties":{"n":@S@,"t":@S@,"d":@S@},"required":["n","t","d"],"additionalProperties":false}}},"required":["items"],"additionalProperties":false}
+        """);
+
+    public static readonly Dictionary<string, JsonElement> Title = Parse("""
+        {"type":"object","properties":{"title":@S@},"required":["title"],"additionalProperties":false}
+        """);
+
+    public static readonly Dictionary<string, JsonElement> Glossary = Parse("""
+        {"type":"object","properties":{"items":{"type":"array","items":{"type":"object","properties":{"k":@S@,"v":@S@},"required":["k","v"],"additionalProperties":false}}},"required":["items"],"additionalProperties":false}
         """);
 
     public static readonly Dictionary<string, JsonElement> Grade = Parse("""

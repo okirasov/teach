@@ -59,14 +59,15 @@ describe('http content service', () => {
         polls += 1;
         if (polls === 1) return { body: { status: 'ready', number: 1, lesson: { name: 'old', level: '', steps: [] } } };
         if (polls === 2) return { body: { status: 'preparing', stage: 2, number: 2 } };
-        return { body: { status: 'ready', number: 2, lesson: lesson2 } };
+        return { body: { status: 'ready', number: 2, lesson: lesson2, references: [{ id: 'g', group: 'Глоссарий', title: 'Термины · SQL', updatedAfter: 2, rows: [{ k: 'JOIN', v: 'соединение таблиц' }] }] } };
       }
       return { status: 404, body: null };
     });
     const svc = createHttpContentService({ baseUrl: 'http://srv', fetchFn: fn, pollMs: 1 });
     const stages: number[] = [];
     const result = await svc.prepareNextLesson('abc', 2, [{ title: 't', note: 'n', ok: false, stepIndex: 1 }], (s) => stages.push(s));
-    expect(result).toEqual(lesson2);
+    expect(result.references?.[0].rows[0].k).toBe('JOIN');
+    expect(result.lesson).toEqual(lesson2);
     expect(JSON.parse(calls[0].init!.body as string)).toEqual({ records: [{ title: 't', note: 'n', ok: false, stepIndex: 1 }] });
     expect(stages[stages.length - 1]).toBe(2);
   });

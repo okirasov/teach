@@ -1,5 +1,5 @@
 import type { Lesson, LessonRecord } from '@/domain/types';
-import type { ContentService, FocusOption, PlanStage, PrepStage, SourceCandidate, SubjectDraft } from './types';
+import type { ContentService, FocusOption, PlanStage, PrepStage, ReferenceIn, SourceCandidate, SubjectDraft } from './types';
 
 /** Контракт сервера — docs/ai-content.md, server/Teach.Api. */
 export interface HttpContentOptions {
@@ -20,7 +20,9 @@ export class ContentHttpError extends Error {
   }
 }
 
-type LessonStatus = { status: 'preparing' | 'failed'; stage: number | null; number: number } | { status: 'ready'; number: number; lesson: Lesson };
+type LessonStatus =
+  | { status: 'preparing' | 'failed'; stage: number | null; number: number }
+  | { status: 'ready'; number: number; lesson: Lesson; references?: ReferenceIn[] };
 type SourcesJob = { status: 'running' | 'failed'; error?: string } | { status: 'ready'; items: SourceCandidate[] };
 
 /** ContentService поверх HTTP-оркестратора. Ключей модели в клиенте нет. */
@@ -45,14 +47,14 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
   }
 
   /** Опрос статуса урока до готовности урока с нужным номером; этапы уходят на карточку. */
-  async function waitLesson(subjectId: string, number: number, onStage: (s: PrepStage) => void): Promise<Lesson> {
+  async function waitLesson(subjectId: string, number: number, onStage: (s: PrepStage) => void): Promise<{ lesson: Lesson; references?: ReferenceIn[] }> {
     let lastStage = -1;
     const deadline = Date.now() + timeoutMs;
     for (;;) {
       const st = await call<LessonStatus>('GET', `/subjects/${subjectId}/lesson`);
       if (st.status === 'ready' && st.number >= number) {
         if (lastStage < 2) onStage(2);
-        return st.lesson;
+        return { lesson: st.lesson, references: st.references };
       }
       if (st.status === 'failed') throw new Error('lesson generation failed');
       const stage = Math.min(2, Math.max(0, (st.status === 'ready' ? 0 : st.stage) ?? 0)) as PrepStage;
@@ -67,6 +69,7 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
 
   return {
     suggestFocus: (topic) => call<FocusOption[]>('POST', '/subjects/focus', { topic }),
+    suggestTitle: (topic) => call<{ title: string }>('POST', '/subjects/title', { topic }).then((r) => r.title),
     /** Поиск источников — фоновая задача на сервере: web search дольше таймаута HTTP на телефоне (60 с). */
     async findSources(topic, focus) {
       const job = await call<{ jobId: string; status: string }>('POST', '/subjects/sources', { topic, focus });
@@ -82,8 +85,8 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
     buildPlan: (draft) => call<PlanStage[]>('POST', '/subjects/plan', draft),
     async prepareFirstLesson(draft: SubjectDraft, onStage) {
       const created = await call<{ subjectId: string; status: string }>('POST', '/subjects', draft);
-      const lesson = await waitLesson(created.subjectId, 1, onStage);
-      return { lesson, remoteId: created.subjectId };
+      const r = await waitLesson(created.subjectId, 1, onStage);
+      return { lesson: r.lesson, remoteId: created.subjectId, references: r.references };
     },
     async prepareNextLesson(remoteId, number, records: LessonRecord[], onStage) {
       if (!remoteId) throw new Error('subject has no server id');

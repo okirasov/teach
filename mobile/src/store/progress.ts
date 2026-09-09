@@ -113,7 +113,7 @@ export function subjectLanguage(s: Pick<ProgressState, 'custom'>, id: SubjectId)
 }
 
 export function subjectName(s: Pick<ProgressState, 'custom'>, id: SubjectId): string {
-  if (id === CUSTOM_ID) return s.custom?.topic ?? '';
+  if (id === CUSTOM_ID) return s.custom?.title ?? s.custom?.topic ?? '';
   return seedLessons[id]?.name ?? '';
 }
 

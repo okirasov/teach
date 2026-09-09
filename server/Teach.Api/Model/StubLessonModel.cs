@@ -33,6 +33,33 @@ public sealed partial class StubLessonModel : ILessonModel
         return Task.FromResult(r);
     }
 
+    /// <summary>Заглушка: язык предмета или первые слова темы.</summary>
+    public Task<string> SuggestTitleAsync(string topic, CancellationToken ct) => Task.FromResult(ShortTitle(topic));
+
+    public static string ShortTitle(string topic)
+    {
+        var t = (topic ?? "").Trim();
+        foreach (var (rx, name) in new[] { ("итал|italian", "Итальянский"), ("англ|english", "Английский"), ("испан|spanish", "Испанский"), ("немец|german", "Немецкий"), ("франц|french", "Французский") })
+            if (Regex.IsMatch(t, rx, RegexOptions.IgnoreCase)) return name;
+        // До трёх слов и до 24 символов, слова не режем.
+        var s = "";
+        foreach (var w in t.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(3))
+        {
+            var next = s.Length == 0 ? w : $"{s} {w}";
+            if (next.Length > 24) break;
+            s = next;
+        }
+        if (s.Length == 0) s = t.Length > 24 ? t[..24].TrimEnd() : t;
+        return s.Length > 0 ? char.ToUpper(s[0]) + s[1..] : "Предмет";
+    }
+
+    /// <summary>Заглушка глоссария: записи об усвоенном урока как термины.</summary>
+    public Task<IReadOnlyList<RefRowDto>> ExtractGlossaryAsync(Lesson lesson, CancellationToken ct)
+    {
+        IReadOnlyList<RefRowDto> rows = lesson.Steps.OfType<PracticeStep>().Select(p => new RefRowDto(p.RecTitle, p.RecNote)).ToList();
+        return Task.FromResult(rows);
+    }
+
     public Task<IReadOnlyList<SourceCandidate>> FindSourcesAsync(string topic, string focus, CancellationToken ct)
     {
         var f = string.IsNullOrWhiteSpace(focus) ? (string.IsNullOrWhiteSpace(topic) ? "тема" : topic) : focus;
@@ -61,7 +88,7 @@ public sealed partial class StubLessonModel : ILessonModel
 
     public Task<Lesson> GenerateDiagnosticAsync(SubjectDraft draft, IReadOnlyList<SourceCandidate> sources, CancellationToken ct)
     {
-        var topic = draft.Topic;
+        var topic = draft.Title ?? draft.Topic;
         var lesson = new Lesson
         {
             Name = topic,
@@ -108,7 +135,7 @@ public sealed partial class StubLessonModel : ILessonModel
     /// <summary>Заглушка следующего урока: каркас темы с одной ошибкой из записей в качестве повтора.</summary>
     public Task<Lesson> GenerateNextLessonAsync(SubjectDraft draft, IReadOnlyList<SourceCandidate> sources, int number, IReadOnlyList<RecapRecord> records, CancellationToken ct)
     {
-        var topic = draft.Topic;
+        var topic = draft.Title ?? draft.Topic;
         var lastMiss = records.LastOrDefault(r => !r.Ok)?.Title ?? "первые термины";
         var src = sources.FirstOrDefault()?.T ?? "Ваш план · этап 01";
         var lesson = new Lesson

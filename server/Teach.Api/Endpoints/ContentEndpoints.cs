@@ -31,6 +31,9 @@ public static class ContentEndpoints
         app.MapGet("/subjects/sources/{jobId}", (string jobId, SourcesJobs jobs) =>
             jobs.Get(jobId) is { } st ? Results.Ok(st) : Results.NotFound());
 
+        app.MapPost("/subjects/title", async (FocusRequest r, ILessonModel model, CancellationToken ct) =>
+            string.IsNullOrWhiteSpace(r.Topic) ? Results.BadRequest("topic is required") : Results.Ok(new TitleResponse(await model.SuggestTitleAsync(r.Topic.Trim(), ct))));
+
         app.MapPost("/subjects/plan", async (PlanRequest r, ILessonModel model, CancellationToken ct) =>
             string.IsNullOrWhiteSpace(r.Topic) ? Results.BadRequest("topic is required") : Results.Ok(await model.BuildPlanAsync(r.Topic.Trim(), (r.Focus ?? "").Trim(), (r.Mission ?? "").Trim(), ct)));
 
@@ -39,7 +42,7 @@ public static class ContentEndpoints
             if (string.IsNullOrWhiteSpace(d.Topic)) return Results.BadRequest("topic is required");
             var row = new SubjectRow
             {
-                Id = Guid.NewGuid(), Topic = d.Topic.Trim(), Focus = (d.Focus ?? "").Trim(), Mission = (d.Mission ?? "").Trim(),
+                Id = Guid.NewGuid(), Topic = d.Topic.Trim(), Title = string.IsNullOrWhiteSpace(d.Title) ? null : d.Title.Trim(), Focus = (d.Focus ?? "").Trim(), Mission = (d.Mission ?? "").Trim(),
                 SourceIdsJson = JsonSerializer.Serialize(d.SourceIds ?? []), Status = SubjectStatus.Preparing, PrepStage = 0,
                 SourcesJson = d.Sources is { Length: > 0 } ? JsonSerializer.Serialize(d.Sources, Json) : null,
                 CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow,
@@ -54,9 +57,13 @@ public static class ContentEndpoints
         {
             var s = await db.Subjects.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, ct);
             if (s is null) return Results.NotFound();
+            var refs = s.Status == SubjectStatus.Ready
+                ? (await db.References.AsNoTracking().Where(r => r.SubjectId == id).ToListAsync(ct))
+                    .Select(r => new ReferenceDto(r.Id.ToString(), r.Group, r.Title, r.UpdatedAfter, JsonSerializer.Deserialize<RefRowDto[]>(r.RowsJson, Json) ?? [])).ToArray()
+                : null;
             return s.Status switch
             {
-                SubjectStatus.Ready => Results.Ok(new LessonStatus("ready", null, s.LessonNumber, JsonSerializer.Deserialize<Lesson>(s.LessonJson!, Json))),
+                SubjectStatus.Ready => Results.Ok(new LessonStatus("ready", null, s.LessonNumber, JsonSerializer.Deserialize<Lesson>(s.LessonJson!, Json), refs)),
                 SubjectStatus.Failed => Results.Ok(new LessonStatus("failed", s.PrepStage, s.LessonNumber + 1, null)),
                 _ => Results.Ok(new LessonStatus("preparing", s.PrepStage, s.LessonNumber + 1, null)),
             };

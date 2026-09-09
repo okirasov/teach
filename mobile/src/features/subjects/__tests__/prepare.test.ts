@@ -1,9 +1,16 @@
 import { createLocalContentService } from '@/content/local';
+import { memoryRefsRepo } from '@/db/refsRepo';
 import { CUSTOM_ID, PREP_STAGES, useProgress } from '@/store/progress';
+import { useRefs } from '@/store/refs';
 import { createSubjectAndPrepare, prepareNextLesson, retryPrepare } from '../prepare';
 
 const initial = useProgress.getInitialState();
-beforeEach(() => useProgress.setState(initial, true));
+const refsInitial = useRefs.getInitialState();
+beforeEach(async () => {
+  useProgress.setState(initial, true);
+  useRefs.setState(refsInitial, true);
+  await useRefs.getState().attach(memoryRefsRepo());
+});
 
 const draft = { topic: 'SQL', focus: 'Основы и синтаксис', mission: 'писать отчёты', sourceIds: ['src-0'] };
 
@@ -59,5 +66,19 @@ describe('createSubjectAndPrepare', () => {
   it('language is detected at creation', async () => {
     await createSubjectAndPrepare(createLocalContentService({ stageMs: 5 }), { ...draft, topic: 'Итальянский язык с самого начала' });
     expect(useProgress.getState().custom?.language).toMatchObject({ code: 'it-IT', en: 'Italian' });
+  });
+
+  it('stores the subject title and the glossary reference that came with the lesson', async () => {
+    await createSubjectAndPrepare(createLocalContentService({ stageMs: 5 }), { ...draft, title: 'SQL' });
+    expect(useProgress.getState().custom?.title).toBe('SQL');
+    const refs = useRefs.getState().refs.filter((r) => r.subjectId === CUSTOM_ID);
+    expect(refs).toHaveLength(1);
+    expect(refs[0]).toMatchObject({ subjectName: 'SQL', group: 'Глоссарий', updatedAfter: 1 });
+    expect(refs[0].rows.length).toBeGreaterThan(0);
+
+    await prepareNextLesson(createLocalContentService({ stageMs: 5 }), [{ title: 'Стартовая уверенность', note: '', ok: false, stepIndex: 1 }]);
+    const after = useRefs.getState().refs.filter((r) => r.subjectId === CUSTOM_ID);
+    expect(after).toHaveLength(1);
+    expect(after[0].updatedAfter).toBe(2);
   });
 });

@@ -1,6 +1,7 @@
+import { detectLanguage } from '@/domain/languages';
 import { customLesson, topicKind } from '@/domain/seed';
 import type { Lesson, TopicKind } from '@/domain/types';
-import type { ContentService, FocusOption, PlanStage, PrepStage, SourceCandidate } from './types';
+import type { ContentService, FocusOption, PlanStage, PrepStage, ReferenceIn, SourceCandidate } from './types';
 
 /** Интервал между этапами подготовки в прототипе. */
 export const PREP_STAGE_MS = 1800;
@@ -74,6 +75,28 @@ export function localPlan(mission: string, later: string): PlanStage[] {
   ];
 }
 
+/** Короткое имя: язык предмета или первые три слова темы. */
+export function shortTitle(topic: string): string {
+  const t = topic.trim();
+  const lang = detectLanguage(t);
+  if (lang) return lang.ru;
+  // До трёх слов и до 24 символов, слова не режем.
+  let s = '';
+  for (const w of t.split(/\s+/).slice(0, 3)) {
+    const next = s ? `${s} ${w}` : w;
+    if (next.length > 24) break;
+    s = next;
+  }
+  if (!s) s = t.slice(0, 24).trimEnd();
+  return s ? s[0].toUpperCase() + s.slice(1) : 'Предмет';
+}
+
+/** Глоссарий заглушки: записи об усвоенном урока. */
+export function stubGlossary(lesson: Lesson, number: number): ReferenceIn[] {
+  const rows = lesson.steps.flatMap((s) => (s.type === 'explain' ? [] : [{ k: s.recTitle, v: s.recNote }]));
+  return [{ id: 'glossary', group: 'Глоссарий', title: `Термины · ${lesson.name}`, updatedAfter: number, rows }];
+}
+
 /** Следующий урок заглушки: каркас темы, отталкиваясь от последней ошибки разбора. */
 export function stubNextLesson(number: number, records: { title: string; ok: boolean }[]): Lesson {
   const lastMiss = [...records].reverse().find((r) => !r.ok)?.title ?? 'первые термины';
@@ -114,6 +137,9 @@ export function createLocalContentService(opts: { stageMs?: number; planLater?: 
       }, stageMs);
     });
   return {
+    async suggestTitle(topic) {
+      return shortTitle(topic);
+    },
     async suggestFocus(topic) {
       return focusByKind[topicKind(topic)](topic || 'тема');
     },
@@ -124,10 +150,16 @@ export function createLocalContentService(opts: { stageMs?: number; planLater?: 
       return localPlan(draft.mission, opts.planLater ?? 'уточним после первых сессий');
     },
     prepareFirstLesson(draft, onStage) {
-      return stages(onStage).then(() => ({ lesson: customLesson(draft.topic, draft.mission) }));
+      return stages(onStage).then(() => {
+        const lesson = customLesson(draft.title ?? draft.topic, draft.mission);
+        return { lesson, references: stubGlossary(lesson, 1) };
+      });
     },
     prepareNextLesson(_remoteId, number, records, onStage) {
-      return stages(onStage).then(() => stubNextLesson(number, records));
+      return stages(onStage).then(() => {
+        const lesson = stubNextLesson(number, records);
+        return { lesson, references: stubGlossary(lesson, number) };
+      });
     },
   };
 }

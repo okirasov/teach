@@ -20,7 +20,7 @@ export function useTodaySubjects(): SubjectCardModel[] {
       if (id === CUSTOM_ID && custom) {
         return {
           id,
-          name: custom.topic,
+          name: custom.title ?? custom.topic,
           level: custom.focus ? `${t.stage1} · ${custom.focus}` : t.stage1,
           lessonTitle: custom.ready ? customLesson?.lessonTitle ?? t.diag : (custom.lessonNumber ?? 0) > 0 ? t.preparing : t.bgLesson,
           done: !!done[id],

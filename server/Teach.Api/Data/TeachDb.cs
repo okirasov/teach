@@ -8,6 +8,8 @@ public sealed class SubjectRow
 {
     public Guid Id { get; set; }
     public required string Topic { get; set; }
+    /// <summary>Короткое имя для карточек; null — показывается Topic.</summary>
+    public string? Title { get; set; }
     public required string Focus { get; set; }
     public required string Mission { get; set; }
     /// <summary>JSON-массив id выбранных источников.</summary>
@@ -39,6 +41,19 @@ public sealed class LearningRecordRow
     public DateTimeOffset CreatedAt { get; set; }
 }
 
+/// <summary>Справочник предмета: сжатая суть уроков, растёт после каждого урока.</summary>
+public sealed class ReferenceRow
+{
+    public Guid Id { get; set; }
+    public Guid SubjectId { get; set; }
+    public required string Group { get; set; }
+    public required string Title { get; set; }
+    /// <summary>JSON-массив RefRowDto.</summary>
+    public required string RowsJson { get; set; }
+    public int UpdatedAfter { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+}
+
 /// <summary>История уроков предмета — для справочников и повторной выдачи.</summary>
 public sealed class LessonRow
 {
@@ -55,6 +70,7 @@ public sealed class TeachDb(DbContextOptions<TeachDb> options) : DbContext(optio
     public DbSet<SubjectRow> Subjects => Set<SubjectRow>();
     public DbSet<LearningRecordRow> Records => Set<LearningRecordRow>();
     public DbSet<LessonRow> Lessons => Set<LessonRow>();
+    public DbSet<ReferenceRow> References => Set<ReferenceRow>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -63,5 +79,7 @@ public sealed class TeachDb(DbContextOptions<TeachDb> options) : DbContext(optio
         b.Entity<LearningRecordRow>().HasIndex(x => x.SubjectId);
         b.Entity<LessonRow>().HasKey(x => x.Id);
         b.Entity<LessonRow>().HasIndex(x => new { x.SubjectId, x.Number }).IsUnique();
+        b.Entity<ReferenceRow>().HasKey(x => x.Id);
+        b.Entity<ReferenceRow>().HasIndex(x => x.SubjectId);
     }
 }

@@ -11,12 +11,20 @@ public sealed record PlanStage(string N, string T, string D);
 
 public sealed record FocusRequest(string Topic);
 
+/// <summary>Короткое имя предмета для карточек и пиллов (≤ 24 символов), из полной формулировки темы.</summary>
+public sealed record TitleResponse(string Title);
+
+public sealed record RefRowDto(string K, string V, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Sec = null);
+
+/// <summary>Справочник предмета (Reference из брифа §5.3), конденсируется из уроков.</summary>
+public sealed record ReferenceDto(string Id, string Group, string Title, int UpdatedAfter, RefRowDto[] Rows);
+
 public sealed record SourcesRequest(string Topic, string Focus);
 
 public sealed record PlanRequest(string Topic, string Focus, string Mission);
 
 /// <summary>Sources — кандидаты, уже найденные мастером; если переданы, сервер не ищет их заново.</summary>
-public sealed record SubjectDraft(string Topic, string Focus, string Mission, string[] SourceIds, SourceCandidate[]? Sources = null);
+public sealed record SubjectDraft(string Topic, string Focus, string Mission, string[] SourceIds, SourceCandidate[]? Sources = null, string? Title = null);
 
 public sealed record SubjectCreated(string SubjectId, string Status);
 
@@ -47,4 +55,5 @@ public sealed record LessonStatus(
     int? Stage,
     /// <summary>Номер готового урока (1 — диагностика); при preparing — номер урока, который готовится.</summary>
     int Number,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] Domain.Lesson? Lesson);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] Domain.Lesson? Lesson,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ReferenceDto[]? References = null);
