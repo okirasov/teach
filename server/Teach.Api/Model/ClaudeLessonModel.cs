@@ -35,6 +35,8 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
 
     public async Task<string> SuggestTitleAsync(string topic, CancellationToken ct)
     {
+        // Языковой предмет: имя языка без вызова модели — так же, как считает клиент.
+        if (StubLessonModel.LanguageName(topic) is { } lang) return lang;
         var r = await AskAsync<TitleOut>(
             $"Тема ученика: «{topic}». Дай короткое имя предмета для карточки: 1–3 слова, до 24 символов, без кавычек и точки, с заглавной буквы. Для языка — просто название языка («Итальянский»).",
             Schemas.Title, ct, effort: Effort.Low, model: WizardModel);

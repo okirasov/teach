@@ -36,13 +36,25 @@ public sealed partial class StubLessonModel : ILessonModel
     /// <summary>Заглушка: язык предмета или первые слова темы.</summary>
     public Task<string> SuggestTitleAsync(string topic, CancellationToken ct) => Task.FromResult(ShortTitle(topic));
 
-    public static string ShortTitle(string topic)
+    /// <summary>Языковой предмет → имя языка; та же таблица, что в клиенте (domain/languages.ts).</summary>
+    public static string? LanguageName(string topic)
     {
         var t = (topic ?? "").Trim();
-        foreach (var (rx, name) in new[] { ("итал|italian", "Итальянский"), ("англ|english", "Английский"), ("испан|spanish", "Испанский"), ("немец|german", "Немецкий"), ("франц|french", "Французский") })
+        foreach (var (rx, name) in Languages)
             if (Regex.IsMatch(t, rx, RegexOptions.IgnoreCase)) return name;
-        return TrimWords(t, 3);
+        return null;
     }
+
+    private static readonly (string Rx, string Name)[] Languages =
+    [
+        ("англ|english", "Английский"), ("итал|italian", "Итальянский"), ("испан|spanish|español", "Испанский"), ("немец|german|deutsch", "Немецкий"),
+        ("франц|french|français", "Французский"), ("португал|portugu", "Португальский"), ("китай|chinese|mandarin", "Китайский"), ("япон|japanese", "Японский"),
+        ("корей|korean", "Корейский"), ("араб|arabic", "Арабский"), ("турец|turkish", "Турецкий"), ("польск|polish", "Польский"), ("чешск|czech", "Чешский"),
+        ("нидерланд|голланд|dutch", "Нидерландский"), ("шведск|swedish", "Шведский"), ("греческ|greek", "Греческий"), ("иврит|hebrew", "Иврит"),
+        ("хинди|hindi", "Хинди"), ("украин|ukrainian", "Украинский"),
+    ];
+
+    public static string ShortTitle(string topic) => LanguageName(topic) ?? TrimWords(topic, 3);
 
     /// <summary>До maxWords слов и до 24 символов, слова не режем; слишком длинное первое слово режется жёстко.</summary>
     public static string TrimWords(string text, int maxWords = int.MaxValue)
@@ -56,8 +68,16 @@ public sealed partial class StubLessonModel : ILessonModel
             s = next;
         }
         if (s.Length == 0) s = t.Length > 24 ? t[..24].TrimEnd() : t;
+        // Хвостовой предлог или союз после обрезки («Английский для») убираем.
+        var parts = s.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
+        while (parts.Count > 1 && StopWords.Contains(parts[^1].ToLowerInvariant())) parts.RemoveAt(parts.Count - 1);
+        s = string.Join(' ', parts);
         return s.Length > 0 ? char.ToUpper(s[0]) + s[1..] : "Предмет";
     }
+
+    private static readonly HashSet<string> StopWords =
+        ["для", "и", "в", "на", "с", "со", "по", "к", "о", "об", "от", "из", "за", "перед", "при", "без", "до", "у", "как",
+         "for", "and", "of", "to", "in", "on", "with", "at", "by", "from", "the", "a", "an"];
 
     /// <summary>Заглушка глоссария: записи об усвоенном урока как термины.</summary>
     public Task<IReadOnlyList<RefRowDto>> ExtractGlossaryAsync(Lesson lesson, CancellationToken ct)

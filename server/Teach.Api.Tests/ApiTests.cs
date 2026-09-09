@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Teach.Api.Contracts;
 using Teach.Api.Domain;
+using Teach.Api.Model;
 
 namespace Teach.Api.Tests;
 
@@ -191,6 +192,9 @@ public class ApiTests : IClassFixture<ApiFactory>
     {
         var r = await Post<TitleResponse>("/subjects/title", new FocusRequest("Итальянский язык с самого начала"));
         Assert.Equal("Итальянский", r!.Title);
+        Assert.Equal("Публичные выступления", StubLessonModel.TrimWords("Публичные выступления перед руководством"));
+        Assert.Equal("Английский", StubLessonModel.TrimWords("Английский для собеседований"));
+        Assert.Equal("SQL", StubLessonModel.TrimWords("SQL"));
     }
 
     [Fact]
