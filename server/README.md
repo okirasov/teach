@@ -26,13 +26,13 @@ ASPNETCORE_URLS=http://0.0.0.0:5180 dotnet run --no-launch-profile
 `server/fly.toml` — конфигурация Fly.io: том `teach_data`, HTTPS, health-check. Порядок:
 
 ```bash
-cd server && fly launch --copy-config --no-deploy
+cd server && fly apps create teach-tutor-api
 fly volumes create teach_data --size 1
 fly secrets set ANTHROPIC_API_KEY=... Teach__ApiToken=$(openssl rand -hex 24)
-fly deploy && curl https://teach-api.fly.dev/health
+fly deploy && curl https://teach-tutor-api.fly.dev/health
 ```
 
-Клиент собирается с `EXPO_PUBLIC_CONTENT_URL=https://teach-api.fly.dev` и `EXPO_PUBLIC_CONTENT_TOKEN=<тот же токен>`.
+Клиент собирается с `EXPO_PUBLIC_CONTENT_URL=https://teach-tutor-api.fly.dev` и `EXPO_PUBLIC_CONTENT_TOKEN=<тот же токен>`.
 
 Схема БД создаётся через `EnsureCreated`, миграций пока нет: при изменении моделей dev-базу `teach.db` нужно удалить.
 

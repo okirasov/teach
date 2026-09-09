@@ -1,12 +1,12 @@
-# Fly.io: `fly launch --copy-config --no-deploy` в папке server/Teach.Api, затем
+# Fly.io: `fly launch --copy-config --no-deploy` в этой папке, затем
 # fly volumes create teach_data --size 1
 # fly secrets set ANTHROPIC_API_KEY=... Teach__ApiToken=...
 # fly deploy
-app = "teach-api"
+app = "teach-tutor-api"
 primary_region = "ams"
 
 [build]
-  dockerfile = "Teach.Api/Dockerfile"
+  dockerfile = "Dockerfile"
 
 [env]
   Teach__Db = "Data Source=/data/teach.db"
