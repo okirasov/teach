@@ -1,0 +1,21 @@
+mobile/ExportOptions.plist
+  s_a2145daee18e40::t_40101913632229 1-12
+mobile/README.md
+  s_a2145daee18e40::t_b8395a84cf3002 101-112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "ac307c885b83014ca796b89c9bb98068de263a52",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
