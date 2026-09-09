@@ -41,9 +41,15 @@ public sealed partial class StubLessonModel : ILessonModel
         var t = (topic ?? "").Trim();
         foreach (var (rx, name) in new[] { ("итал|italian", "Итальянский"), ("англ|english", "Английский"), ("испан|spanish", "Испанский"), ("немец|german", "Немецкий"), ("франц|french", "Французский") })
             if (Regex.IsMatch(t, rx, RegexOptions.IgnoreCase)) return name;
-        // До трёх слов и до 24 символов, слова не режем.
+        return TrimWords(t, 3);
+    }
+
+    /// <summary>До maxWords слов и до 24 символов, слова не режем; слишком длинное первое слово режется жёстко.</summary>
+    public static string TrimWords(string text, int maxWords = int.MaxValue)
+    {
+        var t = (text ?? "").Trim();
         var s = "";
-        foreach (var w in t.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(3))
+        foreach (var w in t.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(maxWords))
         {
             var next = s.Length == 0 ? w : $"{s} {w}";
             if (next.Length > 24) break;

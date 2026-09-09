@@ -39,7 +39,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
             $"Тема ученика: «{topic}». Дай короткое имя предмета для карточки: 1–3 слова, до 24 символов, без кавычек и точки, с заглавной буквы. Для языка — просто название языка («Итальянский»).",
             Schemas.Title, ct, effort: Effort.Low, model: WizardModel);
         var t = r.Title.Trim().Trim('«', '»', '"', '.');
-        return t.Length == 0 ? StubLessonModel.ShortTitle(topic) : t.Length > 24 ? t[..24].TrimEnd() : t;
+        return t.Length == 0 ? StubLessonModel.ShortTitle(topic) : StubLessonModel.TrimWords(t);
     }
 
     public async Task<IReadOnlyList<RefRowDto>> ExtractGlossaryAsync(Lesson lesson, CancellationToken ct)
