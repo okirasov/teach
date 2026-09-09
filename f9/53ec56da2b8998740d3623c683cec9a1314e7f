@@ -1,0 +1,53 @@
+mobile/README.md
+  s_a2145daee18e40::t_edc442acad0334 47-50,71
+mobile/app.json
+  s_a2145daee18e40::t_3f373df175947f 16-17,19-20,30-31
+mobile/app/(auth)/sign-in.tsx
+  s_a2145daee18e40::t_31e18c689ff3b0 4,51-60
+mobile/app/(tabs)/subjects.tsx
+  s_a2145daee18e40::t_d26927d3e0037f 8,10,37
+mobile/scripts/make-icons.py
+  s_a2145daee18e40::t_83a5acf1150000 1-68
+mobile/src/content/__tests__/http.test.ts
+  s_a2145daee18e40::t_afcb07a2cb789f 24,30
+mobile/src/content/http.ts
+  s_a2145daee18e40::t_34881deb3a3c48 7-8,36-40
+mobile/src/content/index.ts
+  s_a2145daee18e40::t_b5fc68949b4048 14-16
+mobile/src/features/today/SubjectCard.tsx
+  s_a2145daee18e40::t_bc3732f8a105ea 18-19,56-59
+mobile/src/features/today/useTodaySubjects.ts
+  s_a2145daee18e40::t_cf481c91968028 32
+mobile/src/i18n/en.ts
+  s_a2145daee18e40::t_686b2c78e26812 8
+mobile/src/i18n/ru.ts
+  s_a2145daee18e40::t_61f91ba69a6470 9
+server/README.md
+  s_a2145daee18e40::t_d60459b8d21e09 15-16,23-36
+server/Teach.Api.Tests/ApiTests.cs
+  s_a2145daee18e40::t_f77d871d69017a 10,28-55
+server/Teach.Api/.dockerignore
+  s_a2145daee18e40::t_b19f6c4d33782f 1-4
+server/Teach.Api/Dockerfile
+  s_a2145daee18e40::t_fe175fdbaf9800 1-17
+server/Teach.Api/Program.cs
+  s_a2145daee18e40::t_5ba629165bfab7 45-63
+server/fly.toml
+  s_a2145daee18e40::t_b93af7dee4d2fc 1-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "f953ec56da2b8998740d3623c683cec9a1314e7f",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
