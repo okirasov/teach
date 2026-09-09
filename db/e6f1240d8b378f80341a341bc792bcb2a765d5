@@ -1,0 +1,65 @@
+mobile/app/setup.tsx
+  s_a2145daee18e40::t_4acc0fce146527 27,38,75
+mobile/src/content/__tests__/http.test.ts
+  s_a2145daee18e40::t_b2ec1f035994b0 62,69-70
+mobile/src/content/__tests__/local.test.ts
+  s_a2145daee18e40::t_f4fa064d188b25 12-17
+mobile/src/content/http.ts
+  s_a2145daee18e40::t_9a8e0c6dcc84b3 2,23-25,50,57,72,88-89
+mobile/src/content/local.ts
+  s_a2145daee18e40::t_097594106a12e0 1,4,78-99,140-142,153-156,159-162
+mobile/src/content/types.ts
+  s_a2145daee18e40::t_260e435f314b53 31-32,44-59,62-63,75,81-82
+mobile/src/domain/types.ts
+  s_a2145daee18e40::t_e75ff80081e8aa 75-76
+mobile/src/features/subjects/__tests__/prepare.test.ts
+  s_a2145daee18e40::t_43473af4bea351 2,4,8-13,70-83
+mobile/src/features/subjects/prepare.ts
+  s_a2145daee18e40::t_539baf4ee7fce9 1,3-4,11-12,20,29,32,35,48-49
+mobile/src/features/today/useTodaySubjects.ts
+  s_a2145daee18e40::t_2aaf35cd5e9c8d 23
+mobile/src/store/progress.ts
+  s_a2145daee18e40::t_af115b29cc413c 116
+mobile/src/store/refs.ts
+  s_a2145daee18e40::t_5f002cf7a5f9d7 3-4,15-16,26-42
+server/Teach.Api.Tests/ApiTests.cs
+  s_a2145daee18e40::t_5d6f4c3158a73e 158-179
+server/Teach.Api.Tests/SchemaUpgraderTests.cs
+  s_a2145daee18e40::t_49e36509813c71 1-37
+server/Teach.Api/Contracts/Dtos.cs
+  s_a2145daee18e40::t_348cbbc6605c5b 14-21,27,58-59
+server/Teach.Api/Data/SchemaUpgrader.cs
+  s_a2145daee18e40::t_17c0c6392e45be 1-49
+server/Teach.Api/Data/TeachDb.cs
+  s_a2145daee18e40::t_afef330b80006c 11-12,44-56,73,82-83
+server/Teach.Api/Endpoints/ContentEndpoints.cs
+  s_a2145daee18e40::t_e15bb7d5d08d1a 34-36,45,60-63,66
+server/Teach.Api/Jobs/LessonWorker.cs
+  s_a2145daee18e40::t_67476ac10ade48 55,91-92,106-132
+server/Teach.Api/Model/ClaudeLessonModel.cs
+  s_a2145daee18e40::t_c3a5443a0b3798 32-59,78,101,134-143,201-203,285-292
+server/Teach.Api/Model/ILessonModel.cs
+  s_a2145daee18e40::t_a2ebf4de22f606 14-17
+server/Teach.Api/Model/Prompts.cs
+  s_a2145daee18e40::t_07527fcf834a50 38,47
+server/Teach.Api/Model/StubLessonModel.cs
+  s_a2145daee18e40::t_d538447c55d5e4 36-62,91,138
+server/Teach.Api/Program.cs
+  s_a2145daee18e40::t_7d1d0f254dc9a9 42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "dbe6f1240d8b378f80341a341bc792bcb2a765d5",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
