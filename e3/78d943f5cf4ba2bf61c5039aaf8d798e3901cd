@@ -1,0 +1,49 @@
+mobile/README.md
+  s_a2145daee18e40::t_0f6ae1d23e7884 73-78
+mobile/app/(tabs)/subjects.tsx
+  s_a2145daee18e40::t_3dcba58b4e582d 8,27,38,101-102
+mobile/app/(tabs)/today.tsx
+  s_a2145daee18e40::t_aedeaaee80dc96 52
+mobile/app/intro.tsx
+  s_a2145daee18e40::t_2a63b50ba50d86 6,21
+mobile/app/recap.tsx
+  s_a2145daee18e40::t_869e20a20280fa 10,59-60
+mobile/app/session/[id].tsx
+  s_a2145daee18e40::t_5741aa2c792e0d 39,57-58,64-65,93-94,104,108
+mobile/app/subject/[id].tsx
+  s_a2145daee18e40::t_389252e2075188 24,27,73
+mobile/src/db/DbGate.tsx
+  s_a2145daee18e40::t_a8bb8b71786736 5,41-47
+mobile/src/domain/types.ts
+  s_a2145daee18e40::t_a4070394e3341f 76-77
+mobile/src/features/reviews/useReviewPlan.ts
+  s_a2145daee18e40::t_ea6993452a495d 14-15,19,21
+mobile/src/features/subjects/__tests__/prepare.test.ts
+  s_a2145daee18e40::t_abb8a2a46c6e1f 3,16-19,23-26,28-31,35,38-39,43-50,54-57,59-60,62-65,69-70,74-76,81-82,88-90,92-94,97,101-102,104-107,109,111-115,119-192
+mobile/src/features/subjects/prepare.ts
+  s_a2145daee18e40::t_b151fe32d57db1 2-3,6-11,14-15,17-23,27-28,31-33,37-38,46,49-59,63-64,66,68-69,72,75-78,81,84,86-87,91-92,94
+mobile/src/features/today/useTodaySubjects.ts
+  s_a2145daee18e40::t_14a43486846fa3 5,14-16,19-22,25,27-28,30-33,40
+mobile/src/store/__tests__/progress.test.ts
+  s_a2145daee18e40::t_25f13342082fb9 5,7,10,32-41,45,47,51-97
+mobile/src/store/persist.ts
+  s_a2145daee18e40::t_afab2f2c492d71 14-15,20-21
+mobile/src/store/progress.ts
+  s_a2145daee18e40::t_533598b4fc96eb 9-13,20-28,36-41,50-53,55-56,61-70,75-77,94-106,108-109,111-150,152-161,172-192,196-198,202-204,212,214-215,218-239
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "e378d943f5cf4ba2bf61c5039aaf8d798e3901cd",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
