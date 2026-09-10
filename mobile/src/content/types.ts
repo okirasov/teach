@@ -71,7 +71,11 @@ export interface ContentService {
    * Готовит первый урок в фоне. onStage вызывается на каждом этапе, промис резолвится уроком
    * и id предмета на сервере (у локальной заглушки его нет).
    */
-  prepareFirstLesson(draft: SubjectDraft, onStage: (stage: PrepStage) => void): Promise<PreparedLesson>;
+  /**
+   * onCreated сообщает id предмета на сервере сразу после создания, до того как урок готов:
+   * если подготовка сорвётся, повтор дождётся уже начатой генерации вместо создания второго предмета.
+   */
+  prepareFirstLesson(draft: SubjectDraft, onStage: (stage: PrepStage) => void, onCreated?: (remoteId: string) => void): Promise<PreparedLesson>;
   /**
    * Следующий урок по записям разбора: сервер сохраняет записи и генерирует урок number
    * чуть выше границы, которую они показали.

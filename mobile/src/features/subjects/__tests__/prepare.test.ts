@@ -178,6 +178,42 @@ describe('несколько предметов', () => {
   });
 });
 
+describe('повтор после сбоя первого урока', () => {
+  it('не создаёт второй предмет на сервере, а дожидается уже начатой генерации', async () => {
+    // Сервер принял черновик (id известен), но опрос урока сорвался.
+    const failing = {
+      ...svc(),
+      prepareFirstLesson: async (_d: unknown, _s: unknown, onCreated?: (r: string) => void) => {
+        onCreated?.('r-42');
+        throw new Error('offline');
+      },
+    } as unknown as ReturnType<typeof svc>;
+    const id = await createSubjectAndPrepare(failing, draft);
+    expect(sub(id).remoteId).toBe('r-42');
+    expect(prepOf(useProgress.getState(), id).error).toBe('offline');
+
+    const good = svc();
+    const first = jest.spyOn(good, 'prepareFirstLesson');
+    const resume = jest.spyOn(good, 'resumeLesson');
+    await retryPrepare(good, id);
+    // Второй предмет не создаём: ждём урок уже созданного.
+    expect(first).not.toHaveBeenCalled();
+    expect(resume).toHaveBeenCalledWith('r-42', 1, expect.any(Function));
+    expect(sub(id).ready).toBe(true);
+  });
+
+  it('без id на сервере повтор создаёт предмет заново', async () => {
+    const failing = { ...svc(), prepareFirstLesson: async () => { throw new Error('offline'); } };
+    const id = await createSubjectAndPrepare(failing, draft);
+    expect(sub(id).remoteId).toBeUndefined();
+    const good = svc();
+    const first = jest.spyOn(good, 'prepareFirstLesson');
+    await retryPrepare(good, id);
+    expect(first).toHaveBeenCalled();
+    expect(sub(id).ready).toBe(true);
+  });
+});
+
 describe('одновременные подготовки', () => {
   it('ошибка подготовки удалённого предмета никуда не пишется', async () => {
     const failing = { ...svc(), prepareFirstLesson: async () => { await new Promise((r) => setTimeout(r, 20)); throw new Error('offline'); } };

@@ -99,8 +99,9 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
       }
     },
     buildPlan: (draft) => call<PlanStage[]>('POST', '/subjects/plan', draft),
-    async prepareFirstLesson(draft: SubjectDraft, onStage) {
+    async prepareFirstLesson(draft: SubjectDraft, onStage, onCreated) {
       const created = await call<{ subjectId: string; status: string }>('POST', '/subjects', draft);
+      onCreated?.(created.subjectId);
       const r = await waitLesson(created.subjectId, 1, onStage);
       return { lesson: r.lesson, remoteId: created.subjectId, references: r.references, planStage: r.planStage };
     },

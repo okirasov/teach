@@ -19,7 +19,7 @@ export async function createSubjectAndPrepare(service: ContentService, draft: Su
     topic: draft.topic, title: draft.title, focus: draft.focus, mission: draft.mission, sourceIds: draft.sourceIds, plan: draft.plan,
   });
   const dur = subjectConfig(useProgress.getState(), id).dur;
-  await guard(id, (onStage) => service.prepareFirstLesson({ ...draft, durationMinutes: dur }, onStage));
+  await guard(id, (onStage) => service.prepareFirstLesson({ ...draft, durationMinutes: dur }, onStage, (remoteId) => useProgress.getState().setRemoteId(id, remoteId)));
   return id;
 }
 
@@ -69,7 +69,13 @@ export async function retryPrepare(service: ContentService, id: SubjectId): Prom
     await guard(id, (onStage) => service.prepareNextLesson(c.remoteId, (c.lessonNumber ?? 0) + 1, c.pendingRecords!, onStage, { durationMinutes: dur }));
     return;
   }
-  await guard(id, (onStage) => service.prepareFirstLesson({ topic: c.topic, title: c.title, focus: c.focus, mission: c.mission, sourceIds: c.sourceIds ?? [] }, onStage));
+  // Предмет уже создан на сервере — ждём его первый урок, а не создаём второй предмет:
+  // иначе начатая генерация осиротеет, а за неё уже заплачено.
+  if (c.remoteId) {
+    await guard(id, (onStage) => service.resumeLesson(c.remoteId, 1, onStage));
+    return;
+  }
+  await guard(id, (onStage) => service.prepareFirstLesson({ topic: c.topic, title: c.title, focus: c.focus, mission: c.mission, sourceIds: c.sourceIds ?? [] }, onStage, (remoteId) => useProgress.getState().setRemoteId(id, remoteId)));
 }
 
 async function guard(id: SubjectId, run: (onStage: (stage: number) => void) => Promise<PreparedLesson>): Promise<void> {

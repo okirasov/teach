@@ -59,6 +59,8 @@ export interface ProgressState {
   removeSubject: (id: SubjectId) => void;
   /** Создаёт предмет и возвращает его id: первый — CUSTOM_ID, дальше сгенерированные. */
   createSubject: (c: Omit<CustomSubject, 'ready'>) => SubjectId;
+  /** Предмет создан на сервере: id запоминаем сразу, чтобы повтор не создал второй. */
+  setRemoteId: (id: SubjectId, remoteId: string) => void;
   setPrepStage: (id: SubjectId, stage: number) => void;
   setPrepError: (id: SubjectId, message: string | null) => void;
   /** Урок готов (сохраняется, чтобы сессия брала именно его); remoteId — id предмета на сервере. */
@@ -143,6 +145,8 @@ export const useProgress = create<ProgressState>((set) => ({
     }));
     return id;
   },
+  setRemoteId: (id, remoteId) =>
+    set((s) => (s.subjects[id] ? { subjects: { ...s.subjects, [id]: { ...s.subjects[id], remoteId } } } : s)),
   setPrepStage: (id, stage) =>
     set((s) => ({ prepStages: { ...s.prepStages, [id]: stage }, prepErrors: (({ [id]: _drop, ...rest }) => rest)(s.prepErrors) })),
   setPrepError: (id, message) =>
