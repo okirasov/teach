@@ -1,9 +1,13 @@
 import { customLesson, seedLessons } from '@/domain/seed';
 import type { FreeStep } from '@/domain/types';
 import {
+  answerAt,
   canProceed,
   critHits,
   evaluate,
+  goBack,
+  goForward,
+  isViewingPast,
   primary,
   primaryAction,
   recapRecords,
@@ -103,5 +107,55 @@ describe('session engine · diagnostic lesson', () => {
     s = primary(s).state;
     s = primary(setInput(s, 'что-то знаю')).state;
     expect(s.results).toEqual([true, true]);
+  });
+});
+
+describe('session engine · browsing past steps', () => {
+  it('freezes answers of passed steps, swipes back and forward, and never past the active unanswered step', () => {
+    const lesson = seedLessons.en;
+    let s = startSession('en', lesson);
+    s = primary(s).state; // explain → choice
+    s = select(s, 1);
+    s = primary(s).state; // answered
+    s = primary(s).state; // → input (active, unanswered)
+    expect(s.step).toBe(2);
+    expect(s.view).toBe(2);
+    expect(goForward(s).view).toBe(2); // вперёд с неотвеченного нельзя
+
+    s = goBack(s);
+    expect(s.view).toBe(1);
+    expect(isViewingPast(s)).toBe(true);
+    expect(answerAt(s, 1)).toEqual({ sel: 1, ordSel: [], input: '', checked: true });
+    expect(primaryAction(s)).toBe('toCurrent');
+    expect(select(s, 0)).toBe(s); // пройденный шаг не редактируется
+    expect(setInput(s, 'x')).toBe(s);
+
+    s = goBack(s);
+    expect(s.view).toBe(0);
+    expect(goBack(s).view).toBe(0);
+    s = goForward(s);
+    expect(s.view).toBe(1);
+    s = primary(s).state; // кнопка «К текущему шагу»
+    expect(s.view).toBe(2);
+    expect(s.step).toBe(2);
+    // ответы на активном шаге живые
+    s = setInput(s, 'had');
+    expect(answerAt(s, 2).input).toBe('had');
+  });
+
+  it('swipe forward on an answered active step behaves like «Дальше», but not into the recap', () => {
+    const lesson = seedLessons.en;
+    let s = startSession('en', lesson);
+    s = goForward(s); // explain → practice
+    expect(s.step).toBe(1);
+    s = select(s, 1);
+    expect(goForward(s).step).toBe(1); // не отвечено
+    s = primary(s).state;
+    s = goForward(s);
+    expect(s.step).toBe(2);
+    s = setInput(s, 'had');
+    s = primary(s).state; // answered, last step
+    expect(goForward(s).step).toBe(2); // в разбор только кнопкой
+    expect(primary(s).finished).toBe(true);
   });
 });

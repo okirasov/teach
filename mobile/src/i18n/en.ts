@@ -43,7 +43,7 @@ export const en: Dict = {
   delYes: 'Yes, delete', delNo: 'Keep it',
   why: 'WHY', example: 'EXAMPLE', noHints: 'No hints — the breakdown opens after your attempt', howRight: 'CORRECT ANSWER',
   micIdle: 'Or answer by voice — the transcript lands in the field', micRec: 'Listening… tap again to finish',
-  toPractice: 'To practice', answer: 'Answer', next: 'Next', toRecap: 'To recap', done: 'Done',
+  toPractice: 'To practice', answer: 'Answer', next: 'Next', toRecap: 'To recap', toCurrent: 'Back to current step', viewingPast: 'Completed step — swipe right for earlier, left for later', done: 'Done',
   setupNext: 'Next', setupBuild: 'Build plan',
   newSubjChip: 'NEW SUBJECT', recapChip: 'RECAP', toReviews: 'GOES TO REVIEWS', baselineKicker: 'BASELINE', baselineNote: 'Not taught yet — we are finding your starting line. A miss here is not a mistake.', baselineRecap: 'STARTING POINT',
   recapFoot: 'Records become queue cards — the interval grows after every correct answer.',
