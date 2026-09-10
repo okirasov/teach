@@ -1,4 +1,4 @@
-import type { Reference, RefRow } from '@/domain/reference';
+import type { Reference, RefRow } from '../reference';
 
 const r = (k: string, v: string, weak = false, sec?: string): RefRow => (sec ? { sec, k, v, weak } : { k, v, weak });
 

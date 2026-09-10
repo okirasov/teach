@@ -1,4 +1,4 @@
-import { prototypeRefs } from '@/db/seedRefs';
+import { prototypeRefs } from '@/domain/__fixtures__/protoRefs';
 import { filterRefs, refSubjects, sectionRows, weakCount } from '../filter';
 
 describe('refs filter', () => {

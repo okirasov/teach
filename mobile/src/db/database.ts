@@ -1,10 +1,9 @@
 import { Platform } from 'react-native';
 
 import { memoryKv, type KvRepo } from './kv';
-import { DEMO_IDS } from '@/domain/seed';
+import { DEMO_IDS, seedRefs } from '@/domain/seed';
 import { migrate } from './migrations';
-import { prototypeRefs } from './seedRefs';
-import { prototypeQueue } from './seedCards';
+import { demoQueue } from './seedCards';
 import { memoryRefsRepo, type RefsRepo } from './refsRepo';
 import { memoryReviewsRepo, type ReviewsRepo } from './reviewsRepo';
 
@@ -55,12 +54,12 @@ export async function openRepos(accountId: string, now = new Date()): Promise<Re
  * Карточки и справочники демо-предметов (английский, история) — один раз на базу аккаунта.
  * Флаг в kv: миграция v3 вычищала демо-данные прототипа, после неё они засеваются заново.
  */
-const DEMO_SEED_KEY = 'demo.seeded.v2';
+const DEMO_SEED_KEY = 'demo.seeded.v3';
 
 export async function seedDemo(reviews: ReviewsRepo, refs: RefsRepo, kv: KvRepo, now: Date): Promise<void> {
   if ((await kv.get(DEMO_SEED_KEY)) === '1') return;
   const demo = new Set(DEMO_IDS);
-  await reviews.upsert(prototypeQueue(now).filter((c) => demo.has(c.subjectId)));
-  await refs.upsert(prototypeRefs.filter((r) => demo.has(r.subjectId)));
+  await reviews.upsert(demoQueue(now).filter((c) => demo.has(c.subjectId)));
+  await refs.upsert(seedRefs.filter((r) => demo.has(r.subjectId)));
   await kv.set(DEMO_SEED_KEY, '1');
 }

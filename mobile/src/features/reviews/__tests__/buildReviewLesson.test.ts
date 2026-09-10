@@ -1,5 +1,5 @@
-import { prototypeQueue } from '@/db/seedCards';
-import { seedLessons } from '@/domain/seed';
+import { prototypeQueue } from '@/domain/__fixtures__/protoQueue';
+import { protoLessons as seedLessons } from '@/domain/__fixtures__/protoLessons';
 import { buildReviewLesson } from '../buildReviewLesson';
 import { daysUntil, dueLabel, estimateMinutes } from '../queue';
 import { ru } from '@/i18n/ru';

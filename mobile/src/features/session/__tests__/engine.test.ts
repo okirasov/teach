@@ -1,4 +1,5 @@
-import { customLesson, seedLessons } from '@/domain/seed';
+import { protoLessons as seedLessons } from '@/domain/__fixtures__/protoLessons';
+import { customLesson } from '@/domain/seed';
 import type { FreeStep } from '@/domain/types';
 import {
   answerAt,

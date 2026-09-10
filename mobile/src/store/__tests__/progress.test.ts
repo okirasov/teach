@@ -12,8 +12,8 @@ beforeEach(() => useProgress.setState(initial, true));
 
 describe('progress store', () => {
   it('lists seed subjects and hides removed ones', () => {
-    expect(activeSubjectIds(useProgress.getState())).toEqual(['en', 'hist']);
-    useProgress.getState().removeSubject('hist');
+    expect(activeSubjectIds(useProgress.getState())).toEqual(['en', 'speak']);
+    useProgress.getState().removeSubject('speak');
     expect(activeSubjectIds(useProgress.getState())).toEqual(['en']);
   });
 
@@ -45,10 +45,10 @@ describe('progress store', () => {
   });
 
   it('mission edits append history versions, never delete', () => {
-    useProgress.getState().setMission('qa', 'новая');
-    const m = useProgress.getState().missions.qa;
+    useProgress.getState().setMission('speak', 'новая');
+    const m = useProgress.getState().missions.speak;
     expect(m.cur).toBe('новая');
-    expect(m.hist).toEqual(['v1 · перейти из ручного тестирования в автоматизацию']);
+    expect(m.hist).toEqual(['v1 · уверенно выступить перед командой на 10 минут']);
   });
 
   it('subject config merges over defaults', () => {

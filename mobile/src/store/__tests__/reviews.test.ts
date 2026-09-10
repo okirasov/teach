@@ -1,5 +1,5 @@
 import { memoryReviewsRepo } from '@/db/reviewsRepo';
-import { prototypeQueue } from '@/db/seedCards';
+import { prototypeQueue } from '@/domain/__fixtures__/protoQueue';
 import { dueLater, dueToday } from '@/features/reviews/queue';
 import { useReviews } from '../reviews';
 

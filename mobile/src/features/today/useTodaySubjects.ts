@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { seedLessons } from '@/domain/seed';
+import { seedLessons, seedPlans } from '@/domain/seed';
 import { useT } from '@/i18n';
 import { activeSubjectIds, CUSTOM_ID, useProgress } from '@/store/progress';
 import { planProgress } from '@/features/subjects/plan';
@@ -33,7 +33,8 @@ export function useTodaySubjects(): SubjectCardModel[] {
         };
       }
       const l = seedLessons[id];
-      return { id, name: l.name, level: l.level, lessonTitle: l.lessonTitle ?? '', done: !!done[id], demo: true };
+      // Демо: урок 2 первого этапа плана на пять этапов, как у настоящего предмета после диагностики.
+      return { id, name: l.name, level: l.level, lessonTitle: l.lessonTitle ?? '', done: !!done[id], demo: true, plan: planProgress(seedPlans[id], 2, 0) };
     });
   }, [t, done, removed, custom, prepStage, prepError, customLesson]);
 }
