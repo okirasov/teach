@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 import {
   GestureDetector,
@@ -8,6 +8,7 @@ import {
 } from "react-native-gesture-handler";
 
 import { isBaselineCheck } from "@/features/session/baseline";
+import { gradeFreeAnswer } from "@/features/session/gradeFree";
 import { SpeakerProvider, useStopSpeechOn } from "@/features/session/speaker";
 import { stepSubjectId } from "@/features/session/stepSubject";
 import { uiLanguageTag } from "@/domain/languages";
@@ -15,7 +16,7 @@ import { ttsLangFor } from "@/voice/tts";
 import {
   answerAt,
   canProceed,
-  critHits,
+  hitsOf,
   evaluateStep,
   isViewingPast,
   primaryAction,
@@ -70,6 +71,7 @@ export default function SessionScreen() {
   const uiLang = useSettings((s) => s.lang);
   const mode = useSettings((s) => s.mode);
 
+  const [grading, setGrading] = useState(false);
   const s = useSession((st) => st.s);
   // В повторах язык и настройки голоса — от предмета карточки текущего шага, а не от «Повторов».
   const reviewCards = useReviews((st) => st.cards);
@@ -134,8 +136,16 @@ export default function SessionScreen() {
   const showMic =
     cfg.voice && isText && !a.checked && !past && voice.available === true;
 
-  const onPrimary = () => {
+  const onPrimary = async () => {
     voice.stop();
+    // Свободный ответ оцениваем по смыслу на сервере; сеть не задерживает — есть запасная проверка по ключам.
+    if (step.type === "free" && !a.checked && !past) {
+      setGrading(true);
+      const hits = await gradeFreeAnswer(content, step, a.input, uiLanguageTag[uiLang]);
+      setGrading(false);
+      if (primary(hits)) router.replace("/recap");
+      return;
+    }
     if (primary()) router.replace("/recap");
   };
   const onExit = () => {
@@ -148,7 +158,7 @@ export default function SessionScreen() {
 
   let feedback: React.ReactNode = null;
   if (a.checked && step.type !== "explain") {
-    const hits = step.type === "free" ? critHits(step, a.input) : [];
+    const hits = step.type === "free" ? hitsOf(step, a) : [];
     const accepted =
       (step.type === "choice" && step.correct === -1) ||
       (step.type === "input" && step.tokens.length === 0);
@@ -288,8 +298,9 @@ export default function SessionScreen() {
             </GestureDetector>
             <Button
               label={label}
-              onPress={onPrimary}
-              disabled={!canProceed(s)}
+              onPress={() => void onPrimary()}
+              disabled={!canProceed(s) || grading}
+              loading={grading}
               style={{ marginTop: 10 }}
             />
           </KeyboardAvoidingView>

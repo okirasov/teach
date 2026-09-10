@@ -26,7 +26,8 @@ export interface SessionStore {
   toggleOrder: (i: number) => void;
   setInput: (v: string) => void;
   /** true — сессия закончена, пора в разбор. */
-  primary: () => boolean;
+  /** hits — оценка свободного ответа сервером; без неё критерии считаются по ключам. */
+  primary: (hits?: boolean[]) => boolean;
   /** Свайпы по шагам: назад к пройденным, вперёд до активного. */
   back: () => void;
   forward: () => void;
@@ -44,10 +45,10 @@ export const useSession = create<SessionStore>((set, get) => ({
   select: (i) => set((st) => (st.s ? { s: engineSelect(st.s, i) } : st)),
   toggleOrder: (i) => set((st) => (st.s ? { s: engineToggleOrder(st.s, i) } : st)),
   setInput: (v) => set((st) => (st.s ? { s: engineSetInput(st.s, v) } : st)),
-  primary: () => {
+  primary: (hits) => {
     const cur = get().s;
     if (!cur) return false;
-    const r = enginePrimary(cur);
+    const r = enginePrimary(cur, hits);
     set({ s: r.state, rec: false });
     return r.finished;
   },

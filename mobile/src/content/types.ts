@@ -82,6 +82,11 @@ export interface ContentService {
    * Заготовка используется после разбора, если этап не сменился и разбор не провальный.
    */
   prefetchNextLesson(remoteId: string | undefined): Promise<void>;
+  /**
+   * Оценка свободного ответа по смыслу: возвращает по флагу на критерий.
+   * Клиент вызывает её при ответе; при недоступности сервера остаётся проверка по ключевым словам.
+   */
+  gradeFree(criteria: { t: string; keys: string[] }[], text: string, lang: string): Promise<boolean[]>;
   /** Продолжить ожидание урока N после перезапуска приложения: записи уже на сервере, заново не шлём. */
   resumeLesson(remoteId: string | undefined, number: number, onStage: (stage: PrepStage) => void): Promise<PreparedLesson>;
 }

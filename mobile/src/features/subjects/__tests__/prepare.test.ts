@@ -179,6 +179,16 @@ describe('несколько предметов', () => {
 });
 
 describe('одновременные подготовки', () => {
+  it('ошибка подготовки удалённого предмета никуда не пишется', async () => {
+    const failing = { ...svc(), prepareFirstLesson: async () => { await new Promise((r) => setTimeout(r, 20)); throw new Error('offline'); } };
+    const p = createSubjectAndPrepare(failing, draft);
+    const id = userSubjectIds(useProgress.getState())[0];
+    useProgress.getState().removeSubject(id);
+    await p;
+    expect(useProgress.getState().prepErrors[id]).toBeUndefined();
+    expect(sub(id)).toBeUndefined();
+  });
+
   it('вторая подготовка того же предмета не запускается, пока идёт первая', async () => {
     const s1 = svc();
     const id = await createSubjectAndPrepare(s1, draft);

@@ -3,6 +3,7 @@ import { customLesson } from '@/domain/seed';
 import type { FreeStep } from '@/domain/types';
 import {
   answerAt,
+  hitsOf,
   canProceed,
   critHits,
   evaluate,
@@ -183,5 +184,51 @@ describe('session engine · resume after closing', () => {
     expect(restoreSession('en', lesson, undefined)).toBeNull();
     // повторы: другой набор карточек — заново
     expect(restoreSession('review', lesson, { ...saved, cardIds: ['a'] }, ['b'])).toBeNull();
+  });
+});
+
+describe('session engine · free answer graded by meaning', () => {
+  const free = {
+    type: 'free' as const, prompt: '', placeholder: '', explain: '', recTitle: 'r', recNote: 'n',
+    criteria: [{ t: 'a', keys: ['alpha'] }, { t: 'b', keys: ['beta'] }],
+  };
+  const lesson = { name: 'X', level: '', steps: [free] };
+
+  it('оценка сервера побеждает поиск по ключам в обе стороны', () => {
+    // Ключевых слов нет, но по смыслу верно — засчитано.
+    let s = startSession('x', lesson);
+    s = setInput(s, 'ответ своими словами');
+    expect(evaluate(s)).toBe(false);
+    s = primary(s, [true, true]).state;
+    expect(s.results).toEqual([true]);
+    expect(hitsOf(free, answerAt(s, 0))).toEqual([true, true]);
+
+    // Ключевые слова есть, но по смыслу мимо — не засчитано.
+    let t = startSession('x', lesson);
+    t = setInput(t, 'alpha beta');
+    expect(evaluate(t)).toBe(true);
+    t = primary(t, [true, false]).state;
+    expect(t.results).toEqual([false]);
+  });
+
+  it('без оценки сервера остаётся проверка по ключам', () => {
+    let s = startSession('x', lesson);
+    s = setInput(s, 'alpha beta');
+    s = primary(s).state;
+    expect(s.results).toEqual([true]);
+    expect(hitsOf(free, answerAt(s, 0))).toEqual([true, true]);
+  });
+
+  it('оценка не переносится на следующий шаг', () => {
+    const two = { name: 'X', level: '', steps: [free, { ...free, recTitle: 'r2' }] };
+    let s = startSession('x', two);
+    s = setInput(s, 'нет ключей');
+    s = primary(s, [true, true]).state;   // отвечен по смыслу
+    s = primary(s).state;                  // → следующий шаг
+    expect(s.step).toBe(1);
+    expect(s.hits).toBeUndefined();
+    s = setInput(s, 'снова без ключей');
+    s = primary(s).state;
+    expect(s.results).toEqual([true, false]);
   });
 });

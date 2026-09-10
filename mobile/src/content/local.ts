@@ -158,6 +158,11 @@ export function createLocalContentService(opts: { stageMs?: number; planLater?: 
     async prefetchNextLesson() {
       /* у заглушки генерация мгновенная */
     },
+    async gradeFree(criteria, text) {
+      // Заглушка повторяет офлайн-проверку по ключевым словам.
+      const t = text.toLowerCase();
+      return criteria.map((c) => c.keys.some((k) => t.includes(k.toLowerCase())));
+    },
     resumeLesson(_remoteId, number, onStage) {
       return stages(onStage).then(() => {
         const lesson = stubNextLesson(number, []);

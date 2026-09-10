@@ -8,6 +8,11 @@ export interface StepAnswer {
   ordSel: number[];
   input: string;
   checked: boolean;
+  /**
+   * Оценка критериев свободного ответа сервером (по смыслу). Без неё критерии
+   * считаются по ключевым словам — так же, как офлайн.
+   */
+  hits?: boolean[];
 }
 
 const EMPTY_ANSWER: StepAnswer = { sel: null, ordSel: [], input: '', checked: false };
@@ -27,6 +32,8 @@ export interface SessionState {
   ordSel: number[];
   input: string;
   checked: boolean;
+  /** Оценка критериев свободного ответа сервером для активного шага. */
+  hits?: boolean[];
   /** Результат каждого практического шага в порядке прохождения. */
   results: boolean[];
   /** Для сессии повторов: id карточки на каждый практический шаг. */
@@ -81,7 +88,7 @@ export function isViewingPast(s: SessionState): boolean {
 }
 
 export function answerAt(s: SessionState, i: number): StepAnswer {
-  if (i === s.step) return { sel: s.sel, ordSel: s.ordSel, input: s.input, checked: s.checked };
+  if (i === s.step) return { sel: s.sel, ordSel: s.ordSel, input: s.input, checked: s.checked, hits: s.hits };
   return s.answers[i] ?? EMPTY_ANSWER;
 }
 
@@ -118,7 +125,12 @@ export function inputMatches(step: InputStep, input: string): boolean {
   return step.tokens.every((group) => group.some((v) => t.includes(v)));
 }
 
-export function evaluateStep(step: LessonStep, a: Pick<StepAnswer, 'sel' | 'ordSel' | 'input'>): boolean {
+/** Критерии свободного ответа: оценка сервера, если она есть, иначе поиск ключевых слов. */
+export function hitsOf(step: FreeStep, a: Pick<StepAnswer, 'input' | 'hits'>): boolean[] {
+  return a.hits && a.hits.length === step.criteria.length ? a.hits : critHits(step, a.input);
+}
+
+export function evaluateStep(step: LessonStep, a: Pick<StepAnswer, 'sel' | 'ordSel' | 'input' | 'hits'>): boolean {
   switch (step.type) {
     case 'explain':
       return true;
@@ -127,7 +139,7 @@ export function evaluateStep(step: LessonStep, a: Pick<StepAnswer, 'sel' | 'ordS
     case 'order':
       return a.ordSel.length === step.correct.length && a.ordSel.every((v, i) => v === step.correct[i]);
     case 'free': {
-      const h = critHits(step, a.input);
+      const h = hitsOf(step, a);
       return h.length > 0 && h.every(Boolean);
     }
     case 'input':
@@ -176,18 +188,20 @@ export function setInput(s: SessionState, input: string): SessionState {
 }
 
 /** Основная кнопка: Ответить → фиксирует попытку; Дальше → следующий шаг; К разбору → finished. */
-export function primary(s: SessionState): { state: SessionState; finished: boolean } {
+export function primary(s: SessionState, hits?: boolean[]): { state: SessionState; finished: boolean } {
   if (!canProceed(s)) return { state: s, finished: false };
   // С пройденного шага кнопка возвращает к активному.
   if (isViewingPast(s)) return { state: { ...s, view: s.step }, finished: false };
   const step = currentStep(s);
   if (step.type !== 'explain' && !s.checked) {
-    return { state: { ...s, checked: true, results: [...s.results, evaluate(s)] }, finished: false };
+    // hits — оценка сервера по смыслу для свободного ответа; без неё считаем по ключам.
+    const checked = { ...s, checked: true, hits: step.type === 'free' ? hits : undefined };
+    return { state: { ...checked, results: [...s.results, evaluate(checked)] }, finished: false };
   }
   if (isLastStep(s)) return { state: s, finished: true };
   const answers = [...s.answers];
   answers[s.step] = answerAt(s, s.step);
-  return { state: { ...s, answers, step: s.step + 1, view: s.step + 1, sel: null, ordSel: [], input: '', checked: false }, finished: false };
+  return { state: { ...s, answers, step: s.step + 1, view: s.step + 1, sel: null, ordSel: [], input: '', checked: false, hits: undefined }, finished: false };
 }
 
 export interface RecapRecord {

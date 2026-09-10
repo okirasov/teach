@@ -108,6 +108,10 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
       if (!remoteId) return;
       await call<{ status: string }>('POST', `/subjects/${remoteId}/prefetch`);
     },
+    async gradeFree(criteria, text, lang) {
+      const r = await call<{ hits: boolean[] }>('POST', '/grade/free', { criteria, text, lang });
+      return r.hits ?? [];
+    },
     async resumeLesson(remoteId, number, onStage) {
       if (!remoteId) throw new Error('no remote subject');
       return { remoteId, ...(await waitLesson(remoteId, number, onStage)) };

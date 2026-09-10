@@ -81,7 +81,9 @@ async function guard(id: SubjectId, run: (onStage: (stage: number) => void) => P
     result = await run((stage) => useProgress.getState().setPrepStage(id, stage));
   } catch (e) {
     // Сеть никогда не блокирует: предмет остаётся, карточка предлагает повторить.
-    useProgress.getState().setPrepError(id, e instanceof Error ? e.message : String(e));
+    // Предмет могли удалить, пока шла подготовка — тогда ошибку писать некуда.
+    const st = useProgress.getState();
+    if (st.subjects[id] && !st.removed[id]) st.setPrepError(id, e instanceof Error ? e.message : String(e));
     return;
   } finally {
     inFlight.delete(id);
