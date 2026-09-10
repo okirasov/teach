@@ -59,6 +59,8 @@ export interface Lesson {
   name: string;
   level: string;
   lessonTitle?: string;
+  /** Стартовая диагностика: проверки в ней — точка отсчёта, а не ошибки. */
+  diagnostic?: boolean;
   steps: LessonStep[];
 }
 

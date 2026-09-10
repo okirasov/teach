@@ -46,7 +46,7 @@ export const ru = {
   micIdle: 'Или ответьте голосом — транскрипт появится в поле', micRec: 'Слушаю… нажмите ещё раз, чтобы закончить',
   toPractice: 'К практике', answer: 'Ответить', next: 'Дальше', toRecap: 'К разбору', done: 'Готово',
   setupNext: 'Дальше', setupBuild: 'Собрать план',
-  newSubjChip: 'НОВЫЙ ПРЕДМЕТ', recapChip: 'РАЗБОР', toReviews: 'УЙДЁТ В ПОВТОРЫ',
+  newSubjChip: 'НОВЫЙ ПРЕДМЕТ', recapChip: 'РАЗБОР', toReviews: 'УЙДЁТ В ПОВТОРЫ', baselineKicker: 'СТАРТ', baselineNote: 'Этому ещё не учили — проверяем стартовую границу. Ошибка здесь не ошибка.', baselineRecap: 'ТОЧКА ОТСЧЁТА',
   recapFoot: 'Записи станут карточками в очереди — интервал вырастет после каждого верного ответа.',
   cleanSession: 'Чистая сессия', toFix: 'Есть что закрепить', firstTry: (a: number, b: number) => a + ' из ' + b + ' с первой попытки',
   refChip: 'СПРАВОЧНИК', reviewName: 'Повторы',

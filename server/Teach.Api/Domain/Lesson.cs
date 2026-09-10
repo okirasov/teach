@@ -8,6 +8,8 @@ public sealed class Lesson
     public required string Name { get; set; }
     public required string Level { get; set; }
     public string? LessonTitle { get; set; }
+    /// <summary>Стартовая диагностика: проверки в ней клиент показывает как точку отсчёта, не как ошибки.</summary>
+    public bool Diagnostic { get; set; }
     public required List<LessonStep> Steps { get; set; }
 }
 

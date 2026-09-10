@@ -230,6 +230,7 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
                 // Строка уровня — от сервера: модель путает этап с номером урока.
                 lesson.Level = number == 1 ? "старт" : $"этап {stage.N} · {s.Focus}";
                 if (lesson.Steps[0] is ExplainStep ex) ex.Source = SourceLine.Normalize(ex.Source);
+                lesson.Diagnostic = number == 1;
                 return (lesson, null);
             }
             lastError = string.Join("; ", errors);

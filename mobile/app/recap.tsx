@@ -5,6 +5,7 @@ import { previewDays } from '@/domain/fsrs';
 import { recapRecords } from '@/features/session/engine';
 import { useT } from '@/i18n';
 import { content } from '@/content';
+import { isBaselineCheck } from '@/features/session/baseline';
 import { prepareNextLesson } from '@/features/subjects/prepare';
 import { CUSTOM_ID, REVIEW_ID, useProgress } from '@/store/progress';
 import { useReviews } from '@/store/reviews';
@@ -71,10 +72,12 @@ export default function RecapScreen() {
             const days = previewDays(card?.fsrs ?? null, r.ok, now);
             const source = card?.source || lessonSource;
             const sent = !!doubts[i];
+            // В диагностике проверка без подготовки — точка отсчёта, а не ошибка; в повторы уходит так же.
+            const baseline = isBaselineCheck(s.lesson, s.lesson.steps[r.stepIndex]);
             return (
               <Card key={i} style={{ paddingVertical: 14, paddingHorizontal: 16 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                  <Txt t="kickerSm" color="amber">{t.toReviews}</Txt>
+                  <Txt t="kickerSm" color={baseline ? 'sandInk' : 'amber'}>{baseline ? t.baselineRecap : t.toReviews}</Txt>
                   <Txt t="monoMeta" color="amber" numberOfLines={1}>{t.dInDays(days)}</Txt>
                 </View>
                 <Txt t="item" style={{ marginTop: 8, lineHeight: 20 }}>{r.title}</Txt>

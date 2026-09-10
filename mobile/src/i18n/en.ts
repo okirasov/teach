@@ -45,7 +45,7 @@ export const en: Dict = {
   micIdle: 'Or answer by voice — the transcript lands in the field', micRec: 'Listening… tap again to finish',
   toPractice: 'To practice', answer: 'Answer', next: 'Next', toRecap: 'To recap', done: 'Done',
   setupNext: 'Next', setupBuild: 'Build plan',
-  newSubjChip: 'NEW SUBJECT', recapChip: 'RECAP', toReviews: 'GOES TO REVIEWS',
+  newSubjChip: 'NEW SUBJECT', recapChip: 'RECAP', toReviews: 'GOES TO REVIEWS', baselineKicker: 'BASELINE', baselineNote: 'Not taught yet — we are finding your starting line. A miss here is not a mistake.', baselineRecap: 'STARTING POINT',
   recapFoot: 'Records become queue cards — the interval grows after every correct answer.',
   cleanSession: 'Clean session', toFix: 'Things to reinforce', firstTry: (a, b) => a + ' of ' + b + ' on first try',
   refChip: 'REFERENCE', reviewName: 'Reviews',

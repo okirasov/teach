@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 
+import { isBaselineCheck } from '@/features/session/baseline';
 import { canProceed, critHits, currentStep, evaluate, primaryAction } from '@/features/session/engine';
 import { ChoiceView, ExplainView, FeedbackCard, InputView, OrderView } from '@/features/session/StepViews';
 import { useVoiceInput } from '@/features/session/useVoiceInput';
@@ -105,6 +106,12 @@ export default function SessionScreen() {
           style={{ marginHorizontal: -4 }}
           contentContainerStyle={{ paddingHorizontal: 4, paddingBottom: 8 }}
         >
+          {isBaselineCheck(lesson, step) ? (
+            <View style={{ marginTop: 20 }}>
+              <Txt t="kicker" color="amber" style={{ letterSpacing: 0.84 }}>{t.baselineKicker}</Txt>
+              <Txt t="meta" color="mut" style={{ marginTop: 4 }}>{t.baselineNote}</Txt>
+            </View>
+          ) : null}
           {step.type === 'explain' ? <ExplainView step={step} /> : null}
           {step.type === 'choice' ? <ChoiceView step={step} sel={s.sel} checked={s.checked} onSelect={select} /> : null}
           {step.type === 'order' ? <OrderView step={step} ordSel={s.ordSel} checked={s.checked} onToggle={toggleOrder} /> : null}
