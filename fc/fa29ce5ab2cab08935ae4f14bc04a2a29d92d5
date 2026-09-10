@@ -1,0 +1,51 @@
+mobile/README.md
+  s_a2145daee18e40::t_a5a61203f83a41 75
+mobile/src/db/DbGate.tsx
+  s_a2145daee18e40::t_8ac22f7c6b55d1 45
+mobile/src/features/subjects/__tests__/prepare.test.ts
+  s_a2145daee18e40::t_7e958f1abab7b3 3,25-26,36-37,39-40,91
+mobile/src/features/today/useTodaySubjects.ts
+  s_a2145daee18e40::t_dc49a89d64bef6 16-17,23,41
+mobile/src/store/__tests__/progress.test.ts
+  s_a2145daee18e40::t_77075d935762a6 44-47,50,54,56-57,60-61,80-92,101,103-106,109-113,115,117-124
+mobile/src/store/progress.ts
+  s_a2145daee18e40::t_ebcdcb375b1c69 28-30,43-51,71-77,87-89,116-117,122-124,126,134,138-139,146-151,165-166,181-182,214-218,252,258-259,262-263,265-267
+server/Teach.Api.Tests/ApiTests.cs
+  s_a2145daee18e40::t_499eae57b90bb4 38-118
+server/Teach.Api/Auth/AppleTokenVerifier.cs
+  s_a2145daee18e40::t_125f8643657557 1-88
+server/Teach.Api/Auth/Caller.cs
+  s_a2145daee18e40::t_0c4c349df25cd1 1-16
+server/Teach.Api/Auth/TokenStore.cs
+  s_a2145daee18e40::t_92453e24b34d9e 1-67
+server/Teach.Api/Contracts/Dtos.cs
+  s_a2145daee18e40::t_b98dc38ce42492 70-71
+server/Teach.Api/Data/SchemaUpgrader.cs
+  s_a2145daee18e40::t_567ca261043fb0 26-27,38-44
+server/Teach.Api/Data/TeachDb.cs
+  s_a2145daee18e40::t_5c6aa1228e2215 10-11,94,99-101,110-125
+server/Teach.Api/Endpoints/AuthEndpoints.cs
+  s_a2145daee18e40::t_ceaeee5269a04f 1-58
+server/Teach.Api/Endpoints/ContentEndpoints.cs
+  s_a2145daee18e40::t_8fa6ed93210641 3,41,46,59,62,78,82-83,133,136,150-158,161-163
+server/Teach.Api/Program.cs
+  s_a2145daee18e40::t_6b21681bbecbd9 2,34-37,76-78,85-92,103
+server/Teach.Api/Teach.Api.csproj
+  s_a2145daee18e40::t_1e99cffcd01872 13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "fcfa29ce5ab2cab08935ae4f14bc04a2a29d92d5",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
