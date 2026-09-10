@@ -1,0 +1,47 @@
+.claude/launch.json
+  s_a2145daee18e40::t_cf50931acfafd6 7-23
+mobile/README.md
+  s_a2145daee18e40::t_16f4eaa63c1cd5 77-78
+mobile/app/session/[id].tsx
+  s_a2145daee18e40::t_fa9096a1978519 6-7,58-59,104,145
+mobile/app/subject/[id].tsx
+  s_a2145daee18e40::t_78192cd6e52129 73-78
+mobile/package-lock.json
+  s_a2145daee18e40::t_d784390c9bff9c 26,5186-5194
+mobile/package.json
+  s_a2145daee18e40::t_bb1846f595b4bb 31
+mobile/src/domain/types.ts
+  s_a2145daee18e40::t_485cc192197d01 122-123
+mobile/src/features/session/StepViews.tsx
+  s_a2145daee18e40::t_fdf9cbd146236b 1-3,5-15,18-25,31-44,46-48,50-57,59-88,91-111,115-120,129-136,148,159,165-167,169-171,173-176,179,181,183-220,237,243-245,253-257,259-266,269,271,273-276,278-287,290-318,336,351-363,373,379-386,389,391-412,415-436,441-443,448-455,459-466,469-477,480-485
+mobile/src/features/session/speaker.tsx
+  s_a2145daee18e40::t_a19d48dae00808 1-58
+mobile/src/i18n/en.ts
+  s_a2145daee18e40::t_2da8b491cdb0d1 26
+mobile/src/i18n/ru.ts
+  s_a2145daee18e40::t_9aa8af2c94873b 27
+mobile/src/ui/SpeakButton.tsx
+  s_a2145daee18e40::t_d5ef77d06ea75e 1-35
+mobile/src/ui/index.ts
+  s_a2145daee18e40::t_2dc0feba8d0e20 18
+mobile/src/voice/__tests__/tts.test.ts
+  s_a2145daee18e40::t_34959302b53017 1-31
+mobile/src/voice/tts.ts
+  s_a2145daee18e40::t_8d2fc3aa25a28b 1-41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "bf05235230d9c877a61fc9ee12be9afc5074a93c",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
