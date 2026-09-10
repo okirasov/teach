@@ -4,8 +4,6 @@ import { memoryKv, type KvRepo } from './kv';
 import { migrate } from './migrations';
 import { memoryRefsRepo, type RefsRepo } from './refsRepo';
 import { memoryReviewsRepo, type ReviewsRepo } from './reviewsRepo';
-import { prototypeRefs } from './seedRefs';
-import { prototypeQueue } from './seedCards';
 
 export interface Repos {
   reviews: ReviewsRepo;
@@ -30,7 +28,7 @@ export async function openRepos(accountId: string, now = new Date()): Promise<Re
     const key = databaseName(accountId);
     let repos = memoryCache.get(key);
     if (!repos) {
-      repos = { reviews: memoryReviewsRepo(prototypeQueue(now)), refs: memoryRefsRepo(prototypeRefs), kv: memoryKv() };
+      repos = { reviews: memoryReviewsRepo([]), refs: memoryRefsRepo([]), kv: memoryKv() };
       memoryCache.set(key, repos);
     }
     return { ...repos, close: async () => {} };
@@ -42,9 +40,7 @@ export async function openRepos(accountId: string, now = new Date()): Promise<Re
   const db = await SQLite.openDatabaseAsync(databaseName(accountId));
   await migrate(db);
   const reviews = sqliteReviewsRepo(db);
-  if ((await reviews.count()) === 0) await reviews.upsert(prototypeQueue(now));
   const refs = sqliteRefsRepo(db);
-  if ((await refs.count()) === 0) await refs.upsert(prototypeRefs);
   if (__DEV__) console.log(`[db] ${databaseName(accountId)} · ${await reviews.count()} cards · ${await refs.count()} refs`);
   return { reviews, refs, kv: sqliteKv(db), close: () => db.closeAsync() };
 }

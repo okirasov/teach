@@ -23,6 +23,7 @@ export default function RecapScreen() {
   const doubt = useSession((st) => st.doubt);
   const end = useSession((st) => st.end);
   const markDone = useProgress((p) => p.markDone);
+  const clearSession = useProgress((p) => p.clearSession);
   const cards = useReviews((st) => st.cards);
   const addRecords = useReviews((st) => st.addRecords);
   const applyResults = useReviews((st) => st.applyResults);
@@ -38,6 +39,7 @@ export default function RecapScreen() {
   const now = new Date();
 
   const leave = () => {
+    clearSession(s.subjectId);
     end();
     router.dismissTo('/(tabs)/today');
   };

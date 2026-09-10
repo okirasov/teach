@@ -67,6 +67,13 @@ const migrations: string[] = [
   );
   CREATE INDEX IF NOT EXISTS idx_ref_rows_ref ON ref_rows(ref_id);
   `,
+  // v3 — демо-предметы прототипа (en, qa, hist) убраны из приложения: их карточки и справочники удаляются
+  `
+  DELETE FROM review_cards WHERE subject_id IN ('en', 'qa', 'hist');
+  DELETE FROM review_log WHERE card_id NOT IN (SELECT id FROM review_cards);
+  DELETE FROM ref_rows WHERE ref_id IN (SELECT id FROM refs WHERE subject_id IN ('en', 'qa', 'hist'));
+  DELETE FROM refs WHERE subject_id IN ('en', 'qa', 'hist');
+  `,
 ];
 
 export async function migrate(db: SQLiteDatabase): Promise<void> {

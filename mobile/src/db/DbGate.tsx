@@ -36,9 +36,9 @@ export function DbGate({ children }: { children: React.ReactNode }) {
         repos = r;
         await attach(r.reviews);
         await attachRefs(r.refs);
-        unsubs.push(await persistSlice(useSettings, r.kv, 'settings', ['lang', 'theme', 'reminder', 'weekendOff', 'cap', 'mode']));
+        unsubs.push(await persistSlice(useSettings, r.kv, 'settings', ['lang', 'theme', 'reminder', 'weekendOff', 'cap', 'mode', 'introSeen']));
         unsubs.push(
-          await persistSlice(useProgress, r.kv, 'progress', ['done', 'removed', 'added', 'custom', 'customLesson', 'prepStage', 'missions', 'cfg', 'reviewLog']),
+          await persistSlice(useProgress, r.kv, 'progress', ['done', 'removed', 'added', 'custom', 'customLesson', 'prepStage', 'missions', 'cfg', 'reviewLog', 'sessions']),
         );
         if (!cancelled) setReadyFor(accountId);
       })

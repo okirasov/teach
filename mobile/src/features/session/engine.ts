@@ -37,6 +37,36 @@ export function startSession(subjectId: string, lesson: Lesson, cardIds?: string
   return { subjectId, lesson, step: 0, view: 0, answers: [], sel: null, ordSel: [], input: '', checked: false, results: [], cardIds };
 }
 
+/**
+ * Снимок сессии для возобновления после крестика: всё, кроме самого урока.
+ * key — отпечаток урока: возобновляем только тот же урок (и тот же набор карточек в повторах).
+ */
+export interface SavedSession {
+  key: string;
+  step: number;
+  answers: StepAnswer[];
+  sel: number | null;
+  ordSel: number[];
+  input: string;
+  checked: boolean;
+  results: boolean[];
+  cardIds?: string[];
+}
+
+export function sessionKey(lesson: Lesson, cardIds?: string[]): string {
+  return `${lesson.lessonTitle ?? lesson.name}|${lesson.steps.length}|${cardIds?.join(',') ?? ''}`;
+}
+
+export function snapshot(s: SessionState): SavedSession {
+  return { key: sessionKey(s.lesson, s.cardIds), step: s.step, answers: s.answers, sel: s.sel, ordSel: s.ordSel, input: s.input, checked: s.checked, results: s.results, cardIds: s.cardIds };
+}
+
+/** Продолжить сохранённую сессию, если она от этого же урока; иначе null. Показ начинается с активного шага. */
+export function restoreSession(subjectId: string, lesson: Lesson, saved: SavedSession | undefined, cardIds?: string[]): SessionState | null {
+  if (!saved || saved.key !== sessionKey(lesson, cardIds) || saved.step >= lesson.steps.length) return null;
+  return { subjectId, lesson, step: saved.step, view: saved.step, answers: saved.answers, sel: saved.sel, ordSel: saved.ordSel, input: saved.input, checked: saved.checked, results: saved.results, cardIds };
+}
+
 export function currentStep(s: SessionState): LessonStep {
   return s.lesson.steps[s.step];
 }

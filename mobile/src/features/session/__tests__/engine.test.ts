@@ -11,6 +11,8 @@ import {
   primary,
   primaryAction,
   recapRecords,
+  restoreSession,
+  snapshot,
   select,
   setInput,
   startSession,
@@ -157,5 +159,28 @@ describe('session engine · browsing past steps', () => {
     s = primary(s).state; // answered, last step
     expect(goForward(s).step).toBe(2); // в разбор только кнопкой
     expect(primary(s).finished).toBe(true);
+  });
+});
+
+describe('session engine · resume after closing', () => {
+  it('a snapshot restores the same lesson at the active step with frozen answers, and rejects another lesson', () => {
+    const lesson = seedLessons.en;
+    let s = startSession('en', lesson);
+    s = primary(s).state;
+    s = select(s, 1);
+    s = primary(s).state;
+    s = primary(s).state; // active: input step
+    s = setInput(s, 'ha');
+    const saved = snapshot(s);
+    const r = restoreSession('en', lesson, saved)!;
+    expect(r.step).toBe(2);
+    expect(r.view).toBe(2);
+    expect(r.input).toBe('ha');
+    expect(answerAt(r, 1)).toEqual({ sel: 1, ordSel: [], input: '', checked: true });
+    expect(r.results).toEqual([true]);
+    expect(restoreSession('hist', seedLessons.hist, saved)).toBeNull();
+    expect(restoreSession('en', lesson, undefined)).toBeNull();
+    // повторы: другой набор карточек — заново
+    expect(restoreSession('review', lesson, { ...saved, cardIds: ['a'] }, ['b'])).toBeNull();
   });
 });

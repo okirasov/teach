@@ -69,4 +69,13 @@ export const en: Dict = {
   loadingFocus: 'Picking focus options…', loadingSources: 'Finding sources… this can take a minute', loadingPlan: 'Building the plan…', loadFailed: 'Could not load',
   planLater: 'refined after the first sessions', missionPh: 'mission', topicPh: 'this topic', focusPh: 'topic',
   langRu: 'Русский', langEn: 'English',
+  introSkip: 'Skip', introNext: 'Next', introStart: 'Create your first subject', introGo: 'Start',
+  introSlides: [
+    { n: '01', title: 'A tutor for any topic', text: 'Say what you want to learn and why. Teach finds sources, builds a plan and keeps composing short lessons for your goal.' },
+    { n: '02', title: 'One lesson, one win', text: 'Explanation, then practice without hints, then a recap. Mistakes are not punished: the next lesson is built from them.' },
+    { n: '03', title: 'Reviews and references', text: 'Whatever turned out non-obvious comes back as review cards on the right day. The gist of lessons settles into references, available offline.' },
+    { n: '04', title: 'By voice and by ear', text: 'Answer by voice, listen to examples in the subject language. Typing is always available.' },
+  ],
+  emptyTodayTitle: 'No subjects yet', emptyTodayText: 'Create the first one: topic, why it matters, sources and a plan — lessons will follow on their own.',
+  emptySubjectsText: 'No subjects yet. Tap “New subject” below.', emptyRefsText: 'References appear with the first lesson of a subject.',
 };

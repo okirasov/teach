@@ -5,6 +5,8 @@ import {
   goBack as engineGoBack,
   goForward as engineGoForward,
   primary as enginePrimary,
+  restoreSession,
+  type SavedSession,
   select as engineSelect,
   setInput as engineSetInput,
   startSession,
@@ -18,7 +20,8 @@ export interface SessionStore {
   rec: boolean;
   /** «Сомневаюсь» по индексу записи в разборе — отправлено на проверку. */
   doubts: Record<number, boolean>;
-  start: (subjectId: string, lesson: Lesson, cardIds?: string[]) => void;
+  /** saved — снимок прерванной сессии этого предмета; подходит только к тому же уроку. */
+  start: (subjectId: string, lesson: Lesson, cardIds?: string[], saved?: SavedSession) => void;
   select: (i: number) => void;
   toggleOrder: (i: number) => void;
   setInput: (v: string) => void;
@@ -36,7 +39,8 @@ export const useSession = create<SessionStore>((set, get) => ({
   s: null,
   rec: false,
   doubts: {},
-  start: (subjectId, lesson, cardIds) => set({ s: startSession(subjectId, lesson, cardIds), rec: false, doubts: {} }),
+  start: (subjectId, lesson, cardIds, saved) =>
+    set({ s: restoreSession(subjectId, lesson, saved, cardIds) ?? startSession(subjectId, lesson, cardIds), rec: false, doubts: {} }),
   select: (i) => set((st) => (st.s ? { s: engineSelect(st.s, i) } : st)),
   toggleOrder: (i) => set((st) => (st.s ? { s: engineToggleOrder(st.s, i) } : st)),
   setInput: (v) => set((st) => (st.s ? { s: engineSetInput(st.s, v) } : st)),

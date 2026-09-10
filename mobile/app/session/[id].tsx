@@ -19,6 +19,7 @@ import {
   evaluateStep,
   isViewingPast,
   primaryAction,
+  snapshot,
   viewedStep,
 } from "@/features/session/engine";
 import {
@@ -64,6 +65,8 @@ export default function SessionScreen() {
     [custom, customLesson, id, t, plan],
   );
   const cardIds = id === REVIEW_ID ? plan.cardIds : undefined;
+  const saved = useProgress((st) => st.sessions[id]);
+  const saveSession = useProgress((st) => st.saveSession);
   const uiLang = useSettings((s) => s.lang);
   const mode = useSettings((s) => s.mode);
 
@@ -83,8 +86,8 @@ export default function SessionScreen() {
 
   useEffect(() => {
     if (lesson && lesson.steps.length > 0 && (!s || s.subjectId !== id))
-      start(id, lesson, cardIds);
-  }, [id, lesson, cardIds, s, start]);
+      start(id, lesson, cardIds, saved);
+  }, [id, lesson, cardIds, s, start, saved]);
   // Пока идёт урок N, сервер заготавливает N+1 — после разбора он отдаётся без ожидания.
   useEffect(() => {
     if (id === CUSTOM_ID) prefetchNextLesson(content);
@@ -136,6 +139,8 @@ export default function SessionScreen() {
   };
   const onExit = () => {
     voice.stop();
+    // Крестик не теряет прогресс: снимок сессии лежит в предмете до разбора или до нового урока.
+    saveSession(id, snapshot(s));
     end();
     router.back();
   };

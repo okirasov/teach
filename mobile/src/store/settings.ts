@@ -20,6 +20,9 @@ export interface SettingsState {
   weekendOff: boolean;
   cap: DailyCap;
   mode: RecordingMode;
+  /** Интро показано один раз после первого входа. */
+  introSeen: boolean;
+  setIntroSeen: (seen: boolean) => void;
   setLang: (lang: Lang) => void;
   setTheme: (theme: ThemeName) => void;
   setReminder: (slot: ReminderSlot) => void;
@@ -41,4 +44,6 @@ export const useSettings = create<SettingsState>((set) => ({
   setWeekendOff: (weekendOff) => set({ weekendOff }),
   setCap: (cap) => set({ cap }),
   setMode: (mode) => set({ mode }),
+  introSeen: false,
+  setIntroSeen: (introSeen) => set({ introSeen }),
 }));

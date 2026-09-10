@@ -106,6 +106,7 @@ export default function SubjectsScreen() {
       <TabTitle title={t.mission} note={t.missionNote} />
       <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" style={{ marginHorizontal: -4 }} contentContainerStyle={{ paddingHorizontal: 4, paddingBottom: 8 }}>
         <View style={{ gap: 10, marginTop: 18 }}>
+          {ids.length === 0 ? <Txt t="row" color="mut" style={{ fontSize: 14, lineHeight: 21 }}>{t.emptySubjectsText}</Txt> : null}
           {ids.map((id) => <MissionCard key={id} id={id} />)}
         </View>
       </ScrollView>

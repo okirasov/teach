@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 import { detectLanguage, type LanguageInfo } from '@/domain/languages';
 import { customLesson, reviewLesson, seedLessons, seedMissions } from '@/domain/seed';
+import type { SavedSession } from '@/features/session/engine';
 import type { CustomSubject, Lesson, LessonRecord, Mission, SubjectConfig, SubjectId } from '@/domain/types';
 import { defaultSubjectConfig } from '@/domain/types';
 
@@ -17,6 +18,8 @@ export const PREP_STAGES = 3;
  */
 export interface ProgressState {
   done: Record<SubjectId, boolean>;
+  /** Прерванные крестиком сессии по предмету: возобновляются при следующем открытии того же урока. */
+  sessions: Record<SubjectId, SavedSession>;
   removed: Record<SubjectId, boolean>;
   /** Прирост очереди повторов за пройденные сессии. */
   added: number;
@@ -27,6 +30,8 @@ export interface ProgressState {
   reviewLog: { t: string; s: string }[];
 
   markDone: (id: SubjectId, records: { t: string; s: string }[]) => void;
+  saveSession: (id: SubjectId, saved: SavedSession) => void;
+  clearSession: (id: SubjectId) => void;
   removeSubject: (id: SubjectId) => void;
   createCustom: (c: Omit<CustomSubject, 'ready'>) => void;
   /** Этап фоновой подготовки первого урока. */
@@ -44,6 +49,7 @@ export interface ProgressState {
 
 export const useProgress = create<ProgressState>((set, get) => ({
   done: {},
+  sessions: {},
   removed: {},
   added: 0,
   custom: null,
@@ -54,6 +60,14 @@ export const useProgress = create<ProgressState>((set, get) => ({
   cfg: {},
   reviewLog: [],
 
+  saveSession: (id, saved) => set((s) => ({ sessions: { ...s.sessions, [id]: saved } })),
+  clearSession: (id) =>
+    set((s) => {
+      if (!(id in s.sessions)) return s;
+      const sessions = { ...s.sessions };
+      delete sessions[id];
+      return { sessions };
+    }),
   markDone: (id, records) =>
     set((s) => ({ done: { ...s.done, [id]: true }, added: s.added + records.length, reviewLog: [...s.reviewLog, ...records] })),
   removeSubject: (id) =>
@@ -85,6 +99,7 @@ export const useProgress = create<ProgressState>((set, get) => ({
             customLesson: lesson,
             prepStage: PREP_STAGES,
             prepError: null,
+            sessions: (({ [CUSTOM_ID]: _dropped, ...rest }) => rest)(s.sessions),
             // Новый урок — предмет снова «не пройден сегодня».
             done: { ...s.done, [CUSTOM_ID]: false },
           }
@@ -104,10 +119,9 @@ export const useProgress = create<ProgressState>((set, get) => ({
 
 /** Селекторы. */
 
+/** Предметы на экранах: только пользовательский. Демо-уроки прототипа остались в `seed.ts` для тестов и повторов. */
 export function activeSubjectIds(s: Pick<ProgressState, 'removed' | 'custom'>): SubjectId[] {
-  const ids = Object.keys(seedLessons).filter((id) => !s.removed[id]);
-  if (s.custom && !s.removed[CUSTOM_ID]) ids.push(CUSTOM_ID);
-  return ids;
+  return s.custom && !s.removed[CUSTOM_ID] ? [CUSTOM_ID] : [];
 }
 
 /** Язык предмета: у пользовательского — сохранённый при создании, у сидовых — по имени. */

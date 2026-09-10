@@ -23,6 +23,16 @@
       ],
       "cwd": "mobile",
       "port": 8081
+    },
+    {
+      "name": "expo-web-local-8082",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "CI=1 EXPO_PUBLIC_AUTH_LOCAL=1 EXPO_PUBLIC_VOICE_SIM=1 npx expo start --web --port 8082 --clear"
+      ],
+      "cwd": "mobile",
+      "port": 8082
     }
   ]
 }

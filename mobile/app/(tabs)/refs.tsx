@@ -47,6 +47,7 @@ export default function RefsScreen() {
     <Screen noBottom>
       <AppHeader userName={name} onAvatar={() => router.push('/profile')} />
       <TabTitle title={t.refs} note={t.refsNote} />
+      {subjects.length === 0 ? <Txt t="row" color="mut" style={{ marginTop: 18, fontSize: 14, lineHeight: 21 }}>{t.emptyRefsText}</Txt> : null}
       <View style={{ marginTop: 14, marginHorizontal: -space.screenX }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: space.screenX, gap: 8 }}>
           {subjects.map((s) => {
