@@ -51,4 +51,12 @@ public class LessonValidatorTests
         l.Steps.RemoveRange(1, 2);
         Assert.Contains(LessonValidator.Validate(l), e => e == "no practice step");
     }
+
+    [Fact]
+    public void SourceLineDropsHighTrustAndKeepsWarnings()
+    {
+        Assert.Equal("Accademia della Crusca, «Gli allocutivi di cortesia»", SourceLine.Normalize("Accademia della Crusca, «Gli allocutivi di cortesia» · доверие высокое"));
+        Assert.Equal("Форум · доверие низкое", SourceLine.Normalize("Форум · доверие низкое"));
+        Assert.Equal("Учебник, гл. 2", SourceLine.Normalize("Учебник, гл. 2"));
+    }
 }

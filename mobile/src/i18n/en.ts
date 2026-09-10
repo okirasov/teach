@@ -63,7 +63,7 @@ export const en: Dict = {
   setupMissionNote: 'The mission is the anchor: every lesson says why it matters by pointing at it. You can change it — deliberately, with the change recorded.',
   setupSourcesTitle: 'Sources first, then lessons',
   setupSourcesNote: (focus) => 'The model is not a source of truth: lessons are built on materials about “' + focus + '”, every claim gets a reference. Tap to exclude.',
-  srcExcluded: 'excluded', trustHigh: 'high', trustMid: 'medium', trustLow: 'low',
+  srcExcluded: 'excluded', trustHigh: 'high', trustMid: 'medium', trustLow: 'low', trustWarn: (level: string) => `${level} trust`,
   setupPlanTitle: 'Study plan',
   setupPlanNote: 'The first lesson is built in the background and will be ready when you return — no spinner. The plan is rebuilt after every session from your learning records.',
   loadingFocus: 'Picking focus options…', loadingSources: 'Finding sources… this can take a minute', loadingPlan: 'Building the plan…', loadFailed: 'Could not load',

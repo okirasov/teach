@@ -1,3 +1,4 @@
+import { splitSource } from '@/domain/source';
 import React from 'react';
 import { Pressable, TextInput, View } from 'react-native';
 
@@ -10,6 +11,7 @@ import { Txt } from '@/ui';
 export function ExplainView({ step, showSources = true }: { step: ExplainStep; showSources?: boolean }) {
   const t = useT();
   const { c, radius } = useTheme();
+  const src = splitSource(step.source);
   return (
     <View>
       <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 20 }}>
@@ -29,7 +31,10 @@ export function ExplainView({ step, showSources = true }: { step: ExplainStep; s
           <View style={{ width: 18, height: 18, borderRadius: 5, backgroundColor: c.sand, alignItems: 'center', justifyContent: 'center' }}>
             <Txt t="chipSm" color="sandInk">1</Txt>
           </View>
-          <Txt t="tiny" color="mut" style={{ flexShrink: 1 }}>{step.source}</Txt>
+          <Txt t="tiny" color="mut" style={{ flexShrink: 1 }}>
+            {src.text}
+            {src.warn ? <Txt t="tiny" color={src.warn === 'low' ? 'errInk' : 'amber'}>{` · ${t.trustWarn(src.warn === 'low' ? t.trustLow : t.trustMid)}`}</Txt> : null}
+          </Txt>
         </View>
       ) : null}
     </View>
