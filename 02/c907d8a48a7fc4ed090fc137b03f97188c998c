@@ -1,0 +1,39 @@
+docs/ai-content.md
+  s_a2145daee18e40::t_f42448ca748e2c 107-111
+mobile/app/recap.tsx
+  s_a2145daee18e40::t_be15707671d5cb 8,75-76,80
+mobile/app/session/[id].tsx
+  s_a2145daee18e40::t_0c97dff3a1d2b4 5,109-114
+mobile/src/domain/types.ts
+  s_a2145daee18e40::t_f3698b6414d600 62-63
+mobile/src/features/session/__tests__/baseline.test.ts
+  s_a2145daee18e40::t_e7ff24a70e99f6 1-18
+mobile/src/features/session/baseline.ts
+  s_a2145daee18e40::t_a8462e92bd2812 1-16
+mobile/src/i18n/en.ts
+  s_a2145daee18e40::t_8764374c2845c6 48
+mobile/src/i18n/ru.ts
+  s_a2145daee18e40::t_0f048849ab56f8 49
+server/Teach.Api.Tests/ApiTests.cs
+  s_a2145daee18e40::t_50a6ec3a1a7d03 142-143
+server/Teach.Api/Domain/Lesson.cs
+  s_a2145daee18e40::t_715dd003f80443 11-12
+server/Teach.Api/Jobs/LessonWorker.cs
+  s_a2145daee18e40::t_bf08c1011a1878 233
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "02c907d8a48a7fc4ed090fc137b03f97188c998c",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
