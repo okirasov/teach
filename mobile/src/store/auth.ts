@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 import { clearApiToken, contentUrl, exchangeAppleToken, hydrateApiToken } from '@/content';
+import { cancelReminders } from '@/features/reminders/notifications';
 import { autoLocalSignIn, localDevSession } from '@/features/auth/local';
 import { clearSession, loadSession, saveSession } from '@/features/auth/session';
 import type { Account, Session } from '@/features/auth/types';
@@ -40,6 +41,7 @@ export const useAuth = create<AuthState>((set) => ({
   signOut: async () => {
     await clearSession();
     await clearApiToken();
+    await cancelReminders();
     set({ status: 'signedOut', account: null });
   },
 }));

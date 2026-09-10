@@ -28,6 +28,7 @@ export const en: Dict = {
   accepted: 'applied', rejectedC: 'dismissed', minU: 'min', perDay: 'per day',
   themeT: 'Theme', lightL: 'Light', darkL: 'Dark',
   stRecords: 'records', stClosed: 'this month', stToday: 'today', stInterval: 'interval', stIntervalV: '9 d',
+  remPushTitle: 'Time to practise', remPushBody: 'Five minutes today keeps the reviews from piling up.',
   profileTitle: 'Profile', remG: 'Reminders', remTime: 'When', remMorning: 'Morning', remEvening: 'Evening', weekendOff: 'Quiet weekends',
   reviewsG: 'Reviews', capG: 'Daily cap', capOff: 'None', voiceGL: 'Voice', appG: 'App',
   capSum: (sum, cap) => (cap ? 'subject quotas: ' + sum + ' → cap ' + cap : 'subject quotas: ' + sum),

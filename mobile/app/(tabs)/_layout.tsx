@@ -1,6 +1,8 @@
 import { content } from '@/content';
+import { useReminders } from '@/features/reminders/useReminders';
 import { resumePrepare } from '@/features/subjects/prepare';
 import { useEffect } from 'react';
+import { AppState } from 'react-native';
 import { Redirect, Tabs } from 'expo-router';
 import { useSettings } from '@/store/settings';
 
@@ -10,9 +12,17 @@ import { TabBar } from '@/ui';
 /** 4 вкладки: Сегодня · Повторы · Справочники · Предметы. */
 export default function TabsLayout() {
   const introSeen = useSettings((s) => s.introSeen);
+  // Напоминания держим в согласии с настройками профиля.
+  useReminders();
   // Подготовка урока могла прерваться вместе с приложением — продолжаем ждать сервер.
+  // Возврат из фона тоже проверяем: пока приложение было свёрнуто, урок мог стать готов,
+  // а таймеры опроса в фоне не работают.
   useEffect(() => {
     void resumePrepare(content);
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') void resumePrepare(content);
+    });
+    return () => sub.remove();
   }, []);
 
   const t = useT();

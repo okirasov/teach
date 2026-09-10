@@ -29,6 +29,7 @@ export const ru = {
   accepted: 'учтено', rejectedC: 'отклонено', minU: 'мин', perDay: 'в день',
   themeT: 'Тема', lightL: 'Светлая', darkL: 'Тёмная',
   stRecords: 'записей', stClosed: 'за месяц', stToday: 'сегодня', stInterval: 'интервал', stIntervalV: '9 дн',
+  remPushTitle: 'Пора позаниматься', remPushBody: 'Пять минут сегодня — и повторы не накопятся.',
   profileTitle: 'Профиль', remG: 'Напоминания', remTime: 'Когда', remMorning: 'Утро', remEvening: 'Вечер', weekendOff: 'Тихие выходные',
   reviewsG: 'Повторы', capG: 'Лимит в день', capOff: 'Нет', voiceGL: 'Голос', appG: 'Приложение',
   capSum: (sum: number, cap: number) => (cap ? 'нормы предметов: ' + sum + ' → потолок ' + cap : 'нормы предметов: ' + sum),
