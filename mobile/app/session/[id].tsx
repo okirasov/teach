@@ -4,6 +4,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 
 import { isBaselineCheck } from '@/features/session/baseline';
 import { SpeakerProvider, useStopSpeechOn } from '@/features/session/speaker';
+import { stepSubjectId } from '@/features/session/stepSubject';
 import { uiLanguageTag } from '@/domain/languages';
 import { ttsLangFor } from '@/voice/tts';
 import { canProceed, critHits, currentStep, evaluate, primaryAction } from '@/features/session/engine';
@@ -15,6 +16,7 @@ import { useReviewPlan } from '@/features/reviews/useReviewPlan';
 import { content } from '@/content';
 import { prefetchNextLesson } from '@/features/subjects/prepare';
 import { CUSTOM_ID, getLesson, REVIEW_ID, subjectConfig, subjectLanguage, useProgress } from '@/store/progress';
+import { useReviews } from '@/store/reviews';
 import { useSession } from '@/store/session';
 import { useSettings } from '@/store/settings';
 import { Button, MicButton, Screen, SessionHeader, Txt } from '@/ui';
@@ -33,11 +35,14 @@ export default function SessionScreen() {
     [custom, customLesson, id, t, plan],
   );
   const cardIds = id === REVIEW_ID ? plan.cardIds : undefined;
-  const cfg = useProgress(useShallow((s) => subjectConfig(s, id)));
   const uiLang = useSettings((s) => s.lang);
   const mode = useSettings((s) => s.mode);
 
   const s = useSession((st) => st.s);
+  // В повторах язык и настройки голоса — от предмета карточки текущего шага, а не от «Повторов».
+  const reviewCards = useReviews((st) => st.cards);
+  const subjId = stepSubjectId(s, reviewCards, id);
+  const cfg = useProgress(useShallow((st) => subjectConfig(st, subjId)));
   const start = useSession((st) => st.start);
   const select = useSession((st) => st.select);
   const toggleOrder = useSession((st) => st.toggleOrder);
@@ -55,8 +60,8 @@ export default function SessionScreen() {
 
   const step = s ? currentStep(s) : null;
   const hint = step && step.type !== 'explain' ? step.voice : undefined;
-  const voice = useVoiceInput(voiceLangFor(subjectLanguage({ custom }, id), cfg, uiLang), hint, mode === 'hands');
-  const ttsLang = ttsLangFor(subjectLanguage({ custom }, id), cfg);
+  const voice = useVoiceInput(voiceLangFor(subjectLanguage({ custom }, subjId), cfg, uiLang), hint, mode === 'hands');
+  const ttsLang = ttsLangFor(subjectLanguage({ custom }, subjId), cfg);
   useStopSpeechOn(s?.step);
 
   if (!s || !step || !lesson) return <Screen />;
