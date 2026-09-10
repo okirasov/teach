@@ -35,6 +35,8 @@ fly deploy && curl https://teach-tutor-api.fly.dev/health
 
 Клиент собирается с `EXPO_PUBLIC_CONTENT_URL=https://teach-tutor-api.fly.dev` и `EXPO_PUBLIC_CONTENT_TOKEN=<тот же токен>`.
 
+Документация отдаётся сервером без токена: техническая страница `/docs/` (`wwwroot/docs/index.html`), функциональные требования `/docs/frd.html`, интерактивная справка API `/scalar` и описание `/openapi/v1.json` (Microsoft.AspNetCore.OpenApi + Scalar; сводки маршрутов заданы через `WithSummary`/`WithTags` в `ContentEndpoints`). Корень `/` перенаправляет на `/docs/`.
+
 Деплой безопасен посреди генерации: по SIGINT воркер дорабатывает текущий урок при живом сервере
 (замер на Fly: 22 с дожидания с ответами 200, затем ~10 с на перезапуск машины), незавершённые
 предметы после старта ставятся в очередь заново. Логи: `fly logs --app teach-tutor-api`; копия базы

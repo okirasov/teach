@@ -165,6 +165,8 @@ thinking = { type: "adaptive" }, output_config = { effort: "high", format: { jso
 
 ## HTTP-контракт для клиента
 
+Живое описание: <https://teach-tutor-api.fly.dev/scalar> (Scalar) и `/openapi/v1.json`; техническая документация: <https://teach-tutor-api.fly.dev/docs/>.
+
 ```
 POST /subjects/focus            { topic }                          → FocusOption[]
 POST /subjects/title            { topic }                          → { title }   короткое имя ≤ 24 символов

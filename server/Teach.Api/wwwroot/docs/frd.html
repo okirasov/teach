@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Teach · Функциональные требования</title>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #FAF6EE; --card: #FFFFFF; --ink: #12281C; --ink2: #24332B; --mut: #4A5A50; --mut2: #8A9A8F;
+    --mint: #DCEEDF; --mintInk: #1C4634; --amber: #835A0E; --amberBg: #F5EAD2; --err: #B4552F; --errBg: #F5E3DB;
+    --sand: #EFE7D5; --sandInk: #6B6353; --line: rgba(28,70,52,.15); --lineSoft: rgba(28,70,52,.11); --sel: #EFF7F0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F1B15; --card: #17271D; --ink: #EDF3EA; --ink2: #C9D6CC; --mut: #8FA697; --mut2: #5E7065;
+      --mint: #1E3226; --mintInk: #9FD6B4; --amber: #DFA032; --amberBg: #3A2F14; --err: #D9764F; --errBg: #3A231B;
+      --sand: #2A281E; --sandInk: #B5A98E; --line: rgba(220,238,223,.15); --lineSoft: rgba(220,238,223,.1); --sel: #21332A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0F1B15; --card: #17271D; --ink: #EDF3EA; --ink2: #C9D6CC; --mut: #8FA697; --mut2: #5E7065;
+    --mint: #1E3226; --mintInk: #9FD6B4; --amber: #DFA032; --amberBg: #3A2F14; --err: #D9764F; --errBg: #3A231B;
+    --sand: #2A281E; --sandInk: #B5A98E; --line: rgba(220,238,223,.15); --lineSoft: rgba(220,238,223,.1); --sel: #21332A;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 15px/1.6 'Golos Text', system-ui, -apple-system, sans-serif; }
+  .mono { font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .wrap { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; max-width: 1080px; margin: 0 auto; padding: 40px 24px 80px; }
+  @media (max-width: 820px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; } nav.toc { position: static; } }
+  nav.toc { position: sticky; top: 24px; align-self: start; font-size: 13px; line-height: 1.5; }
+  nav.toc .kicker { margin-bottom: 10px; }
+  nav.toc a { display: block; color: var(--mut); text-decoration: none; padding: 4px 0; border-left: 2px solid transparent; padding-left: 10px; }
+  nav.toc a:hover, nav.toc a:focus-visible { color: var(--ink); border-left-color: var(--mintInk); outline: none; }
+  nav.toc a .n { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--mut2); margin-right: 6px; }
+  main { max-width: 72ch; }
+  .kicker { font: 500 10.5px/1 'IBM Plex Mono', monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--mut); }
+  .kicker.amber { color: var(--amber); }
+  header.doc h1 { font: 600 32px/1.15 'Golos Text', sans-serif; letter-spacing: -.4px; margin: 10px 0 12px; text-wrap: balance; }
+  header.doc p.lead { font-size: 16px; color: var(--ink2); margin: 0 0 18px; }
+  .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px 20px; padding: 14px 16px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; font-size: 13px; }
+  .meta div { display: flex; flex-direction: column; gap: 2px; }
+  .meta dt { font: 500 10.5px/1 'IBM Plex Mono', monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--mut); }
+  .meta dd { margin: 0; color: var(--ink); }
+  section { margin-top: 44px; }
+  section h2 { font: 600 23px/1.25 'Golos Text', sans-serif; letter-spacing: -.3px; margin: 6px 0 8px; text-wrap: balance; }
+  section h3 { font: 600 16px/1.35 'Golos Text', sans-serif; margin: 26px 0 8px; }
+  section > p { color: var(--ink2); margin: 0 0 12px; }
+  .note { background: var(--mint); border-radius: 14px; padding: 12px 16px; color: var(--ink); font-size: 14px; margin: 12px 0 0; }
+  .note.sand { background: var(--sand); color: var(--sandInk); }
+  table.req { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+  .tablewrap { overflow-x: auto; }
+  table.req th { text-align: left; font: 500 10.5px/1 'IBM Plex Mono', monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--mut); padding: 0 10px 8px 0; border-bottom: 1px solid var(--line); }
+  table.req td { vertical-align: top; padding: 10px 10px 10px 0; border-bottom: 1px solid var(--lineSoft); }
+  table.req td.id { font: 500 12px/1.5 'IBM Plex Mono', monospace; color: var(--mintInk); white-space: nowrap; width: 78px; font-variant-numeric: tabular-nums; }
+  table.req td.st { width: 96px; white-space: nowrap; }
+  table.req td.t b { font-weight: 600; }
+  table.req td.t .d { display: block; color: var(--mut); font-size: 13px; margin-top: 2px; }
+  .chip { display: inline-block; font: 500 10px/1 'IBM Plex Mono', monospace; letter-spacing: .06em; text-transform: uppercase; padding: 5px 8px; border-radius: 7px; white-space: nowrap; }
+  .chip.done { background: var(--mint); color: var(--mintInk); }
+  .chip.part { background: var(--amberBg); color: var(--amber); }
+  .chip.plan { background: var(--sand); color: var(--sandInk); }
+  .chip.risk { background: var(--errBg); color: var(--err); }
+  ul.plain { padding-left: 18px; margin: 8px 0 0; color: var(--ink2); }
+  ul.plain li { margin: 4px 0; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin-top: 12px; font-size: 13px; color: var(--mut); }
+  .flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-top: 12px; }
+  .flow div { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 13px; }
+  .flow div .n { font: 500 11px/1 'IBM Plex Mono', monospace; color: var(--amber); letter-spacing: .06em; display: block; margin-bottom: 6px; }
+  .flow div b { font-weight: 600; display: block; margin-bottom: 2px; }
+  .flow div span { color: var(--mut); }
+  footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--lineSoft); color: var(--mut); font-size: 12.5px; }
+  @media (prefers-reduced-motion: no-preference) { nav.toc a { transition: color .15s, border-color .15s; } }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="Содержание">
+    <div class="kicker">Содержание</div>
+    <a href="#s1"><span class="n">1</span>Назначение и границы</a>
+    <a href="#s2"><span class="n">2</span>Метод</a>
+    <a href="#s3"><span class="n">3</span>Роли и сущности</a>
+    <a href="#s4"><span class="n">4</span>Вход и профиль</a>
+    <a href="#s5"><span class="n">5</span>Новый предмет</a>
+    <a href="#s6"><span class="n">6</span>Урок и разбор</a>
+    <a href="#s7"><span class="n">7</span>Прогрессия и план</a>
+    <a href="#s8"><span class="n">8</span>Повторы</a>
+    <a href="#s9"><span class="n">9</span>Справочники</a>
+    <a href="#s10"><span class="n">10</span>Голос</a>
+    <a href="#s11"><span class="n">11</span>Предметы и настройки</a>
+    <a href="#s12"><span class="n">12</span>Сервер и генерация</a>
+    <a href="#s13"><span class="n">13</span>Данные и офлайн</a>
+    <a href="#s14"><span class="n">14</span>Нефункциональные</a>
+    <a href="#s15"><span class="n">15</span>Открытые вопросы</a>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <div class="kicker amber">Teach · документ требований</div>
+      <h1>Функциональные требования мобильного репетитора Teach</h1>
+      <p class="lead">Что должна делать система, чтобы работал метод «объяснение → практика без подсказок → разбор → повторы»: по экранам, по сущностям и по серверной генерации. Статусы отражают состояние сборки 0.1.0 (9) в TestFlight и сервера на Fly.io.</p>
+      <dl class="meta">
+        <div><dt>Версия</dt><dd>1.2 · 10 сентября 2026</dd></div>
+        <div><dt>Клиент</dt><dd>React Native · Expo SDK 57, iOS-first, Android той же кодовой базой</dd></div>
+        <div><dt>Сервер</dt><dd>.NET 10, SQLite, Claude API (claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5)</dd></div>
+        <div><dt>Источники</dt><dd>DESIGN.md, TEACH-MOBILE-BRIEF.md, docs/ai-content.md</dd></div>
+      </dl>
+      <div class="legend">
+        <span class="chip done">Реализовано</span><span>работает в текущей сборке</span>
+        <span class="chip part">Частично</span><span>есть ограничения, описаны в строке</span>
+        <span class="chip plan">План</span><span>не начато</span>
+      </div>
+    </header>
+
+    <section id="s1">
+      <div class="kicker">1</div>
+      <h2>Назначение и границы</h2>
+      <p>Teach — мобильный репетитор по любой теме, не только по языкам. Пользователь формулирует, что и зачем хочет освоить; система строит короткие уроки на источниках, проверяет практикой без подсказок, превращает ошибки в записи и возвращает их как карточки повторов. Аудитория первой версии — автор и команда, монетизация вне рассмотрения.</p>
+      <h3>В границах</h3>
+      <ul class="plain">
+        <li>Вход через Apple, локальный профиль настроек.</li>
+        <li>Создание предмета: тема, сужение, миссия, источники, план.</li>
+        <li>Уроки из фиксированного набора блоков, сессия на телефоне, разбор.</li>
+        <li>Повторы по FSRS, справочники, голосовой ввод ответов.</li>
+        <li>Серверная генерация уроков, справочников и оценка свободных ответов.</li>
+      </ul>
+      <h3>Вне границ первой версии</h3>
+      <ul class="plain">
+        <li>Синтез речи и голосовой диалог с моделью.</li>
+        <li>Сообщества и внешние площадки практики (бриф §2.10).</li>
+        <li>Командная аналитика, экспорт данных, оплата.</li>
+        <li>Веб-версия: web используется только для превью разработчика.</li>
+      </ul>
+    </section>
+
+    <section id="s2">
+      <div class="kicker">2</div>
+      <h2>Метод как источник требований</h2>
+      <p>Принципы из брифа §2, которые напрямую диктуют поведение интерфейса. Каждый принцип ниже имеет требования, ссылающиеся на него.</p>
+      <div class="tablewrap"><table class="req">
+        <thead><tr><th>Принцип</th><th>Что это значит для продукта</th></tr></thead>
+        <tbody>
+          <tr><td class="id">M-1</td><td class="t"><b>Миссия — якорь.</b><span class="d">Каждый урок отвечает, зачем он, ссылкой на миссию; миссия версионируется, история не удаляется.</span></td></tr>
+          <tr><td class="id">M-2</td><td class="t"><b>Знания из источников.</b><span class="d">Уроки строятся на найденных материалах с уровнем доверия, у объяснения есть источник.</span></td></tr>
+          <tr><td class="id">M-3</td><td class="t"><b>Знание лёгкое, навык трудный.</b><span class="d">Объяснение мягкое, практика без подсказок, разбор только после попытки.</span></td></tr>
+          <tr><td class="id">M-4</td><td class="t"><b>Ошибки — память системы.</b><span class="d">Каждая практика создаёт запись об усвоенном; из записей считаются повторы, следующий урок и пометки в справочниках.</span></td></tr>
+          <tr><td class="id">M-5</td><td class="t"><b>Урок — одна победа.</b><span class="d">Одна цель, один цикл практики, жёсткий бюджет длины.</span></td></tr>
+          <tr><td class="id">M-6</td><td class="t"><b>Зона ближайшего развития.</b><span class="d">Следующий шаг и этап плана выбираются по записям, не по самооценке и не по номеру урока.</span></td></tr>
+          <tr><td class="id">M-7</td><td class="t"><b>Справочники живут дольше уроков.</b><span class="d">Сжатая суть конденсируется из уроков и доступна офлайн.</span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="s3">
+      <div class="kicker">3</div>
+      <h2>Роли и сущности</h2>
+      <p>Одна роль — ученик. Тестировщик и автор пользуются тем же интерфейсом. Сущности повторяют модель данных брифа §5.3.</p>
+      <div class="tablewrap"><table class="req">
+        <thead><tr><th>Сущность</th><th>Содержание</th><th>Где живёт</th></tr></thead>
+        <tbody>
+          <tr><td class="id">Subject</td><td class="t">Тема, короткое имя, фокус, язык предмета, источники, план, текущий этап</td><td class="t">клиент (SQLite) + сервер</td></tr>
+          <tr><td class="id">Mission</td><td class="t">Текущая формулировка и история версий</td><td class="t">клиент</td></tr>
+          <tr><td class="id">Lesson</td><td class="t">Шаги explain / choice / input / order / free с записями recTitle и recNote</td><td class="t">сервер, копия в клиенте</td></tr>
+          <tr><td class="id">LearningRecord</td><td class="t">Что оказалось неочевидным, результат, номер урока, этап</td><td class="t">сервер + карточки в клиенте</td></tr>
+          <tr><td class="id">ReviewItem</td><td class="t">Карточка повтора с состоянием FSRS и журналом ответов</td><td class="t">клиент</td></tr>
+          <tr><td class="id">Reference</td><td class="t">Справочник: группа, название, строки «термин | описание», пометка ошибки</td><td class="t">клиент, глоссарий с сервера</td></tr>
+          <tr><td class="id">Settings</td><td class="t">Язык, тема, напоминания, лимит повторов, режим записи; настройки предмета</td><td class="t">клиент</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="s4">
+      <div class="kicker">4</div>
+      <h2>Вход и профиль</h2>
+      <div class="tablewrap"><table class="req">
+        <thead><tr><th>ID</th><th>Требование</th><th>Статус</th></tr></thead>
+        <tbody>
+          <tr><td class="id">FR-00</td><td class="t"><b>Интро при первом входе</b><span class="d">Четыре экрана про метод: репетитор по любой теме, урок — одна победа, повторы и справочники, голос. Показывается один раз, затем открывается мастер первого предмета, потому что в системе ещё ничего нет.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-01</td><td class="t"><b>Вход через Apple</b><span class="d">Экран входа: знак, слоган, кнопка «Продолжить с Apple». Имя из первого входа запоминается, потому что Apple отдаёт его один раз.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-02</td><td class="t"><b>Вход через Google</b><span class="d">Кнопка показывается только при настроенных client id; без них скрыта в релизной сборке.</span></td><td class="st"><span class="chip part">Частично</span></td></tr>
+          <tr><td class="id">FR-03</td><td class="t"><b>Выход сбрасывает только токен</b><span class="d">Локальная БД привязана к id аккаунта и остаётся; при повторном входе всё на месте. Двухшаговое подтверждение.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-04</td><td class="t"><b>Профиль без скролла</b><span class="d">Карточка аккаунта с числами «за месяц» и «сегодня» из журнала ответов; группы Напоминания, Повторы, Голос, Приложение. Никакой геймификации.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-05</td><td class="t"><b>Язык интерфейса ru/en</b><span class="d">Мгновенная смена всех строк UI; контент уроков не переводится; строки помещаются в одну строку на 390px.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-06</td><td class="t"><b>Тема light/dark</b><span class="d">Выбор в профиле, до выбора — системная; подмена токенов из DESIGN.md §2.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-07</td><td class="t"><b>Напоминания</b><span class="d">Настройки «Утро/Вечер» и «Тихие выходные» сохраняются; локальные уведомления не отправляются.</span></td><td class="st"><span class="chip part">Частично</span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="s5">
+      <div class="kicker">5</div>
+      <h2>Новый предмет</h2>
+      <p>Мастер из пяти шагов, создаётся с вкладки «Предметы». Каждый сетевой шаг показывает состояние загрузки и ошибку с повтором, кнопка «Дальше» ждёт данных.</p>
+      <div class="flow">
+        <div><span class="n">01</span><b>Тема</b><span>свободная формулировка, чипы-примеры</span></div>
+        <div><span class="n">02</span><b>Сужение</b><span>три фокуса от модели или свой</span></div>
+        <div><span class="n">03</span><b>Миссия</b><span>«зачем», до 100 символов</span></div>
+        <div><span class="n">04</span><b>Источники</b><span>четыре с уровнем доверия, исключение тапом</span></div>
+        <div><span class="n">05</span><b>План</b><span>три этапа, эхо миссии</span></div>
+      </div>
+      <div class="tablewrap"><table class="req">
+        <thead><tr><th>ID</th><th>Требование</th><th>Статус</th></tr></thead>
+        <tbody>
+          <tr><td class="id">FR-10</td><td class="t"><b>Короткое имя предмета</b><span class="d">Из формулировки темы сервер даёт имя до 24 символов («Итальянский»); оно идёт в карточки, пиллы и название уроков, полная формулировка остаётся описанием.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-11</td><td class="t"><b>Язык предмета</b><span class="d">Определяется при создании по таблице из 20 языков: код для распознавания речи и локализованные имена ru/en.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-12</td><td class="t"><b>Источники через поиск, не из памяти модели</b><span class="d">Web search на сервере, уровень доверия высокое/среднее/низкое; выбор пользователя передаётся в генерацию. Поиск идёт фоновой задачей с опросом статуса (M-2).</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-13</td><td class="t"><b>Первый урок готовится в фоне</b><span class="d">После «Готово» экран закрывается сразу; карточка на «Сегодня» проходит этапы «Ищу источники → Отбираю по доверию → Собираю первый урок», затем «Урок готов». Без спиннера. Следующие уроки этапов поиска не показывают: сразу «Собираю урок N».</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-14</td><td class="t"><b>Первый урок — стартовая диагностика</b><span class="d">Калибровка без правильного ответа (бейдж «ПРИНЯТО»), свободный рассказ, одна настоящая проверка по источнику без подготовки: над ней кикер «СТАРТ» с подписью «этому ещё не учили», в разборе она показана как «ТОЧКА ОТСЧЁТА», не как ошибка. Всё уходит в записи.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-15</td><td class="t"><b>Сбой генерации не блокирует</b><span class="d">Предмет остаётся, карточка показывает «Не удалось собрать урок» и предлагает «Повторить»; удалённый во время подготовки предмет не воскресает. Опрос терпит сбои сети и 5xx до трёх минут (деплой сервера), 4xx — ошибка сразу.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-16</td><td class="t"><b>Один пользовательский предмет одновременно</b><span class="d">Ограничение текущей модели данных клиента: второй предмет заменяет первый. Нужен список предметов.</span></td><td class="st"><span class="chip risk">Ограничение</span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="s6">
+      <div class="kicker">6</div>
+      <h2>Урок и разбор</h2>
+      <div class="tablewrap"><table class="req">
+        <thead><tr><th>ID</th><th>Требование</th><th>Статус</th></tr></thead>
+        <tbody>
+          <tr><td class="id">FR-20</td><td class="t"><b>Фиксированный набор блоков</b><span class="d">Шаги explain, choice, input, order, free. Модель заполняет схему, а не изобретает разметку.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-21</td><td class="t"><b>Объяснение мягкое</b><span class="d">Кикер «ЗАЧЕМ · миссия», заголовок, до двух абзацев, карточка «ПРИМЕР», источник; уровень доверия показывается только как предупреждение при среднем и низком (M-1, M-2, M-3).</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-22</td><td class="t"><b>Практика без подсказок</b><span class="d">Разбор открывается только после «Ответить»; выбор фиксируется, верный подсвечивается «ВЕРНО», неверный «ВАШ ВЫБОР»; при ошибке ввода показывается «КАК ПРАВИЛЬНО» (M-3).</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-23</td><td class="t"><b>Проверка ответов на устройстве</b><span class="d">Выбор и порядок точно; ввод по группам синонимов; свободный ответ по ключевым словам критериев. Немедленно, без ожидания сети.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-24</td><td class="t"><b>Оценка свободного ответа по смыслу</b><span class="d">Сервер умеет оценивать критерии моделью (проверено: «укрепления и проливы» засчитаны как «стены и море»); в сессии пока используется проверка по ключам.</span></td><td class="st"><span class="chip part">Частично</span></td></tr>
+          <tr><td class="id">FR-25</td><td class="t"><b>Разбор</b><span class="d">Вердикт «Чистая сессия / Есть что закрепить», «k из n с первой попытки», карточки «УЙДЁТ В ПОВТОРЫ» с интервалом из FSRS, источник, кнопка «Сомневаюсь» → «на проверке».</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-26</td><td class="t"><b>«Готово» замыкает цикл</b><span class="d">Записи становятся карточками повторов, отметка «Пройдено сегодня», для пользовательского предмета записи уходят на сервер и запускают следующий урок; если заготовка подошла (FR-35), урок приходит сразу (M-4).</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-29</td><td class="t"><b>Прогресс внутри урока сохраняется</b><span class="d">Крестик на любом шаге сохраняет снимок сессии в предмете; следующее открытие того же урока продолжает с активного шага с ответами пройденных. Снимок удаляется после разбора и при новом уроке.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-28</td><td class="t"><b>Свайпы по шагам</b><span class="d">Свайп вправо показывает пройденные шаги с замороженным ответом и разбором, свайп влево — вперёд до активного; с неотвеченного шага вперёд нельзя, с отвеченного свайп равен «Дальше». На пройденном шаге ввод и микрофон отключены, кнопка «К текущему шагу» возвращает. В повторах то же.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-27</td><td class="t"><b>Выход крестиком</b><span class="d">Из сессии — без сохранения, как в прототипе. Из разбора крестик равен «Готово»: ошибки уже случились и должны стать памятью системы, записи сохраняются и следующий урок запускается (M-4).</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="s7">
+      <div class="kicker">7</div>
+      <h2>Прогрессия и план</h2>
+      <div class="tablewrap"><table class="req">
+        <thead><tr><th>ID</th><th>Требование</th><th>Статус</th></tr></thead>
+        <tbody>
+          <tr><td class="id">FR-30</td><td class="t"><b>Следующий урок по записям</b><span class="d">После каждого разбора сервер генерирует урок N: закрыть самую свежую ошибку, не повторять верное; промпт получает этап плана явно, длительность из настроек предмета задаёт бюджет (M-6).</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-31</td><td class="t"><b>Этап плана по результатам</b><span class="d">Этап закрывается, когда два последних урока этапа сделаны на ≥ 75 % и ≥ 60 % с первой попытки, диагностика не в счёт; страховка — после шести уроков этап закрывается в любом случае.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-32</td><td class="t"><b>Индикатор этапа на карточке</b><span class="d">Три сегмента и строка «Этап N/3 · название · урок K»; этап приходит с сервера.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-33</td><td class="t"><b>Живой план</b><span class="d">Перестройка этапов плана по записям, а не только переход между ними; план как редактируемый объект.</span></td><td class="st"><span class="chip plan">План</span></td></tr>
+          <tr><td class="id">FR-34</td><td class="t"><b>Два демо-предмета</b><span class="d">«Английский» (собеседования, фокус «Рассказ о себе») и «Публичные выступления» (миссия «уверенно выступить перед командой на 10 минут»). Сгенерированы живым сервером: источники, план на пять этапов, диагностика и урок 2 с глоссарием; зашиты статично с индикатором «Этап 1/5 · урок 2» и чипом «демо», следующих уроков у них нет. Карточки повторов и глоссарии засеваются один раз на аккаунт.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-35</td><td class="t"><b>Предзагрузка одного урока вперёд</b><span class="d">Когда открыт урок N, сервер заготавливает N+1 на текущем этапе по записям на этот момент. После разбора заготовка отдаётся сразу, если этап не сменился и верных ответов не меньше половины; иначе выбрасывается, и урок собирается заново по свежим записям. Дальше одного урока не генерируем: следующий шаг должен видеть последние ошибки (M-6).</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-36</td><td class="t"><b>Возобновление после перезапуска</b><span class="d">Если приложение закрыли, пока урок готовился, при запуске клиент продолжает ждать урок с сервера, не отправляя разбор повторно; карточка не зависает на «Готовится…».</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="s8">
+      <div class="kicker">8</div>
+      <h2>Повторы</h2>
+      <div class="tablewrap"><table class="req">
+        <thead><tr><th>ID</th><th>Требование</th><th>Статус</th></tr></thead>
+        <tbody>
+          <tr><td class="id">FR-40</td><td class="t"><b>Сроками владеет алгоритм</b><span class="d">FSRS без краткосрочных шагов: ошибка → 1 день, успех → 3 дня на новой карточке, дальше интервал растёт. Модель к срокам не допускается, ручного редактирования нет.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-41</td><td class="t"><b>Одна учебная точка — одна карточка</b><span class="d">Повторное прохождение шага пересчитывает срок существующей карточки, а не создаёт дубль.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-42</td><td class="t"><b>Экран «Повторы»</b><span class="d">Списки «СЕГОДНЯ» и «ПОЗЖЕ», «Начать повторы» собирает сессию из вопросов, породивших карточки, с учётом лимита в день; hero на «Сегодня» показывает число карточек на сегодня.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-43</td><td class="t"><b>Офлайн</b><span class="d">Карточки, журнал ответов и FSRS живут в SQLite на устройстве; сессия повторов не требует сети.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-44</td><td class="t"><b>Синхронизация повторов с сервером</b><span class="d">Ответы на повторы принимаются с устройства с отметкой времени; серверная копия для смены устройства.</span></td><td class="st"><span class="chip plan">План</span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="s9">
+      <div class="kicker">9</div>
+      <h2>Справочники</h2>
+      <div class="tablewrap"><table class="req">
+        <thead><tr><th>ID</th><th>Требование</th><th>Статус</th></tr></thead>
+        <tbody>
+          <tr><td class="id">FR-50</td><td class="t"><b>Вкладка «Справочники»</b><span class="d">Сегменты предметов, живой поиск по названиям и строкам, фильтр «Слабые места», группы, детальный экран с таблицей «термин 126px | описание» и подразделами (M-7).</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-51</td><td class="t"><b>Глоссарий из уроков</b><span class="d">После каждого урока сервер извлекает 3–6 терминов и сливает их в глоссарий предмета без дублей; глоссарий приходит с уроком и ложится в SQLite, предмет появляется на вкладке сразу.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-52</td><td class="t"><b>Другие группы справочников</b><span class="d">Грамматика, цель, чек-листы — конденсация по типу предмета; масштаб «50 уроков → ~8 справочников».</span></td><td class="st"><span class="chip plan">План</span></td></tr>
+          <tr><td class="id">FR-53</td><td class="t"><b>Пометка «ОШИБКА» по записям</b><span class="d">Строки справочника, связанные с ошибочными записями, получают бейдж; сейчас пометки только у демо-данных.</span></td><td class="st"><span class="chip plan">План</span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="s10">
+      <div class="kicker">10</div>
+      <h2>Голос</h2>
+      <div class="tablewrap"><table class="req">
+        <thead><tr><th>ID</th><th>Требование</th><th>Статус</th></tr></thead>
+        <tbody>
+          <tr><td class="id">FR-60</td><td class="t"><b>Платформенное распознавание</b><span class="d">SFSpeechRecognizer на iOS, SpeechRecognizer на Android; промежуточные результаты по словам ложатся в поле, текст правится вручную. Проверено на iPhone 16 Pro Max.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-61</td><td class="t"><b>Режим записи из профиля</b><span class="d">«Удерживать» — одна реплика на нажатии, «Без рук» — непрерывно до повторного тапа.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-62</td><td class="t"><b>Язык распознавания из предмета</b><span class="d">Пиллы «язык интерфейса / язык предмета» с локализованными именами; для языкового предмета по умолчанию язык предмета. В повторах язык берётся у предмета карточки текущего шага.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-63</td><td class="t"><b>Голос никогда не блокирует</b><span class="d">Кнопка микрофона скрыта, если STT недоступен или голос выключен у предмета; ошибки распознавания лишь останавливают запись; текстовый ввод доступен всегда.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-65</td><td class="t"><b>Озвучка примеров</b><span class="d">Системный синтез речи на устройстве (AVSpeechSynthesizer / TextToSpeech), без сети и без токенов: кнопка «динамик» у карточки «ПРИМЕР», у вариантов выбора, реплик для упорядочивания и правильного ответа, в уроках и в повторах. Голос — язык предмета; смешанный текст режется по письменности, и русские куски читаются русским голосом по очереди с иностранными. Выключается в настройках предмета; для неязыковых предметов и без установленного голоса кнопок нет.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-64</td><td class="t"><b>Детектор произношения</b><span class="d">Распознанный текст показывает, что услышано, а не что задумано; явное использование для языковых предметов.</span></td><td class="st"><span class="chip plan">План</span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="s11">
+      <div class="kicker">11</div>
+      <h2>Предметы и настройки предмета</h2>
+      <div class="tablewrap"><table class="req">
+        <thead><tr><th>ID</th><th>Требование</th><th>Статус</th></tr></thead>
+        <tbody>
+          <tr><td class="id">FR-70</td><td class="t"><b>Миссия версионируется</b><span class="d">Карточка предмета: версия vN, текущая формулировка, зачёркнутая история, «Изменить» до 100 символов создаёт новую версию (M-1).</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-71</td><td class="t"><b>Настройки предмета</b><span class="d">Пауза уроков (повторы продолжают приходить), длительность 3/5/10 (по умолчанию 10; уходит на сервер как бюджет урока), норма повторов 10/20/50, сложность, голос и язык распознавания. Применяются мгновенно.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-72</td><td class="t"><b>Удаление предмета</b><span class="d">Двухшаговое подтверждение; удаляются предмет, настройки, карточки повторов и справочники.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">FR-73</td><td class="t"><b>Не добавлять</b><span class="d">Выбор алгоритма интервалов и ручное редактирование сроков — запрещены спецификацией.</span></td><td class="st"><span class="chip done">Соблюдено</span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="s12">
+      <div class="kicker">12</div>
+      <h2>Сервер и генерация</h2>
+      <p>Клиент не держит ключей модели и не планирует обучение. Оркестратор на сервере собирает контекст, зовёт модель, валидирует ответ и хранит уроки, записи и справочники.</p>
+      <div class="tablewrap"><table class="req">
+        <thead><tr><th>ID</th><th>Требование</th><th>Статус</th></tr></thead>
+        <tbody>
+          <tr><td class="id">SR-01</td><td class="t"><b>Единый интерфейс контента</b><span class="d">Клиент ходит только в ContentService; реализация HTTP включается адресом сервера, без него — локальная заглушка.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">SR-02</td><td class="t"><b>Структурированный вывод по схеме</b><span class="d">Модель заполняет плоскую схему шага; сервер разворачивает её в доменный урок; заголовок карточки, строку уровня «этап N · фокус» и кикер «зачем» ставит сам, потому что модель путает номер этапа с номером урока.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">SR-03</td><td class="t"><b>Валидация смысла</b><span class="d">Варианты без дублей, перестановки, критерии, обязательные записи, бюджет длины по длительности урока; невалидный урок уходит на повтор, до трёх попыток (M-5).</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">SR-04</td><td class="t"><b>Долгие операции — фоновые задачи</b><span class="d">Поиск источников, подготовка урока и следующий урок идут задачами с опросом статуса: iOS обрывает HTTP-запрос через 60 с.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">SR-05</td><td class="t"><b>Промпты версионируются</b><span class="d">Версия промптов пишется в урок и отдаётся в health; правка педагогики не требует релиза клиента.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">SR-06</td><td class="t"><b>Кэш промпта</b><span class="d">Методика и контекст предмета — стабильные префиксы под кэш; меняется только хвост с записями.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">SR-07</td><td class="t"><b>Доступ по токену</b><span class="d">Все запросы, кроме health, требуют bearer-токен; ключ модели только в секретах сервера.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">SR-08</td><td class="t"><b>Привязка данных к аккаунту</b><span class="d">Предметы и записи на сервере не связаны с пользователем; для нескольких пользователей нужна проверка Apple identity token.</span></td><td class="st"><span class="chip plan">План</span></td></tr>
+          <tr><td class="id">SR-09</td><td class="t"><b>Push о готовности урока</b><span class="d">Сейчас клиент опрашивает статус; уведомление, когда приложение закрыто.</span></td><td class="st"><span class="chip plan">План</span></td></tr>
+          <tr><td class="id">SR-10</td><td class="t"><b>Задачи воркера трёх видов</b><span class="d">Собрать текущий урок, заготовить следующий, продвинуть заготовку в текущие. Заготовка живёт в предмете отдельно от текущего урока и не меняет его статус; повторный запрос предзагрузки — no-op.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">SR-11</td><td class="t"><b>Разбор идемпотентен</b><span class="d">Повторная отправка разбора того же урока (перезапуск клиента, «Повторить») не дублирует записи и не запускает лишнюю генерацию: если следующий урок уже готов, ответ «ready».</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">SR-12</td><td class="t"><b>Очередь переживает перезапуск сервера</b><span class="d">Очередь в памяти; при старте предметы со статусом «в подготовке» ставятся в очередь заново, незавершённая предзагрузка сбрасывается.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">SR-13</td><td class="t"><b>Плавная остановка</b><span class="d">По SIGINT/SIGTERM воркер дорабатывает текущий урок при живом сервере (до 150 с, Fly ждёт 160 с), и только потом хост останавливается; деплой посреди генерации не стоит повторного вызова модели. Замер на Fly: 22 с дожидания с ответами 200, ~10 с на перезапуск.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">SR-14</td><td class="t"><b>Источники ищутся один раз</b><span class="d">Web search только при создании предмета; результат хранится в предмете. Предмет старого клиента без источников ищет их один раз перед первым уроком, следующие уроки такого предмета собираются без источников с предупреждением в логе (M-2).</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+        </tbody>
+      </table></div>
+      <div class="note">Замеры на реальной модели, 9 сентября: фокусы 5 с (claude-sonnet-5), план 6 с, источники с web search около 30 с, диагностика 20 с, следующий урок 18–27 с (10-минутный урок из пяти шагов — 27 с), заготовка следующего урока 30 с, оценка свободного ответа 1.4 с. Стоимость предмета с одним уроком порядка 10–20 центов; предзагрузка добавляет одну лишнюю генерацию примерно на каждый провальный или переходный урок.</div>
+    </section>
+
+    <section id="s13">
+      <div class="kicker">13</div>
+      <h2>Данные и офлайн</h2>
+      <div class="tablewrap"><table class="req">
+        <thead><tr><th>ID</th><th>Требование</th><th>Статус</th></tr></thead>
+        <tbody>
+          <tr><td class="id">DR-01</td><td class="t"><b>Локальная БД на аккаунт</b><span class="d">Файл SQLite с id аккаунта в имени; карточки, журнал ответов, справочники, настройки и прогресс. Выход не удаляет.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">DR-02</td><td class="t"><b>Офлайн работают</b><span class="d">Повторы, справочники, глоссарий, уже скачанные уроки. Не работают: новый предмет, поиск источников, следующий урок.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">DR-03</td><td class="t"><b>Миграции</b><span class="d">Клиент: версионированные миграции SQLite. Сервер: доводка схемы на томе при старте, новые таблицы и колонки добавляются автоматически.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">DR-04</td><td class="t"><b>Приватность записей</b><span class="d">Записи об усвоенном — перечень того, чего человек не знает; обучение не видно руководителю, командные агрегаты только обезличенные, экспорт и удаление своих данных.</span></td><td class="st"><span class="chip plan">План</span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="s14">
+      <div class="kicker">14</div>
+      <h2>Нефункциональные требования</h2>
+      <div class="tablewrap"><table class="req">
+        <thead><tr><th>ID</th><th>Требование</th><th>Статус</th></tr></thead>
+        <tbody>
+          <tr><td class="id">NF-01</td><td class="t"><b>Пиксельная точность к прототипу</b><span class="d">Цвета, типографика, отступы и тексты из DESIGN.md: Golos Text и IBM Plex Mono, хит-таргеты ≥ 44px, скрытые скроллбары.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">NF-02</td><td class="t"><b>Отклик проверки ответа</b><span class="d">Проверка на устройстве без сети — мгновенно; оценка свободного ответа моделью — до 2 с.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">NF-03</td><td class="t"><b>Ожидание генерации</b><span class="d">Мастер: шаг источников до минуты с индикацией; первый урок до 60 с в фоне; следующий урок сразу после разбора, если заготовка подошла, иначе до 30 с в фоне.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">NF-04</td><td class="t"><b>Безопасность</b><span class="d">HTTPS, bearer-токен, ключ модели в секретах; строки назначения для микрофона, распознавания речи, локальной сети.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">NF-05</td><td class="t"><b>Тесты</b><span class="d">Клиент 74 теста: движок сессии, FSRS, стор, фильтры справочников, HTTP-контракт, предзагрузка, возобновление, опрос при сбоях сети; сервер 28: валидатор, политика этапов, API-сценарии включая предзагрузку и повторный разбор, миграция схемы.</span></td><td class="st"><span class="chip done">Реализовано</span></td></tr>
+          <tr><td class="id">NF-06</td><td class="t"><b>Android</b><span class="d">Общая кодовая база; сборка и STT на Android-устройстве не проверялись.</span></td><td class="st"><span class="chip plan">План</span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="s15">
+      <div class="kicker">15</div>
+      <h2>Открытые вопросы</h2>
+      <ul class="plain">
+        <li><b>Порог годности заготовки.</b> Заготовка отбрасывается при менее чем половине верных ответов; порог выбран без статистики, как и пороги этапов, и настраивается на сервере без релиза (FR-35).</li>
+        <li><b>Пороги этапов.</b> 75/60 % и потолок в шесть уроков выбраны без статистики; после первых записей тестировщика подстроить на сервере без релиза.</li>
+        <li><b>Несколько предметов.</b> Клиент хранит один пользовательский предмет; для второго нужен список предметов и привязка на сервере к аккаунту (FR-16, SR-08).</li>
+        <li><b>Несколько предметов.</b> Пользовательский предмет по-прежнему один; демо-предметы можно удалить, и тогда вкладки держатся на одном предмете (FR-16, SR-08).</li>
+        <li><b>Оценка свободных ответов.</b> Включать серверную оценку по смыслу в сессии с офлайн-фолбэком по ключам (FR-24).</li>
+      </ul>
+      <div class="note sand">Каждое требование прослеживается до принципа метода (M-n), экрана прототипа или контракта сервера в docs/ai-content.md. Статусы обновляются вместе с релизами.</div>
+    </section>
+
+    <footer>Teach · функциональные требования v1.2 · сборка 0.1.0 (9), сервер teach-tutor-api · обновлено 10 сентября 2026</footer>
+  </main>
+</div>
+
+</body>
+</html>

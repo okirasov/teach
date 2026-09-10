@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Teach · Техническая документация</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #FAF6EE; --card: #FFFFFF; --ink: #12281C; --ink2: #24332B; --mut: #4A5A50; --mut2: #8A9A8F;
+    --mint: #DCEEDF; --mintInk: #1C4634; --amber: #835A0E; --amberBg: #F5EAD2; --err: #B4552F; --errBg: #F5E3DB;
+    --sand: #EFE7D5; --sandInk: #6B6353; --line: rgba(28,70,52,.15); --lineSoft: rgba(28,70,52,.11); --sel: #EFF7F0; --code: #F1EEE5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0F1B15; --card: #17271D; --ink: #EDF3EA; --ink2: #C9D6CC; --mut: #8FA697; --mut2: #5E7065;
+      --mint: #1E3226; --mintInk: #9FD6B4; --amber: #DFA032; --amberBg: #3A2F14; --err: #D9764F; --errBg: #3A231B;
+      --sand: #2A281E; --sandInk: #B5A98E; --line: rgba(220,238,223,.15); --lineSoft: rgba(220,238,223,.1); --sel: #21332A; --code: #13211A;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 15px/1.6 'Golos Text', system-ui, -apple-system, sans-serif; }
+  a { color: var(--mintInk); }
+  code, pre { font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace; }
+  code { font-size: 13px; background: var(--code); padding: 1px 5px; border-radius: 5px; }
+  pre { background: var(--code); border: 1px solid var(--lineSoft); border-radius: 12px; padding: 12px 14px; font-size: 12.5px; line-height: 1.55; overflow-x: auto; margin: 10px 0 0; }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  .wrap { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 48px; max-width: 1120px; margin: 0 auto; padding: 40px 24px 80px; }
+  @media (max-width: 860px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; } nav.toc { position: static; } }
+  nav.toc { position: sticky; top: 24px; align-self: start; font-size: 13px; line-height: 1.5; }
+  nav.toc .kicker { margin-bottom: 10px; }
+  nav.toc a { display: block; color: var(--mut); text-decoration: none; padding: 4px 0; border-left: 2px solid transparent; padding-left: 10px; }
+  nav.toc a:hover, nav.toc a:focus-visible { color: var(--ink); border-left-color: var(--mintInk); outline: none; }
+  nav.toc a .n { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--mut2); margin-right: 6px; }
+  main { max-width: 76ch; min-width: 0; }
+  .kicker { font: 500 10.5px/1 'IBM Plex Mono', monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--mut); }
+  .kicker.amber { color: var(--amber); }
+  header.doc h1 { font: 600 32px/1.15 'Golos Text', sans-serif; letter-spacing: -.4px; margin: 10px 0 12px; text-wrap: balance; }
+  header.doc p.lead { font-size: 16px; color: var(--ink2); margin: 0 0 18px; }
+  .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px 20px; padding: 14px 16px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; font-size: 13px; }
+  .meta div { display: flex; flex-direction: column; gap: 2px; }
+  .meta dt { font: 500 10.5px/1 'IBM Plex Mono', monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--mut); }
+  .meta dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
+  section { margin-top: 44px; }
+  section h2 { font: 600 23px/1.25 'Golos Text', sans-serif; letter-spacing: -.3px; margin: 6px 0 8px; text-wrap: balance; }
+  section h3 { font: 600 16px/1.35 'Golos Text', sans-serif; margin: 26px 0 8px; }
+  section p { color: var(--ink2); margin: 0 0 12px; }
+  ul.plain { padding-left: 18px; margin: 8px 0 12px; color: var(--ink2); }
+  ul.plain li { margin: 4px 0; }
+  .note { background: var(--mint); border-radius: 14px; padding: 12px 16px; color: var(--ink); font-size: 14px; margin: 12px 0 0; }
+  .note.sand { background: var(--sand); color: var(--sandInk); }
+  .note.amber { background: var(--amberBg); color: var(--ink); }
+  .tablewrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+  th { text-align: left; font: 500 10.5px/1 'IBM Plex Mono', monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--mut); padding: 0 10px 8px 0; border-bottom: 1px solid var(--line); }
+  td { vertical-align: top; padding: 9px 10px 9px 0; border-bottom: 1px solid var(--lineSoft); }
+  td.m { font: 500 12.5px/1.5 'IBM Plex Mono', monospace; color: var(--mintInk); white-space: nowrap; }
+  td .d { display: block; color: var(--mut); font-size: 13px; margin-top: 2px; }
+  .flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-top: 12px; }
+  .flow div { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 13px; }
+  .flow div .n { font: 500 11px/1 'IBM Plex Mono', monospace; color: var(--amber); letter-spacing: .06em; display: block; margin-bottom: 6px; }
+  .flow div b { font-weight: 600; display: block; margin-bottom: 2px; }
+  .flow div span { color: var(--mut); }
+  .chip { display: inline-block; font: 500 10px/1 'IBM Plex Mono', monospace; letter-spacing: .06em; text-transform: uppercase; padding: 5px 8px; border-radius: 7px; white-space: nowrap; background: var(--mint); color: var(--mintInk); }
+  .chip.amber { background: var(--amberBg); color: var(--amber); }
+  footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--lineSoft); color: var(--mut); font-size: 12.5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="toc" aria-label="Содержание">
+    <div class="kicker">Содержание</div>
+    <a href="#s1"><span class="n">1</span>Обзор и архитектура</a>
+    <a href="#s2"><span class="n">2</span>Клиент</a>
+    <a href="#s3"><span class="n">3</span>Сервер</a>
+    <a href="#s4"><span class="n">4</span>API для интеграций и тестов</a>
+    <a href="#s5"><span class="n">5</span>Форматы данных</a>
+    <a href="#s6"><span class="n">6</span>Локальный запуск</a>
+    <a href="#s7"><span class="n">7</span>Деплой и релиз</a>
+    <a href="#s8"><span class="n">8</span>Тесты и наблюдение</a>
+    <a href="#s9"><span class="n">9</span>Ссылки</a>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <div class="kicker amber">Teach · техническая документация</div>
+      <h1>Как устроен мобильный репетитор Teach</h1>
+      <p class="lead">Клиент на React Native, сервер-оркестратор на .NET с Claude API, контракт между ними и порядок работы: от мастера предмета до предзагрузки следующего урока. Страница отдаётся самим сервером и обновляется вместе с ним.</p>
+      <dl class="meta">
+        <div><dt>Сервер</dt><dd><a href="https://teach-tutor-api.fly.dev/health">teach-tutor-api.fly.dev</a> · .NET 10 · SQLite · Fly.io (ams)</dd></div>
+        <div><dt>Клиент</dt><dd>React Native · Expo SDK 57 · iOS через TestFlight</dd></div>
+        <div><dt>Модели</dt><dd>claude-opus-5 · claude-sonnet-5 · claude-haiku-4-5</dd></div>
+        <div><dt>Справка API</dt><dd><a href="/scalar">Scalar</a> · <a href="/openapi/v1.json">openapi/v1.json</a></dd></div>
+        <div><dt>Требования</dt><dd><a href="/docs/frd.html">Функциональные требования</a></dd></div>
+        <div><dt>Код</dt><dd><a href="https://github.com/okirasov/teach">github.com/okirasov/teach</a></dd></div>
+      </dl>
+    </header>
+
+    <section id="s1">
+      <div class="kicker">1</div>
+      <h2>Обзор и архитектура</h2>
+      <p>Teach учит любой теме по одному методу: объяснение → практика без подсказок → разбор → повторы. Ошибки становятся записями, из записей собирается следующий урок и карточки повторов. Система состоит из двух частей.</p>
+      <div class="flow">
+        <div><span class="n">КЛИЕНТ</span><b>Приложение</b><span>экраны, сессия урока, повторы (FSRS), справочники, голос и озвучка; локальная SQLite на аккаунт; работает офлайн для повторов и справочников</span></div>
+        <div><span class="n">СЕРВЕР</span><b>Оркестратор</b><span>мастер предмета, генерация уроков структурированным выводом, валидация, этапы плана, предзагрузка, глоссарий, оценка свободных ответов</span></div>
+        <div><span class="n">МОДЕЛЬ</span><b>Claude API</b><span>opus — уроки и поиск источников (web search); sonnet — фокусы, имя, план; haiku — оценка и глоссарий</span></div>
+      </div>
+      <p style="margin-top:14px">Клиент никогда не держит ключей модели и не планирует обучение: он ходит только в <code>ContentService</code>, реализация которого включается адресом сервера. Всё, что у модели занимает дольше нескольких секунд, сервер делает фоновой задачей, а клиент опрашивает статус, потому что iOS обрывает HTTP-запрос через 60 секунд.</p>
+      <h3>Поток одного предмета</h3>
+      <div class="flow">
+        <div><span class="n">01</span><b>Мастер</b><span>тема → фокус → миссия → источники (web search) → план на этапы</span></div>
+        <div><span class="n">02</span><b>Диагностика</b><span>урок 1: калибровка без правильного ответа, свободный рассказ, одна проверка без подготовки («СТАРТ»)</span></div>
+        <div><span class="n">03</span><b>Урок N</b><span>объяснение с источником и 2–3 практики, собранные по записям предыдущих разборов и этапу плана</span></div>
+        <div><span class="n">04</span><b>Разбор</b><span>записи уходят на сервер; решается этап; заготовка N+1 отдаётся сразу или собирается заново</span></div>
+      </div>
+    </section>
+
+    <section id="s2">
+      <div class="kicker">2</div>
+      <h2>Клиент</h2>
+      <p>React Native + Expo SDK 57, Expo Router, TypeScript, zustand, jest-expo. Токены цвета и типографики повторяют DESIGN.md прототипа: Golos Text и IBM Plex Mono, светлая и тёмная темы.</p>
+      <h3>Структура</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Папка</th><th>Что там</th></tr></thead>
+        <tbody>
+          <tr><td class="m">app/</td><td>экраны Expo Router: вход, интро, вкладки (Сегодня, Повторы, Справочники, Предметы), сессия урока, разбор, мастер предмета, настройки предмета, профиль</td></tr>
+          <tr><td class="m">src/domain/</td><td>типы урока и шагов, FSRS (ts-fsrs), языки, демо-предметы (<code>demo/en</code>, <code>demo/speak</code>)</td></tr>
+          <tr><td class="m">src/content/</td><td><code>ContentService</code>: HTTP-реализация с опросом задач и локальная заглушка для разработки без сервера</td></tr>
+          <tr><td class="m">src/features/</td><td>движок сессии (чистые функции без React), план и этапы, повторы, справочники, подготовка предмета, озвучка</td></tr>
+          <tr><td class="m">src/store/</td><td>zustand-сторы: auth, progress, session, reviews, refs, settings; персистентные срезы пишутся в kv локальной БД</td></tr>
+          <tr><td class="m">src/db/</td><td>expo-sqlite на аккаунт (<code>teach-&lt;accountId&gt;.db</code>), версионированные миграции, репозитории карточек, справочников и kv, засев демо</td></tr>
+          <tr><td class="m">src/voice/</td><td>распознавание речи (expo-speech-recognition, симуляция для web) и озвучка (expo-speech), деление текста по письменности</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Что важно знать</h3>
+      <ul class="plain">
+        <li><b>Сессия урока</b> — чистый движок: активный шаг и показанный, ответы пройденных шагов заморожены, свайпы назад и вперёд до активного. Крестик сохраняет снимок сессии в предмете, следующее открытие того же урока продолжает с места остановки.</li>
+        <li><b>Проверка ответов на устройстве</b>: выбор и порядок точно, ввод по группам синонимов, свободный ответ по ключевым словам критериев. Серверная оценка по смыслу есть в API, в сессии пока не включена.</li>
+        <li><b>Повторы</b>: одна учебная точка — одна карточка; сроками владеет FSRS без краткосрочных шагов (ошибка → 1 день, успех → 3 дня). Карточка знает свой предмет, поэтому язык распознавания и озвучки в повторах берётся у него.</li>
+        <li><b>Голос никогда не блокирует</b>: без разрешения или без голоса для языка кнопки просто не рисуются, текстовый ввод доступен всегда.</li>
+        <li><b>Один пользовательский предмет</b> плюс два демо. Демо статичны и сгенерированы этим же сервером; следующих уроков у них нет.</li>
+      </ul>
+    </section>
+
+    <section id="s3">
+      <div class="kicker">3</div>
+      <h2>Сервер</h2>
+      <p>Минимальный API на .NET 10 с EF Core и SQLite на томе Fly. Один процесс: HTTP-обработчики, фоновая очередь уроков (<code>LessonWorker</code>), задачи поиска источников, плавная остановка.</p>
+      <h3>Генерация урока</h3>
+      <ul class="plain">
+        <li><b>Структурированный вывод по схеме.</b> Модель заполняет плоскую схему шага; сервер разворачивает её в доменный урок. Заголовок карточки «Урок N · …», строку уровня «этап 0N · фокус» и кикер «зачем» ставит сервер сам, потому что модель путает номер этапа с номером урока.</li>
+        <li><b>Валидация смысла</b> (<code>LessonValidator</code>): варианты без дублей, перестановки, критерии, обязательные записи, бюджет длины по длительности урока (3/5/10 минут → 1400/2200/4000 символов), не больше семи шагов. Невалидный урок уходит на повтор, до трёх попыток.</li>
+        <li><b>Кэш промпта.</b> Методика и контекст предмета — стабильные префиксы с <code>cache_control</code>, меняется только хвост с записями.</li>
+        <li><b>Источники ищутся один раз</b>, при создании предмета, и хранятся в нём. Для следующих уроков web search не запускается.</li>
+        <li><b>Этап плана</b> решается сервером по результатам (<code>StagePolicy</code>): этап закрыт, когда два последних урока сделаны на ≥ 75 % и ≥ 60 % с первой попытки, диагностика не в счёт; страховка — шесть уроков на этапе.</li>
+        <li><b>Предзагрузка.</b> Когда клиент открывает урок N, сервер заготавливает N+1 по записям на этот момент. После разбора заготовка отдаётся сразу, если этап не сменился и верных ответов не меньше половины; иначе выбрасывается и урок собирается заново. Разбор, пришедший во время заготовки, дожидается её.</li>
+        <li><b>Глоссарий.</b> После каждого урока haiku извлекает 3–6 терминов, они сливаются в справочник предмета без дублей и приходят вместе с уроком.</li>
+        <li><b>Перезапуски.</b> Повторный разбор того же урока идемпотентен; очередь в памяти, при старте предметы «в подготовке» ставятся заново; по SIGINT воркер дорабатывает текущий урок при живом сервере (<code>DrainingLifetime</code>), Fly ждёт до 160 секунд.</li>
+      </ul>
+      <h3>Схема базы</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Таблица</th><th>Содержание</th></tr></thead>
+        <tbody>
+          <tr><td class="m">Subjects</td><td>тема, имя, фокус, миссия, источники, план, текущий этап, статус подготовки, текущий урок, заготовка (PrefetchJson/Number/Stage), длительность</td></tr>
+          <tr><td class="m">Lessons</td><td>история уроков предмета с версией промптов</td></tr>
+          <tr><td class="m">Records</td><td>записи разборов: заголовок, заметка, результат, шаг, номер урока, этап</td></tr>
+          <tr><td class="m">References</td><td>глоссарий предмета</td></tr>
+        </tbody>
+      </table></div>
+      <p style="margin-top:10px"><code>SchemaUpgrader</code> создаёт схему в пустой базе и добавляет недостающие таблицы и колонки в существующую при старте, поэтому база на томе переживает изменения моделей без ручных шагов.</p>
+      <h3>Замеры на реальной модели</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Операция</th><th>Время</th></tr></thead>
+        <tbody>
+          <tr><td>Фокусы (sonnet)</td><td>5 с</td></tr>
+          <tr><td>Имя предмета</td><td>3 с</td></tr>
+          <tr><td>План</td><td>6 с</td></tr>
+          <tr><td>Источники с web search</td><td>30–120 с</td></tr>
+          <tr><td>Стартовая диагностика</td><td>20 с</td></tr>
+          <tr><td>Следующий урок (5 мин / 10 мин)</td><td>18–27 с</td></tr>
+          <tr><td>Заготовка → урок после разбора</td><td>≈ 7 с (глоссарий)</td></tr>
+          <tr><td>Оценка свободного ответа (haiku)</td><td>1.4 с</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="s4">
+      <div class="kicker">4</div>
+      <h2>API для интеграций и тестов</h2>
+      <p>База: <code>https://teach-tutor-api.fly.dev</code>. Все маршруты, кроме <code>/health</code> и документации, требуют общий токен сервера в заголовке <code>Authorization: Bearer &lt;token&gt;</code>. Токен выдаёт владелец проекта; в документации его нет. Интерактивная справка с формами запросов: <a href="/scalar">/scalar</a>, машинное описание: <a href="/openapi/v1.json">/openapi/v1.json</a>.</p>
+      <div class="note amber">Каждый вызов генерации тратит деньги: предмет с диагностикой и одним уроком стоит порядка 10–20 центов, поиск источников — самая дорогая часть. Для проверки формата ответов достаточно одного предмета; повторные разборы того же урока бесплатны, сервер их не генерирует заново.</div>
+      <h3>Маршруты</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Метод и путь</th><th>Назначение</th></tr></thead>
+        <tbody>
+          <tr><td class="m">GET /health</td><td>Состояние сервера: <code>{ ok, model, prompts }</code>. Без токена.</td></tr>
+          <tr><td class="m">POST /subjects/focus</td><td><code>{ topic }</code> → три фокуса <code>[{ t, d }]</code>.</td></tr>
+          <tr><td class="m">POST /subjects/title</td><td><code>{ topic }</code> → <code>{ title }</code>, короткое имя до 24 символов.</td></tr>
+          <tr><td class="m">POST /subjects/sources</td><td><code>{ topic, focus }</code> → 202 <code>{ jobId, status: "running" }</code>. Поиск идёт в фоне.</td></tr>
+          <tr><td class="m">GET /subjects/sources/{jobId}</td><td><code>{ status: "running" }</code> | <code>{ status: "ready", items: [{ id, t, m, trust }] }</code> | <code>{ status: "failed", error }</code>.</td></tr>
+          <tr><td class="m">POST /subjects/plan</td><td><code>{ topic, focus, mission }</code> → этапы <code>[{ n, t, d }]</code>.</td></tr>
+          <tr><td class="m">POST /subjects</td><td>черновик предмета → 202 <code>{ subjectId, status: "preparing" }</code>; диагностика готовится в фоне.</td></tr>
+          <tr><td class="m">GET /subjects/{id}/lesson</td><td>статус подготовки и текущий урок, см. <a href="#s5">форматы</a>.</td></tr>
+          <tr><td class="m">POST /sessions/{id}/recap</td><td>записи разбора → 202 <code>{ status: "preparing" | "ready" | "stored" }</code>; для демо-id только <code>stored</code>.</td></tr>
+          <tr><td class="m">POST /subjects/{id}/prefetch</td><td>заготовить следующий урок → 202 <code>{ status: "queued" | "exists" | "running" | "skipped" }</code>.</td></tr>
+          <tr><td class="m">POST /grade/free</td><td><code>{ criteria: [{ t, keys }], text, lang }</code> → <code>{ hits: boolean[] }</code>.</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Сценарий от начала до второго урока</h3>
+      <p>Так ходит приложение; тем же путём можно прогнать сервер из терминала. Токен положите в переменную <code>TOKEN</code>.</p>
+<pre><code>U=https://teach-tutor-api.fly.dev
+H="Authorization: Bearer $TOKEN"
+
+# 1. Здоровье и фокусы
+curl -s $U/health
+curl -s -X POST -H "$H" -H 'Content-Type: application/json' $U/subjects/focus \
+  -d '{"topic":"Итальянский для поездки"}'
+
+# 2. Источники: задача + опрос (30–120 с)
+JOB=$(curl -s -X POST -H "$H" -H 'Content-Type: application/json' $U/subjects/sources \
+  -d '{"topic":"Итальянский для поездки","focus":"Первые фразы для поездки"}' | jq -r .jobId)
+until curl -s -H "$H" $U/subjects/sources/$JOB | tee /tmp/src.json | grep -q '"ready"'; do sleep 5; done
+
+# 3. План и предмет (источники из мастера передаём в sources — сервер больше их не ищет)
+PLAN=$(curl -s -X POST -H "$H" -H 'Content-Type: application/json' $U/subjects/plan \
+  -d '{"topic":"Итальянский для поездки","focus":"Первые фразы для поездки","mission":"объясниться в кафе и на вокзале"}')
+SID=$(jq -n --argjson s "$(jq .items /tmp/src.json)" --argjson p "$PLAN" \
+  '{topic:"Итальянский для поездки",title:"Итальянский",focus:"Первые фразы для поездки",
+    mission:"объясниться в кафе и на вокзале",sourceIds:[$s[].id],sources:$s,plan:$p,durationMinutes:5}' \
+  | curl -s -X POST -H "$H" -H 'Content-Type: application/json' $U/subjects -d @- | jq -r .subjectId)
+
+# 4. Диагностика: опрос до ready (≈ 20 с)
+until curl -s -H "$H" $U/subjects/$SID/lesson | tee /tmp/l1.json | grep -q '"status":"ready"'; do sleep 3; done
+jq '.lesson.steps[] | {type, recTitle}' /tmp/l1.json
+
+# 5. Предзагрузка второго урока, пока «идёт» первый
+curl -s -X POST -H "$H" $U/subjects/$SID/prefetch
+
+# 6. Разбор: записи с номером урока → урок 2 (сразу из заготовки или ≈ 25 с)
+curl -s -X POST -H "$H" -H 'Content-Type: application/json' $U/sessions/$SID/recap \
+  -d '{"records":[{"title":"Самооценка ≠ уровень","note":"","ok":true,"stepIndex":1,"lessonNumber":1},
+                  {"title":"Вежливое Lei идёт с 3-м лицом","note":"","ok":false,"stepIndex":3,"lessonNumber":1}],
+       "durationMinutes":5}'
+until curl -s -H "$H" $U/subjects/$SID/lesson | tee /tmp/l2.json | grep -q '"number":2,"lesson"'; do sleep 3; done
+jq '{title:.lesson.lessonTitle, level:.lesson.level, prefetched, planStage, planTotal}' /tmp/l2.json
+
+# 7. Оценка свободного ответа по смыслу
+curl -s -X POST -H "$H" -H 'Content-Type: application/json' $U/grade/free \
+  -d '{"criteria":[{"t":"Есть приветствие","keys":["buongiorno"]}],"text":"Buonasera, un caffè per favore","lang":"ru"}'</code></pre>
+      <div class="note">Поле <code>stage</code> в статусе <code>ready</code> отсутствует (null не сериализуется), поэтому в скриптах проверяйте <code>"number":N</code>, а не <code>"stage":null</code>. Идентификаторы демо-предметов клиента (<code>en</code>, <code>speak</code>) сервер не знает: разбор по ним только сохраняет записи.</div>
+    </section>
+
+    <section id="s5">
+      <div class="kicker">5</div>
+      <h2>Форматы данных</h2>
+      <h3>Статус урока</h3>
+<pre><code>{ "status": "preparing", "stage": 0 | 1 | 2, "number": 2 }        // ищу источники → отбираю → собираю
+{ "status": "failed",    "stage": 2, "number": 2 }
+{ "status": "ready", "number": 2, "planStage": 0, "planTotal": 5,
+  "prefetched": true,      // урок пришёл из заготовки
+  "prefetchReady": false,  // заготовка следующего уже лежит на сервере
+  "lesson": { … }, "references": [ { "id", "group", "title", "updatedAfter", "rows": [ { "sec"?, "k", "v", "weak" } ] } ] }</code></pre>
+      <h3>Урок и шаги</h3>
+<pre><code>{ "name": "Итальянский", "level": "этап 01 · Первые фразы для поездки",
+  "lessonTitle": "Урок 2 · Карта первых слов", "diagnostic": false,
+  "steps": [
+    { "type": "explain", "why": "миссия · …", "title": "…", "paras": ["…","…"], "example": "…", "source": "Название, раздел" },
+    { "type": "choice",  "prompt": "…", "options": ["…"], "correct": 1,          "explain": "…", "recTitle": "…", "recNote": "…" },
+    { "type": "input",   "prompt": "…", "placeholder": "…", "tokens": [["un","uno"],["per favore"]], "answer": "…", "voice": "…", "explain": "…", "recTitle": "…", "recNote": "…" },
+    { "type": "order",   "prompt": "…", "items": ["…"], "correct": [1,0,2],     "explain": "…", "recTitle": "…", "recNote": "…" },
+    { "type": "free",    "prompt": "…", "criteria": [{ "t": "…", "keys": ["…"] }], "explain": "…", "recTitle": "…", "recNote": "…" }
+  ] }</code></pre>
+      <ul class="plain">
+        <li><code>correct: -1</code> у выбора — калибровка без правильного ответа (бейдж «ПРИНЯТО»); пустой <code>tokens</code> у ввода принимает любой текст.</li>
+        <li><code>source</code> может заканчиваться на «· доверие среднее/низкое» — клиент показывает это предупреждением; «высокое» сервер вырезает.</li>
+        <li><code>recTitle</code> и <code>recNote</code> — запись об усвоенном: она становится карточкой повтора и уходит в разбор.</li>
+      </ul>
+      <h3>Черновик предмета</h3>
+<pre><code>{ "topic": "…", "title": "…", "focus": "…", "mission": "…",
+  "sourceIds": ["src-0", "src-2"], "sources": [ { "id", "t", "m", "trust": "high"|"mid"|"low" } ],
+  "plan": [ { "n": "01", "t": "…", "d": "…" } ],   // любое число этапов
+  "durationMinutes": 3 | 5 | 10 }</code></pre>
+    </section>
+
+    <section id="s6">
+      <div class="kicker">6</div>
+      <h2>Локальный запуск</h2>
+      <h3>Сервер</h3>
+<pre><code>cd server/Teach.Api
+export ANTHROPIC_API_KEY=…            # без ключа — заглушка модели (Teach__Model=stub)
+dotnet run                            # http://0.0.0.0:5080, база teach.db рядом
+curl localhost:5080/health</code></pre>
+      <p>Настройки через переменные <code>Teach__*</code>: <code>ApiToken</code> (пустой — открытый режим только локально), <code>Db</code>, <code>Model</code> (auto/stub/claude), <code>StageDelayMs</code>, <code>DurationMinutes</code>, <code>ShutdownSeconds</code>.</p>
+      <h3>Клиент</h3>
+<pre><code>cd mobile && npm install
+EXPO_PUBLIC_AUTH_LOCAL=1 EXPO_PUBLIC_VOICE_SIM=1 npx expo start --web      # быстрый просмотр в браузере
+EXPO_PUBLIC_CONTENT_URL=http://&lt;ip&gt;:5080 EXPO_PUBLIC_CONTENT_TOKEN=… npx expo start   # с локальным сервером</code></pre>
+      <p>Флаги: <code>EXPO_PUBLIC_AUTH_LOCAL</code> — вход локальной сессией без провайдера; <code>EXPO_PUBLIC_VOICE_SIM</code> — симуляция распознавания; <code>EXPO_PUBLIC_CONTENT_URL</code> и <code>EXPO_PUBLIC_CONTENT_TOKEN</code> — сервер, без них мастер работает на локальной заглушке.</p>
+    </section>
+
+    <section id="s7">
+      <div class="kicker">7</div>
+      <h2>Деплой и релиз</h2>
+      <h3>Сервер на Fly.io</h3>
+<pre><code>cd server/Teach.Api                   # здесь Dockerfile и fly.toml
+fly deploy --remote-only
+fly logs --app teach-tutor-api</code></pre>
+      <p>Секреты: <code>ANTHROPIC_API_KEY</code> и <code>Teach__ApiToken</code> через <code>fly secrets set</code>. База на томе <code>teach_data</code> в <code>/data</code>. Деплой безопасен посреди генерации: воркер дорабатывает урок при живом сервере, потом машина перезапускается (≈ 10 с паузы), незавершённые предметы ставятся в очередь заново. Отдельного домена не нужно: адрес <code>teach-tutor-api.fly.dev</code> с HTTPS даёт Fly.</p>
+      <h3>iOS в TestFlight</h3>
+<pre><code>cd mobile/ios
+export EXPO_PUBLIC_CONTENT_URL=https://teach-tutor-api.fly.dev EXPO_PUBLIC_CONTENT_TOKEN=…
+xcodebuild -workspace Teach.xcworkspace -scheme Teach -configuration Release -sdk iphoneos \
+  -destination 'generic/platform=iOS' -archivePath build-device/Teach.xcarchive \
+  -allowProvisioningUpdates DEVELOPMENT_TEAM=… archive
+xcodebuild -exportArchive -archivePath build-device/Teach.xcarchive \
+  -exportOptionsPlist ../ExportOptions.plist -exportPath build-device/export -allowProvisioningUpdates</code></pre>
+      <p>Перед сборкой поднять <code>ios.buildNumber</code> в <code>app.json</code> и <code>CFBundleVersion</code> в Info.plist. Адрес сервера и токен зашиваются в бандл на этапе сборки.</p>
+    </section>
+
+    <section id="s8">
+      <div class="kicker">8</div>
+      <h2>Тесты и наблюдение</h2>
+<pre><code>cd server && dotnet test                 # валидатор, политика этапов, API-сценарии, миграция схемы
+cd mobile && npx tsc --noEmit && npx jest # движок сессии, FSRS, сторы, HTTP-контракт, озвучка</code></pre>
+      <p>Серверные API-тесты идут на заглушке модели и проходят весь путь: создание предмета, диагностика, разбор, этапы по результатам, предзагрузка, повторный разбор. В логах Fly видны вызовы модели с токенами и временем, готовность уроков, заготовки и продвижения, дожидание при остановке.</p>
+    </section>
+
+    <section id="s9">
+      <div class="kicker">9</div>
+      <h2>Ссылки</h2>
+      <ul class="plain">
+        <li><a href="/docs/frd.html">Функциональные требования</a> — что должна делать система, по экранам и сущностям, со статусами.</li>
+        <li><a href="/scalar">Scalar</a> — интерактивная справка API с примерами запросов; <a href="/openapi/v1.json">OpenAPI JSON</a>.</li>
+        <li><a href="https://github.com/okirasov/teach">Репозиторий</a> — <code>docs/ai-content.md</code> про генерацию контента, README клиента и сервера.</li>
+      </ul>
+      <div class="note sand">Страница лежит в <code>server/Teach.Api/wwwroot/docs/</code> и выкатывается вместе с сервером. Секретов в ней нет; токен API передаётся отдельно.</div>
+    </section>
+
+    <footer>Teach · техническая документация · сентябрь 2026 · сервер teach-tutor-api</footer>
+  </main>
+</div>
+</body>
+</html>

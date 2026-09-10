@@ -1,3 +1,4 @@
+using Scalar.AspNetCore;
 using Anthropic;
 using Microsoft.EntityFrameworkCore;
 using Teach.Api.Data;
@@ -38,6 +39,19 @@ builder.Services.AddSingleton<IHostLifetime, DrainingLifetime>();
 builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull);
 // CORS нужен только web-превью клиента; нативные приложения его не используют.
 builder.Services.AddCors(o => o.AddDefaultPolicy(p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+// OpenAPI-описание (/openapi/v1.json) и интерактивная справка Scalar (/scalar) — для тестировщиков и интеграций.
+builder.Services.AddOpenApi(o => o.AddDocumentTransformer((doc, _, _) =>
+{
+    doc.Info.Title = "Teach API";
+    doc.Info.Version = "v1";
+    doc.Info.Description = "Сервер-оркестратор мобильного репетитора Teach: мастер предмета, уроки, разбор, предзагрузка, оценка свободных ответов. Все маршруты, кроме /health и документации, требуют заголовок `Authorization: Bearer <token>`.";
+    doc.Components ??= new Microsoft.OpenApi.OpenApiComponents();
+    doc.Components.SecuritySchemes ??= new Dictionary<string, Microsoft.OpenApi.IOpenApiSecurityScheme>();
+    doc.Components.SecuritySchemes["bearer"] = new Microsoft.OpenApi.OpenApiSecurityScheme { Type = Microsoft.OpenApi.SecuritySchemeType.Http, Scheme = "bearer", Description = "Общий токен сервера (Teach:ApiToken)" };
+    doc.Security ??= [];
+    doc.Security.Add(new Microsoft.OpenApi.OpenApiSecurityRequirement { [new Microsoft.OpenApi.OpenApiSecuritySchemeReference("bearer", doc)] = [] });
+    return Task.CompletedTask;
+}));
 
 var app = builder.Build();
 
@@ -46,14 +60,20 @@ using (var scope = app.Services.CreateScope())
     await SchemaUpgrader.UpgradeAsync(scope.ServiceProvider.GetRequiredService<TeachDb>(), app.Logger);
 
 app.UseCors();
+// Документация публична: /docs (техническая документация и FRD), /openapi, /scalar. Секретов там нет.
+app.UseDefaultFiles();
+app.UseStaticFiles();
+app.MapGet("/", () => Results.Redirect("/docs/")).ExcludeFromDescription();
 
 // Общий bearer-токен (Teach:ApiToken). Пустой — открытый режим только для локальной разработки.
 var apiToken = cfg["ApiToken"];
+static bool IsPublic(PathString path) =>
+    path == "/health" || path == "/" || path.StartsWithSegments("/docs") || path.StartsWithSegments("/openapi") || path.StartsWithSegments("/scalar");
 if (!string.IsNullOrEmpty(apiToken))
 {
     app.Use(async (ctx, next) =>
     {
-        if (ctx.Request.Path == "/health" || HttpMethods.IsOptions(ctx.Request.Method)) { await next(); return; }
+        if (IsPublic(ctx.Request.Path) || HttpMethods.IsOptions(ctx.Request.Method)) { await next(); return; }
         var header = ctx.Request.Headers.Authorization.ToString();
         if (header.StartsWith("Bearer ", StringComparison.Ordinal) && header[7..].Trim() == apiToken) { await next(); return; }
         ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -66,6 +86,8 @@ else
 }
 
 app.MapContent();
+app.MapOpenApi();
+app.MapScalarApiReference(o => o.WithTitle("Teach API").WithTheme(ScalarTheme.Kepler).WithDefaultHttpClient(ScalarTarget.Shell, ScalarClient.Curl));
 app.Logger.LogInformation("Teach.Api: model={Model}, prompts={Prompts}", app.Services.GetRequiredService<ILessonModel>().Name, Prompts.Version);
 app.Run();
 

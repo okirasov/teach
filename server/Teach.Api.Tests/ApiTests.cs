@@ -42,6 +42,9 @@ public class AuthTests(SecuredApiFactory f) : IClassFixture<SecuredApiFactory>
     {
         var anon = f.CreateClient();
         Assert.Equal(HttpStatusCode.OK, (await anon.GetAsync("/health")).StatusCode);
+        // Документация и описание API публичны.
+        Assert.Equal(HttpStatusCode.OK, (await anon.GetAsync("/openapi/v1.json")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await anon.GetAsync("/docs/")).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await anon.PostAsJsonAsync("/subjects/focus", new FocusRequest("SQL"))).StatusCode);
 
         var wrong = f.CreateClient();

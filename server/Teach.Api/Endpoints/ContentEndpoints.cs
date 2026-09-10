@@ -15,10 +15,10 @@ public static class ContentEndpoints
 
     public static IEndpointRouteBuilder MapContent(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/health", (ILessonModel model) => Results.Ok(new { ok = true, model = model.Name, prompts = Prompts.Version }));
+        app.MapGet("/health", (ILessonModel model) => Results.Ok(new { ok = true, model = model.Name, prompts = Prompts.Version })).WithSummary("Состояние сервера: модель и версия промптов. Без токена.").WithTags("Служебные");
 
         app.MapPost("/subjects/focus", async (FocusRequest r, ILessonModel model, CancellationToken ct) =>
-            string.IsNullOrWhiteSpace(r.Topic) ? Results.BadRequest("topic is required") : Results.Ok(await model.SuggestFocusAsync(r.Topic.Trim(), ct)));
+            string.IsNullOrWhiteSpace(r.Topic) ? Results.BadRequest("topic is required") : Results.Ok(await model.SuggestFocusAsync(r.Topic.Trim(), ct))).WithSummary("Три варианта сужения темы для мастера (claude-sonnet-5).").WithTags("Мастер предмета");
 
         // Источники ищутся в фоне: POST создаёт задачу (202), GET отдаёт статус и результат.
         app.MapPost("/subjects/sources", (SourcesRequest r, SourcesJobs jobs) =>
@@ -26,16 +26,16 @@ public static class ContentEndpoints
             if (string.IsNullOrWhiteSpace(r.Topic)) return Results.BadRequest("topic is required");
             var id = jobs.Start(r.Topic.Trim(), (r.Focus ?? "").Trim());
             return Results.Accepted($"/subjects/sources/{id}", new JobCreated(id, "running"));
-        });
+        }).WithSummary("Запустить поиск источников (web search, 30–120 с). Возвращает jobId для опроса.").WithTags("Мастер предмета");
 
         app.MapGet("/subjects/sources/{jobId}", (string jobId, SourcesJobs jobs) =>
-            jobs.Get(jobId) is { } st ? Results.Ok(st) : Results.NotFound());
+            jobs.Get(jobId) is { } st ? Results.Ok(st) : Results.NotFound()).WithSummary("Статус поиска источников: running | ready (items) | failed.").WithTags("Мастер предмета");
 
         app.MapPost("/subjects/title", async (FocusRequest r, ILessonModel model, CancellationToken ct) =>
-            string.IsNullOrWhiteSpace(r.Topic) ? Results.BadRequest("topic is required") : Results.Ok(new TitleResponse(await model.SuggestTitleAsync(r.Topic.Trim(), ct))));
+            string.IsNullOrWhiteSpace(r.Topic) ? Results.BadRequest("topic is required") : Results.Ok(new TitleResponse(await model.SuggestTitleAsync(r.Topic.Trim(), ct)))).WithSummary("Короткое имя предмета до 24 символов из формулировки темы.").WithTags("Мастер предмета");
 
         app.MapPost("/subjects/plan", async (PlanRequest r, ILessonModel model, CancellationToken ct) =>
-            string.IsNullOrWhiteSpace(r.Topic) ? Results.BadRequest("topic is required") : Results.Ok(await model.BuildPlanAsync(r.Topic.Trim(), (r.Focus ?? "").Trim(), (r.Mission ?? "").Trim(), ct)));
+            string.IsNullOrWhiteSpace(r.Topic) ? Results.BadRequest("topic is required") : Results.Ok(await model.BuildPlanAsync(r.Topic.Trim(), (r.Focus ?? "").Trim(), (r.Mission ?? "").Trim(), ct))).WithSummary("План из этапов под тему, фокус и миссию.").WithTags("Мастер предмета");
 
         app.MapPost("/subjects", async (SubjectDraft d, TeachDb db, LessonQueue queue, CancellationToken ct) =>
         {
@@ -53,7 +53,7 @@ public static class ContentEndpoints
             await db.SaveChangesAsync(ct);
             await queue.EnqueueAsync(row.Id, LessonJobKind.Prepare, ct);
             return Results.Accepted($"/subjects/{row.Id}/lesson", new SubjectCreated(row.Id.ToString(), "preparing"));
-        });
+        }).WithSummary("Создать предмет и запустить стартовую диагностику в фоне. Источники из мастера передаются в sources и больше не ищутся.").WithTags("Предмет и уроки");
 
         app.MapGet("/subjects/{id:guid}/lesson", async (Guid id, TeachDb db, CancellationToken ct) =>
         {
@@ -71,7 +71,7 @@ public static class ContentEndpoints
                 SubjectStatus.Failed => Results.Ok(new LessonStatus("failed", s.PrepStage, s.LessonNumber + 1, null, null, s.PlanStage, total)),
                 _ => Results.Ok(new LessonStatus("preparing", s.PrepStage, s.LessonNumber + 1, null, null, s.PlanStage, total)),
             };
-        });
+        }).WithSummary("Статус подготовки: preparing (stage 0..2) | failed | ready с уроком, справочниками, этапом плана и флагами предзагрузки.").WithTags("Предмет и уроки");
 
         // Разбор: записи об усвоенном сохраняются; для предмета с сервера ставится генерация следующего урока.
         app.MapPost("/sessions/{subjectId}/recap", async (string subjectId, RecapRequest r, TeachDb db, LessonQueue queue, CancellationToken ct) =>
@@ -124,7 +124,7 @@ public static class ContentEndpoints
             await db.SaveChangesAsync(ct);
             await queue.EnqueueAsync(subject.Id, usePrefetch ? LessonJobKind.Promote : LessonJobKind.Prepare, ct);
             return Results.Accepted($"/subjects/{subject.Id}/lesson", new RecapAccepted("preparing"));
-        });
+        }).WithSummary("Записи разбора урока. Для предмета сервера решает этап плана и готовит следующий урок (из заготовки, если она подошла). Повторная отправка того же урока идемпотентна.").WithTags("Предмет и уроки");
 
         // Предзагрузка: клиент зовёт при открытии урока N, сервер заготавливает N+1 по записям на этот момент.
         app.MapPost("/subjects/{id:guid}/prefetch", async (Guid id, TeachDb db, LessonQueue queue, CancellationToken ct) =>
@@ -138,11 +138,11 @@ public static class ContentEndpoints
             await db.SaveChangesAsync(ct);
             await queue.EnqueueAsync(s.Id, LessonJobKind.Prefetch, ct);
             return Results.Accepted(null, new PrefetchAccepted("queued"));
-        });
+        }).WithSummary("Заготовить следующий урок, пока идёт текущий. Ответ: queued | exists | running | skipped.").WithTags("Предмет и уроки");
 
         app.MapPost("/grade/free", async (GradeRequest r, ILessonModel model, CancellationToken ct) =>
             r.Criteria is null or { Length: 0 } ? Results.BadRequest("criteria are required")
-                : Results.Ok(new GradeResponse(await model.GradeFreeAsync(r.Criteria, r.Text ?? "", r.Lang ?? "ru", ct))));
+                : Results.Ok(new GradeResponse(await model.GradeFreeAsync(r.Criteria, r.Text ?? "", r.Lang ?? "ru", ct)))).WithSummary("Оценка свободного ответа по критериям моделью (claude-haiku-4-5): hits[] по каждому критерию.").WithTags("Оценка");
 
         return app;
     }
