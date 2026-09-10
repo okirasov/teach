@@ -1,0 +1,29 @@
+mobile/app/session/[id].tsx
+  s_a2145daee18e40::t_caa243fa233dbd 1-8,10-49,60-63,81-82,85-86,93-103,105-115,117,120,122-131,135,144-148,151,156-160,166-171,178-291
+mobile/src/features/session/__tests__/engine.test.ts
+  s_a2145daee18e40::t_2c427480f86803 4,8-10,112-161
+mobile/src/features/session/engine.ts
+  s_a2145daee18e40::t_5bf7ad79e58d5f 5-14,18,20-23,37,44-70,91,96,98,100,104,108-111,114,122,125,133,138,144,151-152,158-160
+mobile/src/i18n/en.ts
+  s_a2145daee18e40::t_1a3e003e22b105 46
+mobile/src/i18n/ru.ts
+  s_a2145daee18e40::t_3650dfff91570c 47
+mobile/src/store/session.ts
+  s_a2145daee18e40::t_004a05c69f17a6 5-6,27-29,50-51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "de81f090dde6a4a72fe27c370cf6614e82283903",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
