@@ -1,0 +1,47 @@
+mobile/README.md
+  s_a2145daee18e40::t_b8550dcae48502 79
+mobile/src/db/database.ts
+  s_a2145daee18e40::t_07f21490efe57b 4,6,57,62-63
+mobile/src/db/seedCards.ts
+  s_a2145daee18e40::t_55a350d1f0a3fd 1,12-13,15-16,18-19,27-28,35-37
+mobile/src/domain/__fixtures__/protoLessons.ts
+  s_a2145daee18e40::t_82718c79f40ea3 1-74
+mobile/src/domain/__fixtures__/protoQueue.ts
+  s_a2145daee18e40::t_51d582c7be392a 1-51
+mobile/src/domain/__fixtures__/protoRefs.ts
+  s_a2145daee18e40::t_b10c9ee258caa7 1
+mobile/src/domain/demo/en.ts
+  s_a2145daee18e40::t_1ddf4399674dcd 1-165
+mobile/src/domain/demo/speak.ts
+  s_a2145daee18e40::t_f28199582c9bae 1-167
+mobile/src/domain/seed.ts
+  s_a2145daee18e40::t_dfa5fe6c225992 1-4,6-7,9-14
+mobile/src/features/refs/__tests__/filter.test.ts
+  s_a2145daee18e40::t_b686eb7921c3ab 1
+mobile/src/features/reviews/__tests__/buildReviewLesson.test.ts
+  s_a2145daee18e40::t_83011247c89270 1-2
+mobile/src/features/session/__tests__/engine.test.ts
+  s_a2145daee18e40::t_2608b696cc42dd 1-2
+mobile/src/features/today/useTodaySubjects.ts
+  s_a2145daee18e40::t_513103e9060379 3,36-37
+mobile/src/store/__tests__/progress.test.ts
+  s_a2145daee18e40::t_771a46e4fcd0f0 15-16,48-49,51
+mobile/src/store/__tests__/reviews.test.ts
+  s_a2145daee18e40::t_282a45594fb17f 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "d75961ab59141def4bcf8f4c667c1182325e78ef",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
