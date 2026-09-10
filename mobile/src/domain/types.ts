@@ -73,6 +73,8 @@ export interface Mission {
 }
 
 export interface CustomSubject {
+  /** Порядок создания: по нему предметы идут на «Сегодня» и в «Предметах». */
+  createdAt?: number;
   topic: string;
   /** Короткое имя для карточек; topic — полная формулировка из мастера. */
   title?: string;

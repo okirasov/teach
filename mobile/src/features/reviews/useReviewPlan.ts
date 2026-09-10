@@ -11,12 +11,12 @@ import { dueToday } from './queue';
 export function useReviewPlan(): ReviewLessonPlan {
   const t = useT();
   const cards = useReviews((s) => s.cards);
-  const custom = useProgress((s) => s.custom);
-  const customLesson = useProgress((s) => s.customLesson);
+  const subjects = useProgress((s) => s.subjects);
+  const lessons = useProgress((s) => s.lessons);
   const cap = useSettings((s) => s.cap);
   return useMemo(() => {
     const due = dueToday(cards, new Date());
-    const resolve = (subjectId: string, step: number) => getLesson({ custom, customLesson }, subjectId, t.reviewName)?.steps[step] ?? null;
+    const resolve = (subjectId: string, step: number) => getLesson({ subjects, lessons }, subjectId, t.reviewName)?.steps[step] ?? null;
     return buildReviewLesson(due, resolve, t.reviewName, cap);
-  }, [cards, custom, customLesson, cap, t]);
+  }, [cards, subjects, lessons, cap, t]);
 }

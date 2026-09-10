@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import { type NativeScrollEvent, type NativeSyntheticEvent, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
 
 import { useT } from '@/i18n';
-import { useProgress } from '@/store/progress';
+import { userSubjectIds, useProgress } from '@/store/progress';
 import { useSettings } from '@/store/settings';
 import { useTheme } from '@/theme';
 import { Button, Mark, Screen, Txt } from '@/ui';
@@ -18,7 +18,7 @@ export default function IntroScreen() {
   const { c, space } = useTheme();
   const { width } = useWindowDimensions();
   const setIntroSeen = useSettings((s) => s.setIntroSeen);
-  const hasSubject = useProgress((s) => !!s.custom && !s.removed.custom);
+  const hasSubject = useProgress((s) => userSubjectIds(s).length > 0);
   const [page, setPage] = useState(0);
   const scroll = useRef<ScrollView>(null);
   const slides = t.introSlides;

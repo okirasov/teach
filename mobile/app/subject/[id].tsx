@@ -21,10 +21,10 @@ export default function SubjectSettingsScreen() {
   const mission = useProgress((s) => s.missions[id]?.cur ?? '');
   const cfg = useProgress(useShallow((s) => subjectConfig(s, id)));
   const rawCfg = useProgress((s) => s.cfg[id]);
-  const custom = useProgress((s) => s.custom);
+  const subjects = useProgress((s) => s.subjects);
   const setCfg = useProgress((s) => s.setCfg);
   const patch = (p: Parameters<typeof setCfg>[1]) => setCfg(id, p);
-  const vl = voiceLangOptions(t, subjectLanguage({ custom }, id), uiLang, rawCfg ?? {});
+  const vl = voiceLangOptions(t, subjectLanguage({ subjects }, id), uiLang, rawCfg ?? {});
 
   const rowTitle = (label: string, desc?: string) => (
     <View style={{ flexShrink: 1 }}>
@@ -70,7 +70,7 @@ export default function SubjectSettingsScreen() {
                 </View>
               </>
             ) : null}
-            {subjectLanguage({ custom }, id) ? (
+            {subjectLanguage({ subjects }, id) ? (
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 14, paddingTop: 14, borderTopWidth: 1, borderTopColor: c.lineSoft }}>
                 {rowTitle(t.ttsC, t.ttsD)}
                 <Toggle value={cfg.tts !== false} onChange={(v) => patch({ tts: v })} label={t.ttsC} />

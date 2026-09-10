@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useAuth } from '@/store/auth';
 import { persistSlice } from '@/store/persist';
-import { useProgress } from '@/store/progress';
+import { migrateProgressSnapshot, useProgress } from '@/store/progress';
 import { useSettings } from '@/store/settings';
 import { useRefs } from '@/store/refs';
 import { useReviews } from '@/store/reviews';
@@ -38,7 +38,13 @@ export function DbGate({ children }: { children: React.ReactNode }) {
         await attachRefs(r.refs);
         unsubs.push(await persistSlice(useSettings, r.kv, 'settings', ['lang', 'theme', 'reminder', 'weekendOff', 'cap', 'mode', 'introSeen']));
         unsubs.push(
-          await persistSlice(useProgress, r.kv, 'progress', ['done', 'removed', 'added', 'custom', 'customLesson', 'prepStage', 'missions', 'cfg', 'reviewLog', 'sessions']),
+          await persistSlice(
+            useProgress,
+            r.kv,
+            'progress',
+            ['done', 'removed', 'added', 'subjects', 'lessons', 'prep', 'missions', 'cfg', 'reviewLog', 'sessions'],
+            migrateProgressSnapshot,
+          ),
         );
         if (!cancelled) setReadyFor(accountId);
       })

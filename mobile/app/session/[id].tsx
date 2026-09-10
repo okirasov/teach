@@ -36,7 +36,7 @@ import { useReviewPlan } from "@/features/reviews/useReviewPlan";
 import { content } from "@/content";
 import { prefetchNextLesson } from "@/features/subjects/prepare";
 import {
-  CUSTOM_ID,
+  isUserSubject,
   getLesson,
   REVIEW_ID,
   subjectConfig,
@@ -54,15 +54,15 @@ export default function SessionScreen() {
   const t = useT();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const custom = useProgress((s) => s.custom);
-  const customLesson = useProgress((s) => s.customLesson);
+  const subjects = useProgress((s) => s.subjects);
+  const lessons = useProgress((s) => s.lessons);
   const plan = useReviewPlan();
   const lesson = useMemo(
     () =>
       id === REVIEW_ID
         ? plan.lesson
-        : getLesson({ custom, customLesson }, id, t.reviewName),
-    [custom, customLesson, id, t, plan],
+        : getLesson({ subjects, lessons }, id, t.reviewName),
+    [subjects, lessons, id, t, plan],
   );
   const cardIds = id === REVIEW_ID ? plan.cardIds : undefined;
   const saved = useProgress((st) => st.sessions[id]);
@@ -90,7 +90,8 @@ export default function SessionScreen() {
   }, [id, lesson, cardIds, s, start, saved]);
   // Пока идёт урок N, сервер заготавливает N+1 — после разбора он отдаётся без ожидания.
   useEffect(() => {
-    if (id === CUSTOM_ID) prefetchNextLesson(content);
+    if (isUserSubject({ subjects }, id)) prefetchNextLesson(content, id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   // Показанный шаг может быть пройденным: ответ заморожен, ввод и микрофон выключены.
@@ -100,11 +101,11 @@ export default function SessionScreen() {
   const hint =
     step && !past && step.type !== "explain" ? step.voice : undefined;
   const voice = useVoiceInput(
-    voiceLangFor(subjectLanguage({ custom }, subjId), cfg, uiLang),
+    voiceLangFor(subjectLanguage({ subjects }, subjId), cfg, uiLang),
     hint,
     mode === "hands",
   );
-  const ttsLang = ttsLangFor(subjectLanguage({ custom }, subjId), cfg);
+  const ttsLang = ttsLangFor(subjectLanguage({ subjects }, subjId), cfg);
   useStopSpeechOn(s?.view);
   // Свайп вправо — к пройденным шагам, влево — вперёд до активного; вертикальная прокрутка не мешает.
   const pan = usePanGesture({

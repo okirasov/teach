@@ -11,11 +11,14 @@ export async function persistSlice<S extends object, K extends keyof S>(
   kv: KvRepo,
   key: string,
   fields: K[],
+  /** Приводит снимок старой версии к текущей форме до применения. */
+  migrate?: (saved: Record<string, unknown>) => Record<string, unknown>,
 ): Promise<() => void> {
   const raw = await kv.get(key);
   if (raw) {
     try {
-      const saved = JSON.parse(raw) as Partial<Pick<S, K>>;
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      const saved = (migrate ? migrate(parsed) : parsed) as Partial<Pick<S, K>>;
       const patch: Partial<S> = {};
       for (const f of fields) if (f in saved) patch[f] = saved[f] as S[K];
       store.setState(patch);

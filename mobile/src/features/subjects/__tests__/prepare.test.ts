@@ -1,6 +1,6 @@
 import { createLocalContentService } from '@/content/local';
 import { memoryRefsRepo } from '@/db/refsRepo';
-import { CUSTOM_ID, PREP_STAGES, useProgress } from '@/store/progress';
+import { CUSTOM_ID, PREP_STAGES, prepOf, useProgress, userSubjectIds } from '@/store/progress';
 import { useRefs } from '@/store/refs';
 import { createSubjectAndPrepare, prefetchNextLesson, prepareNextLesson, resumePrepare, retryPrepare } from '../prepare';
 
@@ -13,102 +13,180 @@ beforeEach(async () => {
 });
 
 const draft = { topic: 'SQL', focus: 'Основы и синтаксис', mission: 'писать отчёты', sourceIds: ['src-0'] };
+const svc = () => createLocalContentService({ stageMs: 5 });
+const sub = (id: string) => useProgress.getState().subjects[id];
+const patchSubject = (id: string, patch: Record<string, unknown>) =>
+  useProgress.setState((st) => ({ subjects: { ...st.subjects, [id]: { ...st.subjects[id], ...patch } } }));
 
 describe('createSubjectAndPrepare', () => {
   it('creates the subject as «preparing» and flips it to ready with the generated lesson', async () => {
-    const p = createSubjectAndPrepare(createLocalContentService({ stageMs: 5 }), draft);
-    const before = useProgress.getState();
-    expect(before.custom).toMatchObject({ topic: 'SQL', ready: false });
-    await p;
+    const p = createSubjectAndPrepare(svc(), draft);
+    expect(sub(CUSTOM_ID)).toMatchObject({ topic: 'SQL', ready: false });
+    const id = await p;
+    expect(id).toBe(CUSTOM_ID);
     const after = useProgress.getState();
-    expect(after.custom?.ready).toBe(true);
-    expect(after.prepStage).toBe(PREP_STAGES);
-    expect(after.customLesson?.name).toBe('SQL');
-    expect(after.missions[CUSTOM_ID].cur).toBe('писать отчёты');
+    expect(after.subjects[id].ready).toBe(true);
+    expect(prepOf(after, id).stage).toBe(PREP_STAGES);
+    expect(after.lessons[id]?.name).toBe('SQL');
+    expect(after.missions[id].cur).toBe('писать отчёты');
   });
 
   it('does not resurrect a subject deleted while preparing', async () => {
-    const p = createSubjectAndPrepare(createLocalContentService({ stageMs: 5 }), draft);
+    const p = createSubjectAndPrepare(svc(), draft);
     useProgress.getState().removeSubject(CUSTOM_ID);
     await p;
-    expect(useProgress.getState().custom).toBeNull();
-    expect(useProgress.getState().customLesson).toBeNull();
+    expect(sub(CUSTOM_ID)).toBeUndefined();
+    expect(useProgress.getState().lessons[CUSTOM_ID]).toBeUndefined();
   });
 
   it('a failing service leaves the subject in place with prepError; retry can finish it', async () => {
-    const failing = { ...createLocalContentService({ stageMs: 5 }), prepareFirstLesson: async () => { throw new Error('offline'); } };
-    await createSubjectAndPrepare(failing, draft);
-    let s = useProgress.getState();
-    expect(s.custom).toMatchObject({ topic: 'SQL', ready: false, sourceIds: ['src-0'] });
-    expect(s.prepError).toBe('offline');
+    const failing = { ...svc(), prepareFirstLesson: async () => { throw new Error('offline'); } };
+    const id = await createSubjectAndPrepare(failing, draft);
+    expect(sub(id)).toMatchObject({ topic: 'SQL', ready: false, sourceIds: ['src-0'] });
+    expect(prepOf(useProgress.getState(), id).error).toBe('offline');
 
-    await retryPrepare(createLocalContentService({ stageMs: 5 }));
-    s = useProgress.getState();
-    expect(s.prepError).toBeNull();
-    expect(s.custom?.ready).toBe(true);
+    await retryPrepare(svc(), id);
+    expect(prepOf(useProgress.getState(), id).error).toBeNull();
+    expect(sub(id).ready).toBe(true);
   });
 
   it('after a recap the next lesson is prepared and replaces the current one; done resets', async () => {
-    const svc = createLocalContentService({ stageMs: 5 });
-    await createSubjectAndPrepare(svc, draft);
-    useProgress.getState().markDone(CUSTOM_ID, [{ t: 'a', s: 'SQL' }]);
-    expect(useProgress.getState().custom).toMatchObject({ ready: true, lessonNumber: 1, language: null });
+    const s1 = svc();
+    const id = await createSubjectAndPrepare(s1, draft);
+    useProgress.getState().markDone(id, [{ t: 'a', s: 'SQL' }]);
+    expect(sub(id)).toMatchObject({ ready: true, lessonNumber: 1, language: null });
 
-    const p = prepareNextLesson(svc, [{ title: 'Стартовая уверенность', note: '', ok: true, stepIndex: 1 }, { title: 'Карта того, что уже есть', note: '', ok: false, stepIndex: 2 }]);
-    expect(useProgress.getState().custom?.ready).toBe(false);
+    const p = prepareNextLesson(s1, id, [{ title: 'Стартовая уверенность', note: '', ok: true, stepIndex: 1 }, { title: 'Карта того, что уже есть', note: '', ok: false, stepIndex: 2 }]);
+    expect(sub(id).ready).toBe(false);
     await p;
-    const s = useProgress.getState();
-    expect(s.custom).toMatchObject({ ready: true, lessonNumber: 2 });
-    expect(s.customLesson?.lessonTitle).toBe('Урок 2 · Каркас темы');
-    expect(s.done[CUSTOM_ID]).toBe(false);
+    const st = useProgress.getState();
+    expect(st.subjects[id]).toMatchObject({ ready: true, lessonNumber: 2 });
+    expect(st.lessons[id]?.lessonTitle).toBe('Урок 2 · Каркас темы');
+    expect(st.done[id]).toBe(false);
   });
 
   it('language is detected at creation', async () => {
-    await createSubjectAndPrepare(createLocalContentService({ stageMs: 5 }), { ...draft, topic: 'Итальянский язык с самого начала' });
-    expect(useProgress.getState().custom?.language).toMatchObject({ code: 'it-IT', en: 'Italian' });
+    const id = await createSubjectAndPrepare(svc(), { ...draft, topic: 'Итальянский язык с самого начала' });
+    expect(sub(id).language).toMatchObject({ code: 'it-IT', en: 'Italian' });
   });
 
   it('stores the subject title and the glossary reference that came with the lesson', async () => {
-    await createSubjectAndPrepare(createLocalContentService({ stageMs: 5 }), { ...draft, title: 'SQL' });
-    expect(useProgress.getState().custom?.title).toBe('SQL');
-    const refs = useRefs.getState().refs.filter((r) => r.subjectId === CUSTOM_ID);
+    const id = await createSubjectAndPrepare(svc(), { ...draft, title: 'SQL' });
+    expect(sub(id).title).toBe('SQL');
+    const refs = useRefs.getState().refs.filter((r) => r.subjectId === id);
     expect(refs).toHaveLength(1);
     expect(refs[0]).toMatchObject({ subjectName: 'SQL', group: 'Глоссарий', updatedAfter: 1 });
     expect(refs[0].rows.length).toBeGreaterThan(0);
 
-    await prepareNextLesson(createLocalContentService({ stageMs: 5 }), [{ title: 'Стартовая уверенность', note: '', ok: false, stepIndex: 1 }]);
-    const after = useRefs.getState().refs.filter((r) => r.subjectId === CUSTOM_ID);
+    await prepareNextLesson(svc(), id, [{ title: 'Стартовая уверенность', note: '', ok: false, stepIndex: 1 }]);
+    const after = useRefs.getState().refs.filter((r) => r.subjectId === id);
     expect(after).toHaveLength(1);
     expect(after[0].updatedAfter).toBe(2);
   });
 
   it('prefetch asks the service only for a ready remote subject and swallows errors', async () => {
-    const svc = createLocalContentService({ stageMs: 5 });
-    const spy = jest.spyOn(svc, 'prefetchNextLesson').mockRejectedValue(new Error('offline'));
-    prefetchNextLesson(svc);
+    const s1 = svc();
+    const spy = jest.spyOn(s1, 'prefetchNextLesson').mockRejectedValue(new Error('offline'));
+    prefetchNextLesson(s1, CUSTOM_ID);
     expect(spy).not.toHaveBeenCalled(); // предмета нет
-    await createSubjectAndPrepare(svc, draft);
-    useProgress.setState((st) => ({ custom: { ...st.custom!, remoteId: 'r1' } }));
-    prefetchNextLesson(svc);
+    const id = await createSubjectAndPrepare(s1, draft);
+    patchSubject(id, { remoteId: 'r1' });
+    prefetchNextLesson(s1, id);
     expect(spy).toHaveBeenCalledWith('r1');
     await new Promise((r) => setTimeout(r, 0));
-    expect(useProgress.getState().prepError).toBeNull();
+    expect(prepOf(useProgress.getState(), id).error).toBeNull();
   });
 
   it('resume after a restart waits for the server lesson without re-sending the recap', async () => {
-    const svc = createLocalContentService({ stageMs: 5 });
-    await createSubjectAndPrepare(svc, draft);
+    const s1 = svc();
+    const id = await createSubjectAndPrepare(s1, draft);
     // Приложение закрыли посреди подготовки урока 2: ready=false, записи уже ушли.
-    useProgress.setState((st) => ({ custom: { ...st.custom!, ready: false, remoteId: 'r1', pendingRecords: [] }, prepStage: 1 }));
-    const next = jest.spyOn(svc, 'prepareNextLesson');
-    await resumePrepare(svc);
+    patchSubject(id, { ready: false, remoteId: 'r1', pendingRecords: [] });
+    useProgress.getState().setPrepStage(id, 1);
+    const next = jest.spyOn(s1, 'prepareNextLesson');
+    await resumePrepare(s1);
     expect(next).not.toHaveBeenCalled();
-    expect(useProgress.getState().custom).toMatchObject({ ready: true, lessonNumber: 2 });
+    expect(sub(id)).toMatchObject({ ready: true, lessonNumber: 2 });
     // Готовый предмет и предмет с ошибкой не трогаем.
-    const resume = jest.spyOn(svc, 'resumeLesson');
-    await resumePrepare(svc);
-    useProgress.setState((st) => ({ custom: { ...st.custom!, ready: false }, prepError: 'boom' }));
-    await resumePrepare(svc);
+    const resume = jest.spyOn(s1, 'resumeLesson');
+    await resumePrepare(s1);
+    patchSubject(id, { ready: false });
+    useProgress.getState().setPrepError(id, 'boom');
+    await resumePrepare(s1);
     expect(resume).not.toHaveBeenCalled();
+  });
+});
+
+describe('несколько предметов', () => {
+  it('второй предмет не затирает первый: свои id, уроки, миссии и справочники', async () => {
+    const first = await createSubjectAndPrepare(svc(), draft);
+    const second = await createSubjectAndPrepare(svc(), { topic: 'Итальянский', focus: 'Фразы', mission: 'кафе', sourceIds: ['src-0'] });
+    expect(first).toBe(CUSTOM_ID);
+    expect(second).not.toBe(first);
+    expect(userSubjectIds(useProgress.getState())).toEqual([first, second]);
+
+    const st = useProgress.getState();
+    expect(st.subjects[first].topic).toBe('SQL');
+    expect(st.subjects[second].topic).toBe('Итальянский');
+    expect(st.missions[first].cur).toBe('писать отчёты');
+    expect(st.missions[second].cur).toBe('кафе');
+    expect(st.lessons[first]?.name).toBe('SQL');
+    expect(st.lessons[second]?.name).toBe('Итальянский');
+    expect(useRefs.getState().refs.filter((r) => r.subjectId === first)).toHaveLength(1);
+    expect(useRefs.getState().refs.filter((r) => r.subjectId === second)).toHaveLength(1);
+  });
+
+  it('подготовка и ошибки у предметов независимы', async () => {
+    const ok = await createSubjectAndPrepare(svc(), draft);
+    const failing = { ...svc(), prepareFirstLesson: async () => { throw new Error('offline'); } };
+    const bad = await createSubjectAndPrepare(failing, { topic: 'Итальянский', focus: 'Фразы', mission: 'кафе', sourceIds: [] });
+
+    const st = useProgress.getState();
+    expect(prepOf(st, ok).error).toBeNull();
+    expect(prepOf(st, ok).stage).toBe(PREP_STAGES);
+    expect(prepOf(st, bad).error).toBe('offline');
+    expect(st.subjects[ok].ready).toBe(true);
+    expect(st.subjects[bad].ready).toBe(false);
+
+    // Повтор одного не трогает другой.
+    await retryPrepare(svc(), bad);
+    expect(useProgress.getState().subjects[bad].ready).toBe(true);
+    expect(useProgress.getState().subjects[ok].ready).toBe(true);
+  });
+
+  it('удаление одного предмета оставляет второй нетронутым', async () => {
+    const first = await createSubjectAndPrepare(svc(), draft);
+    const second = await createSubjectAndPrepare(svc(), { topic: 'Итальянский', focus: 'Фразы', mission: 'кафе', sourceIds: [] });
+    useProgress.getState().removeSubject(first);
+    const st = useProgress.getState();
+    expect(st.subjects[first]).toBeUndefined();
+    expect(st.lessons[first]).toBeUndefined();
+    expect(st.subjects[second].topic).toBe('Итальянский');
+    expect(st.lessons[second]).toBeDefined();
+    expect(userSubjectIds(st)).toEqual([second]);
+  });
+
+  it('resume поднимает обе прерванные подготовки', async () => {
+    const s1 = svc();
+    const a = await createSubjectAndPrepare(s1, draft);
+    const b = await createSubjectAndPrepare(s1, { topic: 'Итальянский', focus: 'Фразы', mission: 'кафе', sourceIds: [] });
+    patchSubject(a, { ready: false, remoteId: 'ra', pendingRecords: [] });
+    patchSubject(b, { ready: false, remoteId: 'rb', pendingRecords: [] });
+    await resumePrepare(s1);
+    expect(useProgress.getState().subjects[a].ready).toBe(true);
+    expect(useProgress.getState().subjects[b].ready).toBe(true);
+  });
+});
+
+describe('одновременные подготовки', () => {
+  it('вторая подготовка того же предмета не запускается, пока идёт первая', async () => {
+    const s1 = svc();
+    const id = await createSubjectAndPrepare(s1, draft);
+    patchSubject(id, { ready: false, remoteId: 'r1', pendingRecords: [] });
+    const spy = jest.spyOn(s1, 'resumeLesson');
+    // Возобновление и повтор стартуют одновременно — модель должна быть вызвана один раз.
+    await Promise.all([resumePrepare(s1), resumePrepare(s1)]);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(sub(id).ready).toBe(true);
   });
 });

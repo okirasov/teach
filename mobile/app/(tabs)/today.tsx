@@ -49,7 +49,7 @@ export default function TodayScreen() {
             <SubjectCard
               key={m.id}
               m={m}
-              onPress={() => (m.prepFailed ? void retryPrepare(content) : router.push({ pathname: '/session/[id]', params: { id: m.id } }))}
+              onPress={() => (m.prepFailed ? void retryPrepare(content, m.id) : router.push({ pathname: '/session/[id]', params: { id: m.id } }))}
             />
           ))}
         </View>

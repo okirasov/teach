@@ -5,7 +5,7 @@ import Svg, { Circle, Path } from 'react-native-svg';
 
 import { useT } from '@/i18n';
 import { useAuth } from '@/store/auth';
-import { activeSubjectIds, CUSTOM_ID, subjectName, useProgress } from '@/store/progress';
+import { activeSubjectIds, isUserSubject, subjectName, useProgress } from '@/store/progress';
 import { useTheme } from '@/theme';
 import { AppHeader, Button, Card, Chip, Screen, TabTitle, Txt } from '@/ui';
 
@@ -24,6 +24,7 @@ function MissionCard({ id }: { id: string }) {
   const router = useRouter();
   const { c, radius, border, fonts } = useTheme();
   const name = useProgress((s) => subjectName(s, id));
+  const demo = useProgress((s) => !isUserSubject(s, id));
   const mission = useProgress((s) => s.missions[id]);
   const setMission = useProgress((s) => s.setMission);
   const [draft, setDraft] = useState<string | null>(null);
@@ -34,7 +35,7 @@ function MissionCard({ id }: { id: string }) {
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
         <Txt t="body" style={{ fontFamily: fonts.sans600, lineHeight: 20, flexShrink: 1 }}>{name}</Txt>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          {id !== CUSTOM_ID ? <Chip label={t.demo} tone="sand" small /> : null}
+          {demo ? <Chip label={t.demo} tone="sand" small /> : null}
           <View style={{ backgroundColor: c.sand, paddingVertical: 6, paddingHorizontal: 9, borderRadius: radius.chip }}>
             <Txt t="chipSm" color="sandInk">{`v${m.hist.length + 1}`}</Txt>
           </View>
@@ -97,8 +98,8 @@ export default function SubjectsScreen() {
   const { c, radius, space } = useTheme();
   const name = useAuth((s) => s.account?.name ?? '');
   const removed = useProgress((s) => s.removed);
-  const custom = useProgress((s) => s.custom);
-  const ids = activeSubjectIds({ removed, custom });
+  const subjects = useProgress((s) => s.subjects);
+  const ids = activeSubjectIds({ removed, subjects });
 
   return (
     <Screen noBottom>
