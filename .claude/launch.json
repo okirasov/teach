@@ -4,7 +4,23 @@
     {
       "name": "expo-web",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["expo", "start", "--web", "--port", "8081"],
+      "runtimeArgs": [
+        "expo",
+        "start",
+        "--web",
+        "--port",
+        "8081"
+      ],
+      "cwd": "mobile",
+      "port": 8081
+    },
+    {
+      "name": "expo-web-local",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "CI=1 EXPO_PUBLIC_AUTH_LOCAL=1 EXPO_PUBLIC_VOICE_SIM=1 npx expo start --web --port 8081 --clear"
+      ],
       "cwd": "mobile",
       "port": 8081
     }

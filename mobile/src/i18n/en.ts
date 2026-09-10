@@ -23,7 +23,7 @@ export const en: Dict = {
   manageChip: 'SUBJECT SETTINGS',
   pause: 'Pause lessons', pauseD: 'reviews keep coming', rem: 'Reminders', remD: 'evenings, 7 pm',
   dur: 'Lesson length', limit: 'Daily review cap', diff: 'Practice difficulty', diffA: 'Comfortable', diffB: 'At the edge',
-  voiceC: 'Voice in this course', voiceD: 'speaking practice and live transcript', voiceLang: 'Recognition language', vlUi: 'Interface', vlLesson: 'Lesson',
+  voiceC: 'Voice in this course', voiceD: 'speaking practice and live transcript', ttsC: 'Read examples aloud', ttsD: 'examples and options with the system voice, offline', voiceLang: 'Recognition language', vlUi: 'Interface', vlLesson: 'Lesson',
   obsT: 'SYSTEM OBSERVATIONS', obsD: 'Collected from sessions — confirm or dismiss', accept: 'Apply', rejectB: 'Not me',
   accepted: 'applied', rejectedC: 'dismissed', minU: 'min', perDay: 'per day',
   themeT: 'Theme', lightL: 'Light', darkL: 'Dark',

@@ -119,6 +119,8 @@ export interface SubjectConfig {
   diff: 'comfy' | 'edge';
   voice: boolean;
   vlang: 'ui' | 'lesson';
+  /** Озвучка примеров и вариантов голосом системы; по умолчанию включена у языковых предметов. */
+  tts?: boolean;
 }
 
 export const defaultSubjectConfig: SubjectConfig = { pause: false, dur: 10, lim: 20, diff: 'edge', voice: true, vlang: 'lesson' };

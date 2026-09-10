@@ -3,6 +3,8 @@ import { useEffect, useMemo } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 
 import { isBaselineCheck } from '@/features/session/baseline';
+import { SpeakerProvider, useStopSpeechOn } from '@/features/session/speaker';
+import { ttsLangFor } from '@/voice/tts';
 import { canProceed, critHits, currentStep, evaluate, primaryAction } from '@/features/session/engine';
 import { ChoiceView, ExplainView, FeedbackCard, InputView, OrderView } from '@/features/session/StepViews';
 import { useVoiceInput } from '@/features/session/useVoiceInput';
@@ -53,6 +55,8 @@ export default function SessionScreen() {
   const step = s ? currentStep(s) : null;
   const hint = step && step.type !== 'explain' ? step.voice : undefined;
   const voice = useVoiceInput(voiceLangFor(subjectLanguage({ custom }, id), cfg, uiLang), hint, mode === 'hands');
+  const ttsLang = ttsLangFor(subjectLanguage({ custom }, id), cfg);
+  useStopSpeechOn(s?.step);
 
   if (!s || !step || !lesson) return <Screen />;
 
@@ -97,6 +101,7 @@ export default function SessionScreen() {
   }
 
   return (
+    <SpeakerProvider lang={ttsLang}>
     <Screen>
       <SessionHeader chip={lesson.name} counter={`${s.step + 1}/${n}`} onClose={onExit} total={n} current={s.step} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={8}>
@@ -137,5 +142,6 @@ export default function SessionScreen() {
         <Button label={label} onPress={onPrimary} disabled={!canProceed(s)} style={{ marginTop: 10 }} />
       </KeyboardAvoidingView>
     </Screen>
+    </SpeakerProvider>
   );
 }

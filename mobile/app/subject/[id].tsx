@@ -70,6 +70,12 @@ export default function SubjectSettingsScreen() {
                 </View>
               </>
             ) : null}
+            {subjectLanguage({ custom }, id) ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 14, paddingTop: 14, borderTopWidth: 1, borderTopColor: c.lineSoft }}>
+                {rowTitle(t.ttsC, t.ttsD)}
+                <Toggle value={cfg.tts !== false} onChange={(v) => patch({ tts: v })} label={t.ttsC} />
+              </View>
+            ) : null}
           </View>
         </Card>
       </ScrollView>
