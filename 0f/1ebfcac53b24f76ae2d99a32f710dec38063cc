@@ -1,0 +1,41 @@
+mobile/README.md
+  s_a2145daee18e40::t_7e3bc9f50b01f0 73-78
+mobile/app.json
+  s_a2145daee18e40::t_8737405f39f9c6 67-68
+mobile/app/(tabs)/_layout.tsx
+  s_a2145daee18e40::t_5b5314ee1b6efb 2,5,15-16,18-19,22-25
+mobile/package-lock.json
+  s_a2145daee18e40::t_047e75f893451b 24,3562-3567,4881-4889,5038-5055
+mobile/package.json
+  s_a2145daee18e40::t_f661f519d14e62 29
+mobile/src/features/reminders/__tests__/schedule.test.ts
+  s_a2145daee18e40::t_117465c35bdfe2 1-19
+mobile/src/features/reminders/notifications.ts
+  s_a2145daee18e40::t_ca5695dddfa7cb 1-51
+mobile/src/features/reminders/schedule.ts
+  s_a2145daee18e40::t_11f1dbda1ee848 1-21
+mobile/src/features/reminders/useReminders.ts
+  s_a2145daee18e40::t_ebfcc22f12fe3d 1-26
+mobile/src/i18n/en.ts
+  s_a2145daee18e40::t_7dab2333e3b063 31
+mobile/src/i18n/ru.ts
+  s_a2145daee18e40::t_4e94ed26d0ec8d 32
+mobile/src/store/auth.ts
+  s_a2145daee18e40::t_d2cc1c9cbc64ff 4,44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "0f1ebfcac53b24f76ae2d99a32f710dec38063cc",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
