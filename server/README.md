@@ -35,6 +35,8 @@ fly deploy && curl https://teach-tutor-api.fly.dev/health
 
 Клиент собирается с `EXPO_PUBLIC_CONTENT_URL=https://teach-tutor-api.fly.dev` и `EXPO_PUBLIC_CONTENT_TOKEN=<тот же токен>`.
 
+Доступ. Общий токен `Teach:ApiToken` остаётся: им ходят сборки до входа по Apple и он же админский — только он выдаёт и отзывает именные токены (`POST/GET/DELETE /admin/tokens`). Приложение после входа меняет Apple identityToken на токен аккаунта (`POST /auth/apple`, проверка подписи по ключам Apple, аудитория из `Teach:AppleAudience`), и предметы становятся видны только своему владельцу (`Subjects.OwnerId`, `GET /subjects` отдаёт свои). Предметы, созданные до этого, лежат у владельца `shared` и остаются доступны всем авторизованным: их и раньше видел каждый с общим токеном, а терять предметы тестировщиков при обновлении нельзя. Токены хранятся хешами (SHA-256), отзыв действует сразу и не трогает остальные.
+
 Документация отдаётся сервером без токена: техническая страница `/docs/` (`wwwroot/docs/index.html`), функциональные требования `/docs/frd.html`, интерактивная справка API `/scalar` и описание `/openapi/v1.json` (Microsoft.AspNetCore.OpenApi + Scalar; сводки маршрутов заданы через `WithSummary`/`WithTags` в `ContentEndpoints`). Корень `/` перенаправляет на `/docs/`.
 
 Деплой безопасен посреди генерации: по SIGINT воркер дорабатывает текущий урок при живом сервере

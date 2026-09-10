@@ -15,18 +15,19 @@ public sealed class TokenStore(IServiceScopeFactory scopes, TimeProvider clock)
 
     private static string NewSecret() => Convert.ToHexString(RandomNumberGenerator.GetBytes(24)).ToLowerInvariant();
 
-    /// <summary>Выдаёт токен владельцу. Для пользователя Apple переиспользует владельца, но всегда делает новый токен.</summary>
-    public async Task<string> IssueAsync(string ownerId, string kind, string? name, CancellationToken ct)
+    /// <summary>Выдаёт токен владельцу. Значение возвращается один раз, в базе только его хеш.</summary>
+    public async Task<(Guid Id, string Token)> IssueAsync(string ownerId, string kind, string? name, CancellationToken ct)
     {
         using var scope = scopes.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<TeachDb>();
         var secret = NewSecret();
+        var id = Guid.NewGuid();
         db.ApiTokens.Add(new ApiTokenRow
         {
-            Id = Guid.NewGuid(), Hash = Hash(secret), OwnerId = ownerId, Kind = kind, Name = name, CreatedAt = clock.GetUtcNow(),
+            Id = id, Hash = Hash(secret), OwnerId = ownerId, Kind = kind, Name = name, CreatedAt = clock.GetUtcNow(),
         });
         await db.SaveChangesAsync(ct);
-        return secret;
+        return (id, secret);
     }
 
     /// <summary>Владелец токена или null, если токен неизвестен или отозван.</summary>
@@ -62,6 +63,8 @@ public sealed class TokenStore(IServiceScopeFactory scopes, TimeProvider clock)
     {
         using var scope = scopes.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<TeachDb>();
-        return await db.ApiTokens.OrderByDescending(x => x.CreatedAt).ToListAsync(ct);
+        // Сортируем в памяти: SQLite не умеет ORDER BY по DateTimeOffset.
+        var rows = await db.ApiTokens.AsNoTracking().ToListAsync(ct);
+        return rows.OrderByDescending(x => x.CreatedAt).ToList();
     }
 }

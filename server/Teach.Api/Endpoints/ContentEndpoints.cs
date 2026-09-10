@@ -151,7 +151,9 @@ public static class ContentEndpoints
         app.MapGet("/subjects", async (HttpContext ctx, TeachDb db, CancellationToken ct) =>
         {
             var owner = AuthEndpoints.Caller(ctx).Owner;
-            var rows = await db.Subjects.AsNoTracking().Where(x => x.OwnerId == owner).OrderBy(x => x.CreatedAt).ToListAsync(ct);
+            // Сортировка в памяти: SQLite не умеет ORDER BY по DateTimeOffset.
+            var rows = (await db.Subjects.AsNoTracking().Where(x => x.OwnerId == owner).ToListAsync(ct)).OrderBy(x => x.CreatedAt);
+            // В список отдаём только свои: предметы общего владельца принадлежали всем сразу и в списке аккаунта не нужны.
             return Results.Ok(rows.Select(x => new SubjectSummary(
                 x.Id.ToString(), x.Title ?? x.Topic, x.Topic, x.Focus, x.Mission, x.LessonNumber, x.PlanStage, Plans.Of(x).Length, x.Status.ToString().ToLowerInvariant(), x.UpdatedAt)));
         }).WithSummary("Предметы текущего владельца токена: id, имя, номер урока и этап плана.").WithTags("Предмет и уроки");
@@ -159,6 +161,11 @@ public static class ContentEndpoints
         return app;
     }
 
-    /// <summary>Предмет принадлежит вызывающему. Общий токен видит и предметы старых сборок.</summary>
-    private static bool Owns(HttpContext ctx, SubjectRow s) => s.OwnerId == AuthEndpoints.Caller(ctx).Owner;
+    /// <summary>
+    /// Предмет доступен вызывающему. Предметы, созданные до входа по Apple, лежат у общего владельца
+    /// и остаются доступны всем: их и раньше видел каждый с общим токеном, а терять предметы
+    /// тестировщиков при обновлении нельзя. Новые предметы принадлежат конкретному аккаунту.
+    /// </summary>
+    private static bool Owns(HttpContext ctx, SubjectRow s) =>
+        s.OwnerId == AuthEndpoints.Caller(ctx).Owner || s.OwnerId == Caller.SharedOwner;
 }

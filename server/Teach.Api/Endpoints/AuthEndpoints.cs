@@ -15,12 +15,12 @@ public static class AuthEndpoints
     public static IEndpointRouteBuilder MapAuth(this IEndpointRouteBuilder app)
     {
         // Вход приложения: identityToken от Apple меняется на токен сервера, привязанный к пользователю.
-        app.MapPost("/auth/apple", async (AppleSignInRequest r, IAppleTokenVerifier verifier, TokenStore tokens, TeachDb db, CancellationToken ct) =>
+        app.MapPost("/auth/apple", async (AppleSignInRequest r, IAppleTokenVerifier verifier, TokenStore tokens, CancellationToken ct) =>
         {
             var identity = await verifier.VerifyAsync(r.IdentityToken ?? "", ct);
             if (identity is null) return Results.Unauthorized();
             var owner = $"apple:{identity.Sub}";
-            var token = await tokens.IssueAsync(owner, "user", null, ct);
+            var (_, token) = await tokens.IssueAsync(owner, "user", null, ct);
             return Results.Ok(new SessionTokenResponse(token, owner));
         }).WithSummary("Обменять Apple identityToken на токен сервера, привязанный к этому пользователю.").WithTags("Доступ").AllowAnonymous();
 
@@ -29,29 +29,31 @@ public static class AuthEndpoints
 
         admin.MapPost("", async (NewTesterTokenRequest r, HttpContext ctx, TokenStore tokens, CancellationToken ct) =>
         {
-            if (!Caller(ctx).IsAdmin) return Results.Forbid();
+            if (!Caller(ctx).IsAdmin) return Denied;
             var name = (r.Name ?? "").Trim();
             if (name.Length == 0) return Results.BadRequest("name is required");
-            var token = await tokens.IssueAsync($"tester:{name}", "tester", name, ct);
-            var row = (await tokens.ListAsync(ct)).First(x => x.Name == name && x.RevokedAt is null);
-            return Results.Ok(new TesterTokenResponse(row.Id.ToString(), name, token));
+            var (id, token) = await tokens.IssueAsync($"tester:{name}", "tester", name, ct);
+            return Results.Ok(new TesterTokenResponse(id.ToString(), name, token));
         }).WithSummary("Выдать именной токен тестировщику. Значение показывается один раз.");
 
         admin.MapGet("", async (HttpContext ctx, TokenStore tokens, CancellationToken ct) =>
         {
-            if (!Caller(ctx).IsAdmin) return Results.Forbid();
+            if (!Caller(ctx).IsAdmin) return Denied;
             var rows = await tokens.ListAsync(ct);
             return Results.Ok(rows.Select(x => new TokenInfo(x.Id.ToString(), x.Kind, x.Name, x.OwnerId, x.CreatedAt, x.LastUsedAt, x.RevokedAt)));
         }).WithSummary("Список выданных токенов без самих значений: кто, когда создан, когда использовался, отозван ли.");
 
         admin.MapDelete("/{id:guid}", async (Guid id, HttpContext ctx, TokenStore tokens, CancellationToken ct) =>
         {
-            if (!Caller(ctx).IsAdmin) return Results.Forbid();
+            if (!Caller(ctx).IsAdmin) return Denied;
             return await tokens.RevokeAsync(id, ct) ? Results.NoContent() : Results.NotFound();
         }).WithSummary("Отозвать токен: он перестаёт работать немедленно, остальные не трогаются.");
 
         return app;
     }
+
+    /// <summary>Именные токены выдаёт только владелец общего токена, а не тестировщик своим же токеном.</summary>
+    private static IResult Denied => Results.Json(new { error = "forbidden" }, statusCode: StatusCodes.Status403Forbidden);
 
     /// <summary>Владелец текущего запроса — его кладёт middleware в Program.cs.</summary>
     public static Caller Caller(HttpContext ctx) => ctx.Items["caller"] as Caller ?? Auth.Caller.Shared;

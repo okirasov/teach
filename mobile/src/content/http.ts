@@ -4,8 +4,8 @@ import type { ContentService, FocusOption, PlanStage, PrepStage, ReferenceIn, So
 /** Контракт сервера — docs/ai-content.md, server/Teach.Api. */
 export interface HttpContentOptions {
   baseUrl: string;
-  /** Общий bearer-токен сервера (EXPO_PUBLIC_CONTENT_TOKEN). */
-  token?: string;
+  /** Bearer-токен сервера. Функция — токен может смениться после входа. */
+  token?: string | (() => string | undefined);
   /** Интервал опроса статуса подготовки, мс. */
   pollMs?: number;
   /** Максимальное время ожидания урока, мс. */
@@ -34,6 +34,7 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
   const timeoutMs = opts.timeoutMs ?? 600_000;
   const outageMs = opts.outageMs ?? 180_000;
   const f = opts.fetchFn ?? fetch;
+  const bearer = () => (typeof opts.token === 'function' ? opts.token() : opts.token);
 
   async function call<T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T> {
     const res = await f(base + path, {
@@ -41,7 +42,7 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        ...(opts.token ? { Authorization: `Bearer ${opts.token}` } : {}),
+        ...(bearer() ? { Authorization: `Bearer ${bearer()}` } : {}),
       },
       body: body === undefined ? undefined : JSON.stringify(body),
     });

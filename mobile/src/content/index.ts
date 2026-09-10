@@ -1,3 +1,4 @@
+import { apiToken } from './apiToken';
 import { createHttpContentService } from './http';
 import { createLocalContentService } from './local';
 import type { ContentService } from './types';
@@ -12,5 +13,7 @@ export const contentUrl = process.env.EXPO_PUBLIC_CONTENT_URL?.trim() || null;
  * интерфейс для экранов тот же.
  */
 export const content: ContentService = contentUrl
-  ? createHttpContentService({ baseUrl: contentUrl, token: process.env.EXPO_PUBLIC_CONTENT_TOKEN?.trim() || undefined })
+  ? createHttpContentService({ baseUrl: contentUrl, token: apiToken })
   : createLocalContentService();
+
+export { apiToken, clearApiToken, exchangeAppleToken, hydrateApiToken, setApiToken } from './apiToken';

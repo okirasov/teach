@@ -106,4 +106,18 @@ describe('http content service', () => {
     const svc3 = createHttpContentService({ baseUrl: 'http://srv', fetchFn: gone.fn, pollMs: 1, outageMs: 1000 });
     await expect(svc3.prepareFirstLesson({ topic: 'x', focus: '', mission: '', sourceIds: [] }, () => {})).rejects.toMatchObject({ status: 404 });
   });
+
+  it('sends the token from a getter, so it can change after sign-in', async () => {
+    let token: string | undefined = 'build-token';
+    const { fn, calls } = fakeFetch(() => ({ body: [{ t: 'a', d: 'b' }] }));
+    const svc = createHttpContentService({ baseUrl: 'http://srv', fetchFn: fn, pollMs: 1, token: () => token });
+    await svc.suggestFocus('x');
+    expect((calls[0].init?.headers as Record<string, string>).Authorization).toBe('Bearer build-token');
+    token = 'account-token';
+    await svc.suggestFocus('x');
+    expect((calls[1].init?.headers as Record<string, string>).Authorization).toBe('Bearer account-token');
+    token = undefined;
+    await svc.suggestFocus('x');
+    expect((calls[2].init?.headers as Record<string, string>)?.Authorization).toBeUndefined();
+  });
 });

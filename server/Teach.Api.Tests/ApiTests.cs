@@ -1,9 +1,11 @@
+using System.Net.Http.Headers;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Teach.Api.Contracts;
 using Teach.Api.Domain;
+using Teach.Api.Endpoints;
 using Teach.Api.Model;
 
 namespace Teach.Api.Tests;
@@ -96,6 +98,22 @@ public class TokenAndOwnerTests(SecuredApiFactory f) : IClassFixture<SecuredApiF
         // Разбор по чужому предмету только сохраняет записи и не готовит урок.
         var recap = await other.PostAsJsonAsync($"/sessions/{id}/recap", new RecapRequest([new("a", "…", true, 1, 1)]));
         Assert.Equal("stored", (await recap.Content.ReadFromJsonAsync<RecapAccepted>(Json))!.Status);
+    }
+
+    [Fact]
+    public async Task SubjectsFromBeforeSignInStayReachableAfterAccountTokensAppear()
+    {
+        // Предмет старой сборки: создан под общим токеном.
+        var legacy = WithToken(f.CreateClient(), "secret-1");
+        var created = await legacy.PostAsJsonAsync("/subjects", new SubjectDraft("SQL", "Основы и синтаксис", "писать отчёты", ["src-0"]));
+        var id = (await created.Content.ReadFromJsonAsync<SubjectCreated>(Json))!.SubjectId;
+
+        // После обновления клиент ходит с токеном аккаунта — предмет не должен пропасть.
+        var account = WithToken(f.CreateClient(), await IssueTesterAsync("after-update"));
+        Assert.Equal(HttpStatusCode.OK, (await account.GetAsync($"/subjects/{id}/lesson")).StatusCode);
+        var recap = await account.PostAsJsonAsync($"/sessions/{id}/recap", new RecapRequest([new("a", "…", true, 1, 1)]));
+        Assert.Equal(HttpStatusCode.Accepted, recap.StatusCode);
+        Assert.Equal("preparing", (await recap.Content.ReadFromJsonAsync<RecapAccepted>(Json))!.Status);
     }
 
     [Fact]
