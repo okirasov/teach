@@ -13,13 +13,14 @@ export function useTodaySubjects(): SubjectCardModel[] {
   const removed = useProgress((s) => s.removed);
   const subjects = useProgress((s) => s.subjects);
   const lessons = useProgress((s) => s.lessons);
-  const prep = useProgress((s) => s.prep);
+  const prepStages = useProgress((s) => s.prepStages);
+  const prepErrors = useProgress((s) => s.prepErrors);
 
   return useMemo(() => {
     return activeSubjectIds({ removed, subjects }).map((id): SubjectCardModel => {
       const sub = subjects[id];
       if (sub) {
-        const p = prepOf({ prep }, id);
+        const p = prepOf({ prepStages, prepErrors }, id);
         return {
           id,
           name: sub.title ?? sub.topic,
@@ -37,5 +38,5 @@ export function useTodaySubjects(): SubjectCardModel[] {
       // Демо: урок 2 первого этапа плана на пять этапов, как у настоящего предмета после диагностики.
       return { id, name: l.name, level: l.level, lessonTitle: l.lessonTitle ?? '', done: !!done[id], demo: true, plan: planProgress(seedPlans[id], 2, 0) };
     });
-  }, [t, done, removed, subjects, lessons, prep]);
+  }, [t, done, removed, subjects, lessons, prepStages, prepErrors]);
 }

@@ -67,3 +67,5 @@ public sealed record LessonStatus(
     bool PrefetchReady = false);
 
 public sealed record PrefetchAccepted(string Status);
+
+public sealed record SubjectSummary(string Id, string Name, string Topic, string Focus, string Mission, int LessonNumber, int PlanStage, int PlanTotal, string Status, DateTimeOffset UpdatedAt);

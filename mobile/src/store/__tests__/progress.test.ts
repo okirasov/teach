@@ -30,7 +30,6 @@ describe('progress store', () => {
 
   it('custom subject appears, prepares in stages and becomes ready', () => {
     const id = useProgress.getState().createSubject({ topic: 'SQL', focus: 'Основы и синтаксис', mission: 'писать отчёты' });
-    expect(id).toBe(CUSTOM_ID);
     expect(activeSubjectIds(useProgress.getState())).toContain(id);
     expect(useProgress.getState().subjects[id].ready).toBe(false);
     useProgress.getState().setPrepStage(id, 1);
@@ -42,22 +41,24 @@ describe('progress store', () => {
   });
 
   it('removing the custom subject drops it entirely', () => {
-    useProgress.getState().createSubject({ topic: 'SQL', focus: '', mission: 'm' });
-    useProgress.getState().removeSubject(CUSTOM_ID);
-    expect(useProgress.getState().subjects[CUSTOM_ID]).toBeUndefined();
-    expect(activeSubjectIds(useProgress.getState())).not.toContain(CUSTOM_ID);
+    const id = useProgress.getState().createSubject({ topic: 'SQL', focus: '', mission: 'm' });
+    useProgress.getState().removeSubject(id);
+    expect(useProgress.getState().subjects[id]).toBeUndefined();
+    expect(activeSubjectIds(useProgress.getState())).not.toContain(id);
   });
 
-  it('ids: первый предмет — исторический custom, следующие — сгенерированные', () => {
+  it('ids монотонные и не переиспользуются после удаления', () => {
     const a = useProgress.getState().createSubject({ topic: 'SQL', focus: '', mission: 'm' });
     const b = useProgress.getState().createSubject({ topic: 'Итальянский', focus: '', mission: 'm2' });
     const c = useProgress.getState().createSubject({ topic: 'История', focus: '', mission: 'm3' });
-    expect([a, b, c]).toEqual([CUSTOM_ID, 'custom-2', 'custom-3']);
+    expect([a, b, c]).toEqual(['s1', 's2', 's3']);
     expect(userSubjectIds(useProgress.getState())).toEqual([a, b, c]);
-    // Удалили средний — новый предмет занимает освободившийся id, не ломая остальные.
+    // Удалили средний — новый предмет получает СВОЙ id, а не освободившийся:
+    // иначе он унаследовал бы карточки повторов и справочники удалённого.
     useProgress.getState().removeSubject(b);
     const d = useProgress.getState().createSubject({ topic: 'Ещё', focus: '', mission: 'm4' });
-    expect(d).toBe('custom-2');
+    expect(d).toBe('s4');
+    expect(userSubjectIds(useProgress.getState())).toEqual([a, c, d]);
     expect(useProgress.getState().subjects[a].topic).toBe('SQL');
     expect(useProgress.getState().subjects[c].topic).toBe('История');
   });
@@ -76,6 +77,19 @@ describe('progress store', () => {
     expect(getLesson(useProgress.getState(), b, 'Повторы')?.name).toBe('Итальянский');
   });
 
+  it('ошибка подготовки не сохраняется между запусками', () => {
+    const id = useProgress.getState().createSubject({ topic: 'SQL', focus: '', mission: 'm' });
+    useProgress.getState().setPrepError(id, 'offline');
+    expect(prepOf(useProgress.getState(), id).error).toBe('offline');
+    // Следующая попытка снимает ошибку.
+    useProgress.getState().setPrepStage(id, 1);
+    expect(prepOf(useProgress.getState(), id)).toEqual({ stage: 1, error: null });
+    // Ошибки нет среди сохраняемых полей — после перезапуска подготовка возобновится сама.
+    useProgress.getState().setPrepError(id, 'offline');
+    expect(Object.keys(useProgress.getState())).toContain('prepErrors');
+    expect(useProgress.getState().prepStages[id]).toBe(1);
+  });
+
   it('снимок старой версии с одним предметом переносится под id custom', () => {
     const legacy = {
       done: { custom: true }, removed: {}, added: 3, missions: {}, cfg: {}, reviewLog: [], sessions: {},
@@ -84,15 +98,30 @@ describe('progress store', () => {
       prepStage: 3, prepError: null,
     };
     const next = migrateProgressSnapshot(legacy) as Record<string, any>;
-    expect(next.subjects[CUSTOM_ID]).toMatchObject({ topic: 'Итальянский', ready: true, remoteId: 'r1', createdAt: 1 });
+    expect(next.subjects[CUSTOM_ID]).toMatchObject({ topic: 'Итальянский', ready: true, remoteId: 'r1', createdAt: 0 });
     expect(next.lessons[CUSTOM_ID].name).toBe('Итальянский');
-    expect(next.prep[CUSTOM_ID]).toEqual({ stage: 3, error: null });
+    // Готовый предмет не «в подготовке», ошибка не переносится.
+    expect(next.prepStages[CUSTOM_ID]).toBeUndefined();
+    expect(next.prepErrors).toEqual({});
+    expect(next.seq).toBe(0);
     expect(next.added).toBe(3);
     expect('custom' in next).toBe(false);
+    // Перенесённый предмет остаётся первым, следующий получает s1 и идёт после него.
+    useProgress.setState(next as never);
+    const second = useProgress.getState().createSubject({ topic: 'Новый', focus: '', mission: 'm' });
+    expect(second).toBe('s1');
+    expect(userSubjectIds(useProgress.getState())).toEqual([CUSTOM_ID, 's1']);
     // Уже новый снимок не трогаем; пустой старый даёт пустые записи.
-    const modern = { subjects: { x: {} }, lessons: {}, prep: {} };
+    const modern = { subjects: { x: {} }, lessons: {}, prepStages: {} };
     expect(migrateProgressSnapshot(modern)).toBe(modern);
-    expect(migrateProgressSnapshot({ added: 1 })).toMatchObject({ added: 1, subjects: {}, lessons: {}, prep: {} });
+    expect(migrateProgressSnapshot({ added: 1 })).toMatchObject({ added: 1, subjects: {}, lessons: {}, seq: 0 });
+
+    // Прерванная подготовка переносится с этапом, но без ошибки: возобновится сама.
+    const interrupted = migrateProgressSnapshot({
+      custom: { topic: 'SQL', focus: '', mission: 'm', ready: false }, customLesson: null, prepStage: 2, prepError: 'offline',
+    }) as Record<string, any>;
+    expect(interrupted.prepStages[CUSTOM_ID]).toBe(2);
+    expect(interrupted.prepErrors).toEqual({});
   });
 
   it('mission edits append history versions, never delete', () => {

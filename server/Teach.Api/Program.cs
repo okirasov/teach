@@ -1,4 +1,5 @@
 using Scalar.AspNetCore;
+using Teach.Api.Auth;
 using Anthropic;
 using Microsoft.EntityFrameworkCore;
 using Teach.Api.Data;
@@ -30,6 +31,10 @@ builder.Services.AddSingleton(new WorkerOptions
     MaxAttempts = cfg.GetValue("MaxAttempts", 3),
     DurationMinutes = cfg.GetValue("DurationMinutes", 10),
 });
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton<TokenStore>();
+builder.Services.AddHttpClient<IAppleTokenVerifier, AppleTokenVerifier>();
+builder.Services.AddSingleton(new AppleTokenVerifierOptions { Audiences = (cfg["AppleAudience"] ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) });
 builder.Services.AddSingleton<LessonQueue>();
 builder.Services.AddSingleton<SourcesJobs>();
 builder.Services.AddSingleton<LessonWorker>();
@@ -68,14 +73,23 @@ app.MapGet("/", () => Results.Redirect("/docs/")).ExcludeFromDescription();
 // Общий bearer-токен (Teach:ApiToken). Пустой — открытый режим только для локальной разработки.
 var apiToken = cfg["ApiToken"];
 static bool IsPublic(PathString path) =>
-    path == "/health" || path == "/" || path.StartsWithSegments("/docs") || path.StartsWithSegments("/openapi") || path.StartsWithSegments("/scalar");
+    path == "/health" || path == "/" || path.StartsWithSegments("/docs") || path.StartsWithSegments("/openapi") || path.StartsWithSegments("/scalar")
+    // Вход по Apple — сам источник токена, своего ещё нет.
+    || path.StartsWithSegments("/auth");
 if (!string.IsNullOrEmpty(apiToken))
 {
     app.Use(async (ctx, next) =>
     {
         if (IsPublic(ctx.Request.Path) || HttpMethods.IsOptions(ctx.Request.Method)) { await next(); return; }
         var header = ctx.Request.Headers.Authorization.ToString();
-        if (header.StartsWith("Bearer ", StringComparison.Ordinal) && header[7..].Trim() == apiToken) { await next(); return; }
+        var presented = header.StartsWith("Bearer ", StringComparison.Ordinal) ? header[7..].Trim() : "";
+        if (presented.Length > 0)
+        {
+            // Общий токен — старые сборки и админ; иначе выданный токен пользователя или тестировщика.
+            if (presented == apiToken) { ctx.Items["caller"] = Caller.Shared; await next(); return; }
+            var caller = await ctx.RequestServices.GetRequiredService<TokenStore>().ResolveAsync(presented, ctx.RequestAborted);
+            if (caller is not null) { ctx.Items["caller"] = caller; await next(); return; }
+        }
         ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
         await ctx.Response.WriteAsJsonAsync(new { error = "unauthorized" });
     });
@@ -86,6 +100,7 @@ else
 }
 
 app.MapContent();
+app.MapAuth();
 app.MapOpenApi();
 app.MapScalarApiReference(o => o.WithTitle("Teach API").WithTheme(ScalarTheme.Kepler).WithDefaultHttpClient(ScalarTarget.Shell, ScalarClient.Curl));
 app.Logger.LogInformation("Teach.Api: model={Model}, prompts={Prompts}", app.Services.GetRequiredService<ILessonModel>().Name, Prompts.Version);

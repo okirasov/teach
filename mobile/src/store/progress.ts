@@ -25,6 +25,9 @@ export interface PrepState {
 
 const NO_PREP: PrepState = { stage: 0, error: null };
 
+/** Зарезервированные id: демо, повторы и исторический первый предмет. */
+const RESERVED = new Set<SubjectId>([REVIEW_ID, CUSTOM_ID, ...DEMO_IDS]);
+
 /** Прогресс и данные обучения. Пользовательских предметов может быть несколько. */
 export interface ProgressState {
   done: Record<SubjectId, boolean>;
@@ -37,8 +40,15 @@ export interface ProgressState {
   subjects: Record<SubjectId, CustomSubject>;
   /** Текущий готовый урок каждого предмета. */
   lessons: Record<SubjectId, Lesson>;
-  /** Состояние подготовки по предмету: несколько предметов могут готовиться одновременно. */
-  prep: Record<SubjectId, PrepState>;
+  /** Этап подготовки по предмету (переживает перезапуск). */
+  prepStages: Record<SubjectId, number>;
+  /**
+   * Ошибка подготовки по предмету. Намеренно не сохраняется: после перезапуска
+   * прерванная подготовка должна возобновиться сама, а не остаться навсегда «неудачной».
+   */
+  prepErrors: Record<SubjectId, string>;
+  /** Монотонный счётчик: даёт id и порядок, никогда не переиспользуется. */
+  seq: number;
   missions: Record<SubjectId, Mission>;
   cfg: Record<SubjectId, Partial<SubjectConfig>>;
   reviewLog: { t: string; s: string }[];
@@ -58,13 +68,13 @@ export interface ProgressState {
   setCfg: (id: SubjectId, patch: Partial<SubjectConfig>) => void;
 }
 
-/** Id нового предмета: первый занимает исторический 'custom', остальные — по счётчику. */
-export function nextSubjectId(subjects: Record<SubjectId, CustomSubject>): SubjectId {
-  if (!(CUSTOM_ID in subjects)) return CUSTOM_ID;
-  for (let n = 2; ; n += 1) {
-    const id = `custom-${n}`;
-    if (!(id in subjects)) return id;
-  }
+/**
+ * Id нового предмета по монотонному счётчику. Id удалённого предмета не переиспользуется:
+ * иначе новый предмет унаследовал бы карточки повторов и справочники удалённого,
+ * если их удаление ещё не дошло до SQLite.
+ */
+export function nextSubjectId(seq: number): SubjectId {
+  return `s${seq}`;
 }
 
 export const useProgress = create<ProgressState>((set) => ({
@@ -74,7 +84,9 @@ export const useProgress = create<ProgressState>((set) => ({
   added: 0,
   subjects: {},
   lessons: {},
-  prep: {},
+  prepStages: {},
+  prepErrors: {},
+  seq: 0,
   missions: { ...seedMissions },
   cfg: {},
   reviewLog: [],
@@ -101,13 +113,17 @@ export const useProgress = create<ProgressState>((set) => ({
         cfg: drop(s.cfg),
         subjects: drop(s.subjects),
         lessons: drop(s.lessons),
-        prep: drop(s.prep),
+        prepStages: drop(s.prepStages),
+        prepErrors: drop(s.prepErrors),
         sessions: drop(s.sessions),
       };
     }),
   createSubject: (c) => {
-    const id = nextSubjectId(useProgress.getState().subjects);
+    let seq = useProgress.getState().seq + 1;
+    while (RESERVED.has(nextSubjectId(seq))) seq += 1;
+    const id = nextSubjectId(seq);
     set((s) => ({
+      seq,
       subjects: {
         ...s.subjects,
         [id]: {
@@ -115,19 +131,24 @@ export const useProgress = create<ProgressState>((set) => ({
           ready: false,
           language: c.language === undefined ? detectLanguage(c.topic) : c.language,
           lessonNumber: 0,
-          createdAt: c.createdAt ?? Object.keys(s.subjects).length + 1,
+          createdAt: seq,
         },
       },
       lessons: (({ [id]: _drop, ...rest }) => rest)(s.lessons),
-      prep: { ...s.prep, [id]: NO_PREP },
+      prepStages: { ...s.prepStages, [id]: 0 },
+      prepErrors: (({ [id]: _dropErr, ...rest }) => rest)(s.prepErrors),
       missions: { ...s.missions, [id]: { cur: c.mission, hist: [] } },
       removed: { ...s.removed, [id]: false },
       done: { ...s.done, [id]: false },
     }));
     return id;
   },
-  setPrepStage: (id, stage) => set((s) => ({ prep: { ...s.prep, [id]: { stage, error: null } } })),
-  setPrepError: (id, message) => set((s) => ({ prep: { ...s.prep, [id]: { stage: s.prep[id]?.stage ?? 0, error: message } } })),
+  setPrepStage: (id, stage) =>
+    set((s) => ({ prepStages: { ...s.prepStages, [id]: stage }, prepErrors: (({ [id]: _drop, ...rest }) => rest)(s.prepErrors) })),
+  setPrepError: (id, message) =>
+    set((s) => (message === null
+      ? { prepErrors: (({ [id]: _drop, ...rest }) => rest)(s.prepErrors) }
+      : { prepErrors: { ...s.prepErrors, [id]: message } })),
   setSubjectReady: (id, lesson, remoteId, planStage) =>
     set((s) => {
       const cur = s.subjects[id];
@@ -141,7 +162,8 @@ export const useProgress = create<ProgressState>((set) => ({
           },
         },
         lessons: { ...s.lessons, [id]: lesson },
-        prep: { ...s.prep, [id]: { stage: PREP_STAGES, error: null } },
+        prepStages: { ...s.prepStages, [id]: PREP_STAGES },
+        prepErrors: (({ [id]: _dropErr, ...rest }) => rest)(s.prepErrors),
         // Новый урок — прерванная сессия прошлого урока больше не нужна.
         sessions: (({ [id]: _dropped, ...rest }) => rest)(s.sessions),
         // Новый урок — предмет снова «не пройден сегодня».
@@ -156,7 +178,8 @@ export const useProgress = create<ProgressState>((set) => ({
       return {
         subjects: { ...s.subjects, [id]: { ...cur, ready: false, pendingRecords: records } },
         // Источники предмета уже есть — следующий урок начинается сразу с «собираю урок».
-        prep: { ...s.prep, [id]: { stage: 2, error: null } },
+        prepStages: { ...s.prepStages, [id]: 2 },
+        prepErrors: (({ [id]: _dropErr, ...rest }) => rest)(s.prepErrors),
       };
     }),
   setMission: (id, text) =>
@@ -188,8 +211,11 @@ export function isUserSubject(s: SubjectsSlice, id: SubjectId): boolean {
 }
 
 /** Состояние подготовки предмета. */
-export function prepOf(s: Pick<ProgressState, 'prep'>, id: SubjectId): PrepState {
-  return s.prep[id] ?? NO_PREP;
+export function prepOf(s: Pick<ProgressState, 'prepStages' | 'prepErrors'>, id: SubjectId): PrepState {
+  const stage = s.prepStages[id];
+  const error = s.prepErrors[id];
+  if (stage === undefined && error === undefined) return NO_PREP;
+  return { stage: stage ?? 0, error: error ?? null };
 }
 
 /** Язык предмета: у пользовательского — сохранённый при создании, у сидовых — по имени. */
@@ -223,17 +249,21 @@ export function getLesson(s: Pick<ProgressState, 'subjects' | 'lessons'>, id: Su
  */
 export function migrateProgressSnapshot(saved: Record<string, unknown>): Record<string, unknown> {
   if (!saved || 'subjects' in saved) return saved;
-  const { custom, customLesson: lesson, prepStage, prepError, ...rest } = saved as Record<string, unknown> & {
+  const { custom, customLesson: lesson, prepStage, prepError: _dropError, ...rest } = saved as Record<string, unknown> & {
     custom?: CustomSubject | null;
     customLesson?: Lesson | null;
     prepStage?: number;
     prepError?: string | null;
   };
-  if (!custom) return { ...rest, subjects: {}, lessons: {}, prep: {} };
+  // Ошибку подготовки не переносим: после обновления прерванная подготовка должна возобновиться.
+  if (!custom) return { ...rest, subjects: {}, lessons: {}, prepStages: {}, prepErrors: {}, seq: 0 };
   return {
     ...rest,
-    subjects: { [CUSTOM_ID]: { ...custom, createdAt: custom.createdAt ?? 1 } },
+    // createdAt 0 и seq 0: предмет остаётся первым, следующий получит id s1.
+    subjects: { [CUSTOM_ID]: { ...custom, createdAt: 0 } },
     lessons: lesson ? { [CUSTOM_ID]: lesson } : {},
-    prep: { [CUSTOM_ID]: { stage: typeof prepStage === 'number' ? prepStage : 0, error: prepError ?? null } },
+    prepStages: custom.ready ? {} : { [CUSTOM_ID]: typeof prepStage === 'number' ? prepStage : 0 },
+    prepErrors: {},
+    seq: 0,
   };
 }

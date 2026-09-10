@@ -7,6 +7,8 @@ public enum SubjectStatus { Preparing = 0, Ready = 1, Failed = 2 }
 public sealed class SubjectRow
 {
     public Guid Id { get; set; }
+    /// <summary>Владелец: `apple:&lt;sub&gt;`, `tester:&lt;имя&gt;` или `shared` у сборок со старым общим токеном.</summary>
+    public string OwnerId { get; set; } = Auth.Caller.SharedOwner;
     public required string Topic { get; set; }
     /// <summary>Короткое имя для карточек; null — показывается Topic.</summary>
     public string? Title { get; set; }
@@ -89,10 +91,14 @@ public sealed class TeachDb(DbContextOptions<TeachDb> options) : DbContext(optio
     public DbSet<LearningRecordRow> Records => Set<LearningRecordRow>();
     public DbSet<LessonRow> Lessons => Set<LessonRow>();
     public DbSet<ReferenceRow> References => Set<ReferenceRow>();
+    public DbSet<ApiTokenRow> ApiTokens => Set<ApiTokenRow>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
         b.Entity<SubjectRow>().HasKey(x => x.Id);
+        b.Entity<SubjectRow>().HasIndex(x => x.OwnerId);
+        b.Entity<ApiTokenRow>().HasKey(x => x.Id);
+        b.Entity<ApiTokenRow>().HasIndex(x => x.Hash).IsUnique();
         b.Entity<LearningRecordRow>().HasKey(x => x.Id);
         b.Entity<LearningRecordRow>().HasIndex(x => x.SubjectId);
         b.Entity<LessonRow>().HasKey(x => x.Id);
@@ -100,4 +106,20 @@ public sealed class TeachDb(DbContextOptions<TeachDb> options) : DbContext(optio
         b.Entity<ReferenceRow>().HasKey(x => x.Id);
         b.Entity<ReferenceRow>().HasIndex(x => x.SubjectId);
     }
+}
+
+/// <summary>
+/// Выданный токен доступа. Хранится только SHA-256: утечка базы не даёт рабочих токенов.
+/// Kind: `user` — выдан по Apple identityToken, `tester` — именной токен тестировщика.
+/// </summary>
+public sealed class ApiTokenRow
+{
+    public Guid Id { get; set; }
+    public required string Hash { get; set; }
+    public required string OwnerId { get; set; }
+    public required string Kind { get; set; }
+    public string? Name { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? LastUsedAt { get; set; }
+    public DateTimeOffset? RevokedAt { get; set; }
 }

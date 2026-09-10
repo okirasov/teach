@@ -35,6 +35,87 @@ public sealed class SecuredApiFactory : ApiFactory
     }
 }
 
+public class TokenAndOwnerTests(SecuredApiFactory f) : IClassFixture<SecuredApiFactory>
+{
+    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+
+    private static HttpClient WithToken(HttpClient c, string token)
+    {
+        c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        return c;
+    }
+
+    private async Task<string> IssueTesterAsync(string name)
+    {
+        var admin = WithToken(f.CreateClient(), "secret-1");
+        var res = await admin.PostAsJsonAsync("/admin/tokens", new NewTesterTokenRequest(name));
+        Assert.Equal(HttpStatusCode.OK, res.StatusCode);
+        return (await res.Content.ReadFromJsonAsync<TesterTokenResponse>(Json))!.Token;
+    }
+
+    [Fact]
+    public async Task IssuedTesterTokenWorksAndCanBeRevokedWithoutTouchingOthers()
+    {
+        var first = await IssueTesterAsync("qa-one");
+        var second = await IssueTesterAsync("qa-two");
+        var c1 = WithToken(f.CreateClient(), first);
+        var c2 = WithToken(f.CreateClient(), second);
+        Assert.Equal(HttpStatusCode.OK, (await c1.PostAsJsonAsync("/subjects/focus", new FocusRequest("SQL"))).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await c2.PostAsJsonAsync("/subjects/focus", new FocusRequest("SQL"))).StatusCode);
+
+        var admin = WithToken(f.CreateClient(), "secret-1");
+        var list = await admin.GetFromJsonAsync<TokenInfo[]>("/admin/tokens", Json);
+        var id = list!.First(x => x.Name == "qa-one").Id;
+        Assert.Equal(HttpStatusCode.NoContent, (await admin.DeleteAsync($"/admin/tokens/{id}")).StatusCode);
+
+        // Отозванный перестал работать сразу, второй жив.
+        Assert.Equal(HttpStatusCode.Unauthorized, (await c1.PostAsJsonAsync("/subjects/focus", new FocusRequest("SQL"))).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await c2.PostAsJsonAsync("/subjects/focus", new FocusRequest("SQL"))).StatusCode);
+    }
+
+    [Fact]
+    public async Task SubjectsAreVisibleOnlyToTheirOwner()
+    {
+        var mine = WithToken(f.CreateClient(), await IssueTesterAsync("owner-a"));
+        var other = WithToken(f.CreateClient(), await IssueTesterAsync("owner-b"));
+
+        var created = await mine.PostAsJsonAsync("/subjects", new SubjectDraft("SQL", "Основы и синтаксис", "писать отчёты", ["src-0"]));
+        var id = (await created.Content.ReadFromJsonAsync<SubjectCreated>(Json))!.SubjectId;
+
+        // Владелец видит предмет, чужой — нет (404, а не 403: чужие id не подтверждаем).
+        Assert.Equal(HttpStatusCode.OK, (await mine.GetAsync($"/subjects/{id}/lesson")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await other.GetAsync($"/subjects/{id}/lesson")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await other.PostAsync($"/subjects/{id}/prefetch", null)).StatusCode);
+
+        // Список отдаёт только свои предметы.
+        var minesList = await mine.GetFromJsonAsync<SubjectSummary[]>("/subjects", Json);
+        var othersList = await other.GetFromJsonAsync<SubjectSummary[]>("/subjects", Json);
+        Assert.Contains(minesList!, x => x.Id == id);
+        Assert.DoesNotContain(othersList!, x => x.Id == id);
+
+        // Разбор по чужому предмету только сохраняет записи и не готовит урок.
+        var recap = await other.PostAsJsonAsync($"/sessions/{id}/recap", new RecapRequest([new("a", "…", true, 1, 1)]));
+        Assert.Equal("stored", (await recap.Content.ReadFromJsonAsync<RecapAccepted>(Json))!.Status);
+    }
+
+    [Fact]
+    public async Task OnlyTheSharedTokenCanMintAndListTesterTokens()
+    {
+        var tester = WithToken(f.CreateClient(), await IssueTesterAsync("not-admin"));
+        Assert.Equal(HttpStatusCode.Forbidden, (await tester.PostAsJsonAsync("/admin/tokens", new NewTesterTokenRequest("x"))).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await tester.GetAsync("/admin/tokens")).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await tester.DeleteAsync($"/admin/tokens/{Guid.NewGuid()}")).StatusCode);
+    }
+
+    [Fact]
+    public async Task AppleSignInRejectsAGarbageIdentityTokenAndNeedsNoBearer()
+    {
+        var anon = f.CreateClient();
+        var res = await anon.PostAsJsonAsync("/auth/apple", new AppleSignInRequest("not-a-jwt"));
+        Assert.Equal(HttpStatusCode.Unauthorized, res.StatusCode);
+    }
+}
+
 public class AuthTests(SecuredApiFactory f) : IClassFixture<SecuredApiFactory>
 {
     [Fact]

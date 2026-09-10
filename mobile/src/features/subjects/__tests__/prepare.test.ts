@@ -1,6 +1,6 @@
 import { createLocalContentService } from '@/content/local';
 import { memoryRefsRepo } from '@/db/refsRepo';
-import { CUSTOM_ID, PREP_STAGES, prepOf, useProgress, userSubjectIds } from '@/store/progress';
+import { PREP_STAGES, prepOf, useProgress, userSubjectIds } from '@/store/progress';
 import { useRefs } from '@/store/refs';
 import { createSubjectAndPrepare, prefetchNextLesson, prepareNextLesson, resumePrepare, retryPrepare } from '../prepare';
 
@@ -21,9 +21,9 @@ const patchSubject = (id: string, patch: Record<string, unknown>) =>
 describe('createSubjectAndPrepare', () => {
   it('creates the subject as «preparing» and flips it to ready with the generated lesson', async () => {
     const p = createSubjectAndPrepare(svc(), draft);
-    expect(sub(CUSTOM_ID)).toMatchObject({ topic: 'SQL', ready: false });
     const id = await p;
-    expect(id).toBe(CUSTOM_ID);
+    expect(id).toBe('s1');
+    expect(sub(id)).toMatchObject({ topic: 'SQL' });
     const after = useProgress.getState();
     expect(after.subjects[id].ready).toBe(true);
     expect(prepOf(after, id).stage).toBe(PREP_STAGES);
@@ -33,10 +33,11 @@ describe('createSubjectAndPrepare', () => {
 
   it('does not resurrect a subject deleted while preparing', async () => {
     const p = createSubjectAndPrepare(svc(), draft);
-    useProgress.getState().removeSubject(CUSTOM_ID);
+    const id = userSubjectIds(useProgress.getState())[0];
+    useProgress.getState().removeSubject(id);
     await p;
-    expect(sub(CUSTOM_ID)).toBeUndefined();
-    expect(useProgress.getState().lessons[CUSTOM_ID]).toBeUndefined();
+    expect(sub(id)).toBeUndefined();
+    expect(useProgress.getState().lessons[id]).toBeUndefined();
   });
 
   it('a failing service leaves the subject in place with prepError; retry can finish it', async () => {
@@ -87,7 +88,7 @@ describe('createSubjectAndPrepare', () => {
   it('prefetch asks the service only for a ready remote subject and swallows errors', async () => {
     const s1 = svc();
     const spy = jest.spyOn(s1, 'prefetchNextLesson').mockRejectedValue(new Error('offline'));
-    prefetchNextLesson(s1, CUSTOM_ID);
+    prefetchNextLesson(s1, 's1');
     expect(spy).not.toHaveBeenCalled(); // предмета нет
     const id = await createSubjectAndPrepare(s1, draft);
     patchSubject(id, { remoteId: 'r1' });
@@ -121,7 +122,6 @@ describe('несколько предметов', () => {
   it('второй предмет не затирает первый: свои id, уроки, миссии и справочники', async () => {
     const first = await createSubjectAndPrepare(svc(), draft);
     const second = await createSubjectAndPrepare(svc(), { topic: 'Итальянский', focus: 'Фразы', mission: 'кафе', sourceIds: ['src-0'] });
-    expect(first).toBe(CUSTOM_ID);
     expect(second).not.toBe(first);
     expect(userSubjectIds(useProgress.getState())).toEqual([first, second]);
 

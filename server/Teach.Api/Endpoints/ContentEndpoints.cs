@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Teach.Api.Auth;
 using Teach.Api.Contracts;
 using Teach.Api.Data;
 using Teach.Api.Domain;
@@ -37,12 +38,12 @@ public static class ContentEndpoints
         app.MapPost("/subjects/plan", async (PlanRequest r, ILessonModel model, CancellationToken ct) =>
             string.IsNullOrWhiteSpace(r.Topic) ? Results.BadRequest("topic is required") : Results.Ok(await model.BuildPlanAsync(r.Topic.Trim(), (r.Focus ?? "").Trim(), (r.Mission ?? "").Trim(), ct))).WithSummary("План из этапов под тему, фокус и миссию.").WithTags("Мастер предмета");
 
-        app.MapPost("/subjects", async (SubjectDraft d, TeachDb db, LessonQueue queue, CancellationToken ct) =>
+        app.MapPost("/subjects", async (SubjectDraft d, HttpContext ctx, TeachDb db, LessonQueue queue, CancellationToken ct) =>
         {
             if (string.IsNullOrWhiteSpace(d.Topic)) return Results.BadRequest("topic is required");
             var row = new SubjectRow
             {
-                Id = Guid.NewGuid(), Topic = d.Topic.Trim(), Title = string.IsNullOrWhiteSpace(d.Title) ? null : d.Title.Trim(), Focus = (d.Focus ?? "").Trim(), Mission = (d.Mission ?? "").Trim(),
+                Id = Guid.NewGuid(), OwnerId = AuthEndpoints.Caller(ctx).Owner, Topic = d.Topic.Trim(), Title = string.IsNullOrWhiteSpace(d.Title) ? null : d.Title.Trim(), Focus = (d.Focus ?? "").Trim(), Mission = (d.Mission ?? "").Trim(),
                 SourceIdsJson = JsonSerializer.Serialize(d.SourceIds ?? []), Status = SubjectStatus.Preparing, PrepStage = 0,
                 SourcesJson = d.Sources is { Length: > 0 } ? JsonSerializer.Serialize(d.Sources, Json) : null,
                 PlanJson = d.Plan is { Length: > 0 } ? JsonSerializer.Serialize(d.Plan, Json) : null,
@@ -55,10 +56,10 @@ public static class ContentEndpoints
             return Results.Accepted($"/subjects/{row.Id}/lesson", new SubjectCreated(row.Id.ToString(), "preparing"));
         }).WithSummary("Создать предмет и запустить стартовую диагностику в фоне. Источники из мастера передаются в sources и больше не ищутся.").WithTags("Предмет и уроки");
 
-        app.MapGet("/subjects/{id:guid}/lesson", async (Guid id, TeachDb db, CancellationToken ct) =>
+        app.MapGet("/subjects/{id:guid}/lesson", async (Guid id, HttpContext ctx, TeachDb db, CancellationToken ct) =>
         {
             var s = await db.Subjects.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, ct);
-            if (s is null) return Results.NotFound();
+            if (s is null || !Owns(ctx, s)) return Results.NotFound();
             var refs = s.Status == SubjectStatus.Ready
                 ? (await db.References.AsNoTracking().Where(r => r.SubjectId == id).ToListAsync(ct))
                     .Select(r => new ReferenceDto(r.Id.ToString(), r.Group, r.Title, r.UpdatedAfter, JsonSerializer.Deserialize<RefRowDto[]>(r.RowsJson, Json) ?? [])).ToArray()
@@ -74,10 +75,12 @@ public static class ContentEndpoints
         }).WithSummary("Статус подготовки: preparing (stage 0..2) | failed | ready с уроком, справочниками, этапом плана и флагами предзагрузки.").WithTags("Предмет и уроки");
 
         // Разбор: записи об усвоенном сохраняются; для предмета с сервера ставится генерация следующего урока.
-        app.MapPost("/sessions/{subjectId}/recap", async (string subjectId, RecapRequest r, TeachDb db, LessonQueue queue, CancellationToken ct) =>
+        app.MapPost("/sessions/{subjectId}/recap", async (string subjectId, RecapRequest r, HttpContext ctx, TeachDb db, LessonQueue queue, CancellationToken ct) =>
         {
             var now = DateTimeOffset.UtcNow;
             var subject = Guid.TryParse(subjectId, out var gid) ? await db.Subjects.FindAsync([gid], ct) : null;
+            // Чужой предмет не трогаем: записи примем как «просто сохранить», урок не готовим.
+            if (subject is not null && !Owns(ctx, subject)) subject = null;
             // Повторный разбор того же урока (клиент перезапустился или нажал «Повторить»): записи не дублируем.
             var lessonNo = r.Records.Length > 0 ? r.Records[0].LessonNumber : 0;
             var repeated = subject is not null && lessonNo > 0 && await db.Records.AnyAsync(x => x.SubjectId == subjectId && x.LessonNumber == lessonNo, ct);
@@ -127,10 +130,10 @@ public static class ContentEndpoints
         }).WithSummary("Записи разбора урока. Для предмета сервера решает этап плана и готовит следующий урок (из заготовки, если она подошла). Повторная отправка того же урока идемпотентна.").WithTags("Предмет и уроки");
 
         // Предзагрузка: клиент зовёт при открытии урока N, сервер заготавливает N+1 по записям на этот момент.
-        app.MapPost("/subjects/{id:guid}/prefetch", async (Guid id, TeachDb db, LessonQueue queue, CancellationToken ct) =>
+        app.MapPost("/subjects/{id:guid}/prefetch", async (Guid id, HttpContext ctx, TeachDb db, LessonQueue queue, CancellationToken ct) =>
         {
             var s = await db.Subjects.FindAsync([id], ct);
-            if (s is null) return Results.NotFound();
+            if (s is null || !Owns(ctx, s)) return Results.NotFound();
             if (s.Status != SubjectStatus.Ready || s.LessonNumber == 0) return Results.Accepted(null, new PrefetchAccepted("skipped"));
             if (s.PrefetchJson is not null && s.PrefetchNumber == s.LessonNumber + 1) return Results.Accepted(null, new PrefetchAccepted("exists"));
             if (s.PrefetchRunning) return Results.Accepted(null, new PrefetchAccepted("running"));
@@ -144,6 +147,18 @@ public static class ContentEndpoints
             r.Criteria is null or { Length: 0 } ? Results.BadRequest("criteria are required")
                 : Results.Ok(new GradeResponse(await model.GradeFreeAsync(r.Criteria, r.Text ?? "", r.Lang ?? "ru", ct)))).WithSummary("Оценка свободного ответа по критериям моделью (claude-haiku-4-5): hits[] по каждому критерию.").WithTags("Оценка");
 
+        // Список своих предметов: нужен при входе на новом устройстве, чтобы подтянуть уже созданное.
+        app.MapGet("/subjects", async (HttpContext ctx, TeachDb db, CancellationToken ct) =>
+        {
+            var owner = AuthEndpoints.Caller(ctx).Owner;
+            var rows = await db.Subjects.AsNoTracking().Where(x => x.OwnerId == owner).OrderBy(x => x.CreatedAt).ToListAsync(ct);
+            return Results.Ok(rows.Select(x => new SubjectSummary(
+                x.Id.ToString(), x.Title ?? x.Topic, x.Topic, x.Focus, x.Mission, x.LessonNumber, x.PlanStage, Plans.Of(x).Length, x.Status.ToString().ToLowerInvariant(), x.UpdatedAt)));
+        }).WithSummary("Предметы текущего владельца токена: id, имя, номер урока и этап плана.").WithTags("Предмет и уроки");
+
         return app;
     }
+
+    /// <summary>Предмет принадлежит вызывающему. Общий токен видит и предметы старых сборок.</summary>
+    private static bool Owns(HttpContext ctx, SubjectRow s) => s.OwnerId == AuthEndpoints.Caller(ctx).Owner;
 }

@@ -23,6 +23,8 @@ public static class SchemaUpgrader
         ("Subjects", "PrefetchStage", "ALTER TABLE Subjects ADD COLUMN PrefetchStage INTEGER NOT NULL DEFAULT 0"),
         ("Subjects", "PrefetchRunning", "ALTER TABLE Subjects ADD COLUMN PrefetchRunning INTEGER NOT NULL DEFAULT 0"),
         ("Subjects", "LastFromPrefetch", "ALTER TABLE Subjects ADD COLUMN LastFromPrefetch INTEGER NOT NULL DEFAULT 0"),
+        // Предметы, созданные до входа по Apple, остаются у общего владельца — старые сборки продолжают их видеть.
+        ("Subjects", "OwnerId", "ALTER TABLE Subjects ADD COLUMN OwnerId TEXT NOT NULL DEFAULT 'shared'"),
     ];
 
     private static readonly (string Table, string Ddl)[] Tables =
@@ -32,6 +34,13 @@ public static class SchemaUpgrader
               Id INTEGER NOT NULL CONSTRAINT PK_Lessons PRIMARY KEY AUTOINCREMENT,
               SubjectId TEXT NOT NULL, Number INTEGER NOT NULL, Json TEXT NOT NULL, PromptVersion TEXT NOT NULL, CreatedAt TEXT NOT NULL);
             CREATE UNIQUE INDEX IF NOT EXISTS IX_Lessons_SubjectId_Number ON Lessons (SubjectId, Number);
+            """),
+        ("ApiTokens", """
+            CREATE TABLE IF NOT EXISTS ApiTokens (
+              Id TEXT NOT NULL CONSTRAINT PK_ApiTokens PRIMARY KEY,
+              Hash TEXT NOT NULL, OwnerId TEXT NOT NULL, Kind TEXT NOT NULL, Name TEXT NULL,
+              CreatedAt TEXT NOT NULL, LastUsedAt TEXT NULL, RevokedAt TEXT NULL);
+            CREATE UNIQUE INDEX IF NOT EXISTS IX_ApiTokens_Hash ON ApiTokens (Hash);
             """),
         ("References", """
             CREATE TABLE IF NOT EXISTS "References" (
