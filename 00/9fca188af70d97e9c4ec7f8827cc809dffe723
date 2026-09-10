@@ -1,0 +1,33 @@
+mobile/src/domain/__tests__/source.test.ts
+  s_a2145daee18e40::t_e24e41da335a21 1-15
+mobile/src/domain/source.ts
+  s_a2145daee18e40::t_ce21daf9b42524 1-13
+mobile/src/features/session/StepViews.tsx
+  s_a2145daee18e40::t_abb0f3711ffb72 1,14,34-37
+mobile/src/i18n/en.ts
+  s_a2145daee18e40::t_0cb31ef217db43 66
+mobile/src/i18n/ru.ts
+  s_a2145daee18e40::t_acbed4bb2767ae 68
+server/Teach.Api.Tests/LessonValidatorTests.cs
+  s_a2145daee18e40::t_95249803735114 54-61
+server/Teach.Api/Domain/SourceLine.cs
+  s_a2145daee18e40::t_2c737f65055936 1-15
+server/Teach.Api/Jobs/LessonWorker.cs
+  s_a2145daee18e40::t_9f40e1d78ba3b8 232
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "009fca188af70d97e9c4ec7f8827cc809dffe723",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
