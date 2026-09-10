@@ -1,6 +1,9 @@
 import type { Lesson, Mission, SubjectId, TopicKind } from './types';
 
 /** Захардкоженные уроки прототипа (три предмета). В проде приходят с сервера. */
+/** Демо-предметы, которые показывает приложение: языковой и неязыковой. `qa` остался только для тестов. */
+export const DEMO_IDS: SubjectId[] = ['en', 'hist'];
+
 export const seedLessons: Record<SubjectId, Lesson> = {
   en: {
     name: 'Английский', level: 'этап 2/5 · Грамматика для речи', lessonTitle: 'Урок · Second Conditional',

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 import { detectLanguage, type LanguageInfo } from '@/domain/languages';
-import { customLesson, reviewLesson, seedLessons, seedMissions } from '@/domain/seed';
+import { customLesson, DEMO_IDS, reviewLesson, seedLessons, seedMissions } from '@/domain/seed';
 import type { SavedSession } from '@/features/session/engine';
 import type { CustomSubject, Lesson, LessonRecord, Mission, SubjectConfig, SubjectId } from '@/domain/types';
 import { defaultSubjectConfig } from '@/domain/types';
@@ -119,9 +119,11 @@ export const useProgress = create<ProgressState>((set, get) => ({
 
 /** Селекторы. */
 
-/** Предметы на экранах: только пользовательский. Демо-уроки прототипа остались в `seed.ts` для тестов и повторов. */
+/** Предметы на экранах: два демо (английский, история) и пользовательский. */
 export function activeSubjectIds(s: Pick<ProgressState, 'removed' | 'custom'>): SubjectId[] {
-  return s.custom && !s.removed[CUSTOM_ID] ? [CUSTOM_ID] : [];
+  const ids = DEMO_IDS.filter((id) => !s.removed[id]);
+  if (s.custom && !s.removed[CUSTOM_ID]) ids.push(CUSTOM_ID);
+  return ids;
 }
 
 /** Язык предмета: у пользовательского — сохранённый при создании, у сидовых — по имени. */

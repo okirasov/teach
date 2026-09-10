@@ -12,9 +12,9 @@ beforeEach(() => useProgress.setState(initial, true));
 
 describe('progress store', () => {
   it('lists seed subjects and hides removed ones', () => {
-    expect(activeSubjectIds(useProgress.getState())).toEqual([]);
-    useProgress.getState().removeSubject('qa');
-    expect(activeSubjectIds(useProgress.getState())).toEqual([]);
+    expect(activeSubjectIds(useProgress.getState())).toEqual(['en', 'hist']);
+    useProgress.getState().removeSubject('hist');
+    expect(activeSubjectIds(useProgress.getState())).toEqual(['en']);
   });
 
   it('markDone flags the subject and grows the queue by the number of records', () => {
