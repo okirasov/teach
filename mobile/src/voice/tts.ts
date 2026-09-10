@@ -2,6 +2,7 @@ import * as Speech from 'expo-speech';
 
 import type { LanguageInfo } from '@/domain/languages';
 import type { SubjectConfig } from '@/domain/types';
+import { splitByLanguage } from './segments';
 
 /**
  * Озвучка примеров системным синтезом (AVSpeechSynthesizer / Android TextToSpeech): без сети,
@@ -31,9 +32,28 @@ export async function hasVoiceFor(lang: string): Promise<boolean> {
   return false;
 }
 
-export function speak(text: string, lang: string, onDone: () => void): void {
+/** Озвучить текст: куски на языке предмета и на языке интерфейса читаются по очереди своими голосами. */
+export function speak(text: string, lang: string, onDone: () => void, uiLang = 'ru-RU'): void {
   Speech.stop();
-  Speech.speak(text, { language: lang, rate: 0.9, onDone, onStopped: onDone, onError: onDone });
+  const segments = splitByLanguage(text, lang, uiLang);
+  let stopped = false;
+  const next = (i: number) => {
+    if (stopped || i >= segments.length) {
+      onDone();
+      return;
+    }
+    Speech.speak(segments[i].text, {
+      language: segments[i].lang,
+      rate: 0.9,
+      onDone: () => next(i + 1),
+      onStopped: () => {
+        stopped = true;
+        onDone();
+      },
+      onError: () => next(i + 1),
+    });
+  };
+  next(0);
 }
 
 export function stopSpeaking(): void {

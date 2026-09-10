@@ -4,6 +4,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 
 import { isBaselineCheck } from '@/features/session/baseline';
 import { SpeakerProvider, useStopSpeechOn } from '@/features/session/speaker';
+import { uiLanguageTag } from '@/domain/languages';
 import { ttsLangFor } from '@/voice/tts';
 import { canProceed, critHits, currentStep, evaluate, primaryAction } from '@/features/session/engine';
 import { ChoiceView, ExplainView, FeedbackCard, InputView, OrderView } from '@/features/session/StepViews';
@@ -101,7 +102,7 @@ export default function SessionScreen() {
   }
 
   return (
-    <SpeakerProvider lang={ttsLang}>
+    <SpeakerProvider lang={ttsLang} uiLang={uiLanguageTag[uiLang]}>
     <Screen>
       <SessionHeader chip={lesson.name} counter={`${s.step + 1}/${n}`} onClose={onExit} total={n} current={s.step} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={8}>

@@ -23,9 +23,10 @@ describe('tts', () => {
   });
   test('speak stops the previous utterance and reports completion', () => {
     const done = jest.fn();
-    speak('Buongiorno', 'it-IT', done);
+    speak('Buongiorno — добрый день', 'it-IT', done, 'ru-RU');
     expect(Speech.stop).toHaveBeenCalled();
-    expect(Speech.speak).toHaveBeenCalledWith('Buongiorno', expect.objectContaining({ language: 'it-IT' }));
-    expect(done).toHaveBeenCalled();
+    expect(Speech.speak).toHaveBeenNthCalledWith(1, 'Buongiorno —', expect.objectContaining({ language: 'it-IT' }));
+    expect(Speech.speak).toHaveBeenNthCalledWith(2, 'добрый день', expect.objectContaining({ language: 'ru-RU' }));
+    expect(done).toHaveBeenCalledTimes(1);
   });
 });

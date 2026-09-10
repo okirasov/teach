@@ -12,7 +12,7 @@ export interface Speaker {
 const SpeakerContext = createContext<Speaker | null>(null);
 
 /** Озвучка доступна, если у предмета есть язык, она включена в настройках и на устройстве есть голос. */
-export function SpeakerProvider({ lang, children }: { lang: string | null; children: React.ReactNode }) {
+export function SpeakerProvider({ lang, uiLang, children }: { lang: string | null; uiLang: string; children: React.ReactNode }) {
   const [available, setAvailable] = useState(false);
   const [speaking, setSpeaking] = useState<string | null>(null);
   const alive = useRef(true);
@@ -36,9 +36,9 @@ export function SpeakerProvider({ lang, children }: { lang: string | null; child
         return;
       }
       setSpeaking(key);
-      speak(text, lang, () => alive.current && setSpeaking((cur) => (cur === key ? null : cur)));
+      speak(text, lang, () => alive.current && setSpeaking((cur) => (cur === key ? null : cur)), uiLang);
     },
-    [lang, speaking],
+    [lang, uiLang, speaking],
   );
 
   const value = useMemo<Speaker | null>(() => (available && lang ? { speaking, toggle } : null), [available, lang, speaking, toggle]);
