@@ -1,0 +1,21 @@
+design_handoff_teach_mobile/DESIGN.md
+  s_a2145daee18e40::t_73cb40100bab7e 37,41-42,46,49,51,54,56,61,66-67
+mobile/src/theme/tokens.ts
+  s_a2145daee18e40::t_c9902369798e87 44-45,49-50,54,57,59,63,65,70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "925b2c24d3a26324f96c62adf2c2e606c63d47b0",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
