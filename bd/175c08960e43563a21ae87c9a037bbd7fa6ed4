@@ -1,0 +1,49 @@
+mobile/app/(tabs)/_layout.tsx
+  s_a2145daee18e40::t_443f72dca82bf0 3,23-24,26-28
+mobile/src/content/__tests__/http.test.ts
+  s_a2145daee18e40::t_7ae68b92ad47ab 123-131
+mobile/src/content/http.ts
+  s_a2145daee18e40::t_4b375e77f0ce1a 112-114
+mobile/src/content/local.ts
+  s_a2145daee18e40::t_27e22dff2c6e8a 161-164
+mobile/src/content/types.ts
+  s_a2145daee18e40::t_762275b144494c 94-95
+mobile/src/features/reviews/__tests__/repairCards.test.ts
+  s_a2145daee18e40::t_d18a131067c833 1-59
+mobile/src/features/reviews/repairCards.ts
+  s_a2145daee18e40::t_9236a48f60a5ec 1-56
+mobile/src/store/reviews.ts
+  s_a2145daee18e40::t_4ccf8aabd57ce7 60-61,131-138
+server/Teach.Api.Tests/ApiTests.cs
+  s_a2145daee18e40::t_488287d6a5141c 91,356-371
+server/Teach.Api/Contracts/Dtos.cs
+  s_a2145daee18e40::t_71b07000a71b20 71-73
+server/Teach.Api/Endpoints/ContentEndpoints.cs
+  s_a2145daee18e40::t_bd61f7fae7a054 150-159
+server/Teach.Api/wwwroot/docs/frd.html
+  s_a2145daee18e40::t_fabb7f4e8b55d1 262
+docs/ai-content.md
+  s_a2145daee18e40::t_2c086c975cc452 179
+mobile/README.md
+  s_a2145daee18e40::t_4a9be7c3488035 83-85
+server/README.md
+  s_a2145daee18e40::t_7157fe2f803394 66
+server/Teach.Api/wwwroot/docs/index.html
+  s_a2145daee18e40::t_54dbd68c39a86e 205
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "bd175c08960e43563a21ae87c9a037bbd7fa6ed4",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
