@@ -1,0 +1,65 @@
+mobile/README.md
+  s_a2145daee18e40::t_c173ec318d2fcc 73-80
+mobile/app/(tabs)/refs.tsx
+  s_a2145daee18e40::t_3fdf42bd496e42 9,12,35-39,55
+mobile/app/(tabs)/reviews.tsx
+  s_a2145daee18e40::t_f2c46b0a8091f9 2,6-7,10,13-15,30,37-38,40-61,67,78
+mobile/app/(tabs)/today.tsx
+  s_a2145daee18e40::t_01abbe93cfed10 48,53-59
+mobile/app/recap.tsx
+  s_a2145daee18e40::t_d7edd116b72a93 96
+mobile/app/session/[id].tsx
+  s_a2145daee18e40::t_d1cc3cc0f3ac85 57,60-61
+mobile/src/features/refs/__tests__/filter.test.ts
+  s_a2145daee18e40::t_0487b43b86c776 9-12
+mobile/src/features/refs/filter.ts
+  s_a2145daee18e40::t_97ead7f02d17ec 1,18,21-23
+mobile/src/features/reviews/__tests__/forSubject.test.ts
+  s_a2145daee18e40::t_64e70256756873 1-9
+mobile/src/features/reviews/queue.ts
+  s_a2145daee18e40::t_64d5e9d181eb7f 40-44
+mobile/src/features/reviews/useReviewPlan.ts
+  s_a2145daee18e40::t_1fbb6cec21b676 8,10-11,18,21
+mobile/src/features/session/StepViews.tsx
+  s_a2145daee18e40::t_5c24ed2eda885a 346-347,355,360,362-364
+mobile/src/features/subjects/__tests__/order.test.ts
+  s_a2145daee18e40::t_f749e733536530 1-8
+mobile/src/features/subjects/order.ts
+  s_a2145daee18e40::t_7d81423021216b 1-11
+mobile/src/features/today/SubjectCard.tsx
+  s_a2145daee18e40::t_fb35f503833fd6 33-34
+mobile/src/i18n/en.ts
+  s_a2145daee18e40::t_4f2f3c12461474 38,82
+mobile/src/i18n/ru.ts
+  s_a2145daee18e40::t_eb393f364874a3 39,84
+mobile/src/store/__tests__/doubt.test.ts
+  s_a2145daee18e40::t_ee0df9374a3ee7 1-11
+mobile/src/store/__tests__/progress.test.ts
+  s_a2145daee18e40::t_4b5e90c41c667e 139-149
+mobile/src/store/progress.ts
+  s_a2145daee18e40::t_639cbf23a7fb8e 255-272
+mobile/src/store/session.ts
+  s_a2145daee18e40::t_0ece25a9aaae73 21,58-59
+mobile/src/ui/SubjectTabs.tsx
+  s_a2145daee18e40::t_770d3dd318e851 1-36
+mobile/src/ui/index.ts
+  s_a2145daee18e40::t_3c5cb788576118 19
+server/Teach.Api/wwwroot/docs/frd.html
+  s_a2145daee18e40::t_424e5910ad778a 228
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "878e9105b156df18279ff472f753fd31bdb449a2",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
