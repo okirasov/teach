@@ -202,6 +202,7 @@
           <tr><td class="m">POST /subjects/plan</td><td><code>{ topic, focus, mission }</code> → этапы <code>[{ n, t, d }]</code>.</td></tr>
           <tr><td class="m">POST /subjects</td><td>черновик предмета → 202 <code>{ subjectId, status: "preparing" }</code>; диагностика готовится в фоне.</td></tr>
           <tr><td class="m">GET /subjects/{id}/lesson</td><td>статус подготовки и текущий урок, см. <a href="#s5">форматы</a>.</td></tr>
+          <tr><td class="m">GET /subjects/{id}/lessons</td><td>все уроки предмета по номерам <code>[{ number, lesson }]</code>; по ним приложение восстанавливает вопросы старых карточек повторов.</td></tr>
           <tr><td class="m">POST /sessions/{id}/recap</td><td>записи разбора → 202 <code>{ status: "preparing" | "ready" | "stored" }</code>; для демо-id только <code>stored</code>.</td></tr>
           <tr><td class="m">POST /subjects/{id}/prefetch</td><td>заготовить следующий урок → 202 <code>{ status: "queued" | "exists" | "running" | "skipped" }</code>.</td></tr>
           <tr><td class="m">POST /grade/free</td><td><code>{ criteria: [{ t, keys }], text, lang }</code> → <code>{ hits: boolean[] }</code>.</td></tr>

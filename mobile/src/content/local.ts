@@ -158,6 +158,10 @@ export function createLocalContentService(opts: { stageMs?: number; planLater?: 
     async prefetchNextLesson() {
       /* у заглушки генерация мгновенная */
     },
+    async lessonHistory() {
+      // У заглушки нет истории уроков на сервере.
+      return [];
+    },
     async gradeFree(criteria, text) {
       // Заглушка повторяет офлайн-проверку по ключевым словам.
       const t = text.toLowerCase();

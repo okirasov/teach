@@ -88,6 +88,7 @@ public class TokenAndOwnerTests(SecuredApiFactory f) : IClassFixture<SecuredApiF
         Assert.Equal(HttpStatusCode.OK, (await mine.GetAsync($"/subjects/{id}/lesson")).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await other.GetAsync($"/subjects/{id}/lesson")).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await other.PostAsync($"/subjects/{id}/prefetch", null)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await other.GetAsync($"/subjects/{id}/lessons")).StatusCode);
 
         // Список отдаёт только свои предметы.
         var minesList = await mine.GetFromJsonAsync<SubjectSummary[]>("/subjects", Json);
@@ -350,6 +351,22 @@ public class ApiTests : IClassFixture<ApiFactory>
         var st = await _http.GetFromJsonAsync<LessonStatus>($"/subjects/{id}/lesson", Json);
         Assert.Equal(2, st!.Number);
         Assert.Equal(second.Lesson!.LessonTitle, st.Lesson!.LessonTitle);
+    }
+
+    [Fact]
+    public async Task LessonHistoryListsEveryLessonInOrder()
+    {
+        var created = await _http.PostAsJsonAsync("/subjects", new SubjectDraft("SQL", "Основы и синтаксис", "писать отчёты", ["src-0"]));
+        var id = (await created.Content.ReadFromJsonAsync<SubjectCreated>(Json))!.SubjectId;
+        var first = await WaitReady(id);
+        await _http.PostAsJsonAsync($"/sessions/{id}/recap", new RecapRequest([new("a", "…", true, 1, 1)]));
+        var second = await WaitReady(id, expectNumber: 2);
+
+        var history = await _http.GetFromJsonAsync<LessonHistoryItem[]>($"/subjects/{id}/lessons", Json);
+        Assert.Equal([1, 2], history!.Select(h => h.Number).ToArray());
+        Assert.Equal(first.Lesson!.LessonTitle, history[0].Lesson.LessonTitle);
+        Assert.Equal(second.Lesson!.LessonTitle, history[1].Lesson.LessonTitle);
+        Assert.Equal(HttpStatusCode.NotFound, (await _http.GetAsync($"/subjects/{Guid.NewGuid()}/lessons")).StatusCode);
     }
 
     private async Task<LessonStatus> WaitPrefetch(string id)

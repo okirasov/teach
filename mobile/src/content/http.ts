@@ -109,6 +109,9 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
       if (!remoteId) return;
       await call<{ status: string }>('POST', `/subjects/${remoteId}/prefetch`);
     },
+    async lessonHistory(remoteId) {
+      return call<{ number: number; lesson: Lesson }[]>('GET', `/subjects/${remoteId}/lessons`);
+    },
     async gradeFree(criteria, text, lang) {
       const r = await call<{ hits: boolean[] }>('POST', '/grade/free', { criteria, text, lang });
       return r.hits ?? [];

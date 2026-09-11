@@ -63,6 +63,7 @@ fly deploy && curl https://teach-tutor-api.fly.dev/health
 - `Jobs/SourcesJobs` — фоновый поиск источников с опросом статуса (web search дольше таймаута HTTP на телефоне).
 - `Endpoints/ContentEndpoints` — `/subjects/focus`, `/subjects/sources` (+ `GET …/{jobId}`), `/subjects/plan`,
   `POST /subjects`, `GET /subjects/{id}/lesson` (с номером урока), `POST /sessions/{id}/recap` (записи + следующий урок),
+  `GET /subjects/{id}/lessons` (все уроки предмета по номерам: по ним клиент восстанавливает вопросы старых карточек повторов),
   `POST /subjects/{id}/prefetch` (заготовка урока N+1, пока идёт урок N; используется при разборе, если этап не сменился и ≥ 50 % верных),
   плавная остановка (`DrainingLifetime`): после SIGINT/SIGTERM воркер дорабатывает текущий урок при живом сервере, потом хост останавливается (`Teach:ShutdownSeconds`, `kill_timeout` в fly.toml),
   `POST /grade/free`. Контракт и поведение — `docs/ai-content.md`.

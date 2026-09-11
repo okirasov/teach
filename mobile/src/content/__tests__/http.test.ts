@@ -120,4 +120,13 @@ describe('http content service', () => {
     await svc.suggestFocus('x');
     expect((calls[2].init?.headers as Record<string, string>)?.Authorization).toBeUndefined();
   });
+
+  it('lessonHistory reads every lesson of the server subject', async () => {
+    const { fn, calls } = fakeFetch(() => ({ body: [{ number: 1, lesson: { name: 'x', level: '', steps: [] } }] }));
+    const svc = createHttpContentService({ baseUrl: 'http://srv', fetchFn: fn, pollMs: 1 });
+    const h = await svc.lessonHistory('r1');
+    expect(calls[0].url).toBe('http://srv/subjects/r1/lessons');
+    expect(calls[0].init?.method).toBe('GET');
+    expect(h[0].number).toBe(1);
+  });
 });

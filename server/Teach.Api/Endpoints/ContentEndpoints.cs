@@ -147,6 +147,16 @@ public static class ContentEndpoints
             r.Criteria is null or { Length: 0 } ? Results.BadRequest("criteria are required")
                 : Results.Ok(new GradeResponse(await model.GradeFreeAsync(r.Criteria, r.Text ?? "", r.Lang ?? "ru", ct)))).WithSummary("Оценка свободного ответа по критериям моделью (claude-haiku-4-5): hits[] по каждому критерию.").WithTags("Оценка");
 
+        // История уроков предмета: клиент восстанавливает по ней вопросы старых карточек повторов,
+        // которые ссылались только на номер шага и показывали вопрос из текущего урока.
+        app.MapGet("/subjects/{id:guid}/lessons", async (Guid id, HttpContext ctx, TeachDb db, CancellationToken ct) =>
+        {
+            var s = await db.Subjects.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, ct);
+            if (s is null || !Owns(ctx, s)) return Results.NotFound();
+            var rows = await db.Lessons.AsNoTracking().Where(l => l.SubjectId == id).OrderBy(l => l.Number).ToListAsync(ct);
+            return Results.Ok(rows.Select(l => new LessonHistoryItem(l.Number, JsonSerializer.Deserialize<Lesson>(l.Json, Json)!)));
+        }).WithSummary("Все уроки предмета по порядку номеров: для восстановления вопросов старых карточек повторов.").WithTags("Предмет и уроки");
+
         // Список своих предметов: нужен при входе на новом устройстве, чтобы подтянуть уже созданное.
         app.MapGet("/subjects", async (HttpContext ctx, TeachDb db, CancellationToken ct) =>
         {

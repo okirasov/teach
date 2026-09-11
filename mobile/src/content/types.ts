@@ -91,6 +91,8 @@ export interface ContentService {
    * Клиент вызывает её при ответе; при недоступности сервера остаётся проверка по ключевым словам.
    */
   gradeFree(criteria: { t: string; keys: string[] }[], text: string, lang: string): Promise<boolean[]>;
+  /** Все уроки предмета на сервере по порядку: по ним восстанавливаются вопросы старых карточек повторов. */
+  lessonHistory(remoteId: string): Promise<{ number: number; lesson: Lesson }[]>;
   /** Продолжить ожидание урока N после перезапуска приложения: записи уже на сервере, заново не шлём. */
   resumeLesson(remoteId: string | undefined, number: number, onStage: (stage: PrepStage) => void): Promise<PreparedLesson>;
 }

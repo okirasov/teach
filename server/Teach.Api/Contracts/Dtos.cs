@@ -68,4 +68,7 @@ public sealed record LessonStatus(
 
 public sealed record PrefetchAccepted(string Status);
 
+/// <summary>Урок из истории предмета: номер и содержимое.</summary>
+public sealed record LessonHistoryItem(int Number, Teach.Api.Domain.Lesson Lesson);
+
 public sealed record SubjectSummary(string Id, string Name, string Topic, string Focus, string Mission, int LessonNumber, int PlanStage, int PlanTotal, string Status, DateTimeOffset UpdatedAt);

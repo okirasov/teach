@@ -1,5 +1,6 @@
 import { content } from '@/content';
 import { useReminders } from '@/features/reminders/useReminders';
+import { repairLegacyCards } from '@/features/reviews/repairCards';
 import { resumePrepare } from '@/features/subjects/prepare';
 import { useEffect } from 'react';
 import { AppState } from 'react-native';
@@ -19,8 +20,12 @@ export default function TabsLayout() {
   // а таймеры опроса в фоне не работают.
   useEffect(() => {
     void resumePrepare(content);
+    // Старые карточки своих предметов получают номер урока и вопрос; без сети — при следующем возврате в приложение.
+    void repairLegacyCards(content);
     const sub = AppState.addEventListener('change', (state) => {
-      if (state === 'active') void resumePrepare(content);
+      if (state !== 'active') return;
+      void resumePrepare(content);
+      void repairLegacyCards(content);
     });
     return () => sub.remove();
   }, []);

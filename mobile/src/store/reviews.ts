@@ -57,6 +57,8 @@ export interface ReviewsState {
   /** Результаты сессии повторов → пересчёт сроков существующих карточек. */
   applyResults: (results: ReviewResult[], now?: Date) => Promise<void>;
   removeSubject: (subjectId: string) => Promise<void>;
+  /** Починка ссылок старых карточек: номер урока и сохранённый вопрос, без пересчёта сроков. */
+  repairRefs: (updates: { cardId: string; ref: StepRef }[]) => Promise<void>;
 }
 
 export const useReviews = create<ReviewsState>((set, get) => ({
@@ -125,6 +127,14 @@ export const useReviews = create<ReviewsState>((set, get) => ({
     const upd = new Map(updated.map((c) => [c.id, c]));
     set((s) => ({ cards: s.cards.map((c) => upd.get(c.id) ?? c) }));
     await get().refreshStats(now);
+  },
+  repairRefs: async (updates) => {
+    if (updates.length === 0) return;
+    const byId = new Map(updates.map((u) => [u.cardId, u.ref]));
+    const next = get().cards.map((c) => (byId.has(c.id) ? { ...c, ref: byId.get(c.id)! } : c));
+    const { repo } = get();
+    if (repo) await repo.upsert(next.filter((c) => byId.has(c.id)));
+    set({ cards: next });
   },
   removeSubject: async (subjectId) => {
     const { repo } = get();

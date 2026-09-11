@@ -176,6 +176,7 @@ POST /subjects/plan             { topic, focus, mission }          → PlanStage
 POST /subjects                  SubjectDraft (+ sources)           → 202 { subjectId, status: "preparing" }
 GET  /subjects/{id}/lesson      → { status: "preparing"|"failed", stage: 0..2, number }
                                 | { status: "ready", number, lesson, references[], planStage, planTotal, prefetched, prefetchReady }
+GET  /subjects/{id}/lessons     → [{ number, lesson }]              все уроки предмета по номерам
 POST /sessions/{id}/recap       { records }                        → 202 { status: "preparing" | "stored" }
 POST /subjects/{id}/prefetch    → 202 { status: "queued" | "exists" | "running" | "skipped" }
 POST /grade/free                { criteria, text, lang }           → { hits: boolean[] }
