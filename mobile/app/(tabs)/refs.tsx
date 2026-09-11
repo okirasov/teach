@@ -1,4 +1,3 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, TextInput, View } from 'react-native';
@@ -7,9 +6,10 @@ import type { Reference } from '@/domain/reference';
 import { filterRefs, refSubjects, weakCount } from '@/features/refs/filter';
 import { useT } from '@/i18n';
 import { useAuth } from '@/store/auth';
+import { activeSubjectIds, useProgress } from '@/store/progress';
 import { useRefs } from '@/store/refs';
 import { useTheme } from '@/theme';
-import { AppHeader, Card, Chip, Screen, TabTitle, Txt } from '@/ui';
+import { AppHeader, Card, Chip, Screen, SubjectTabs, TabTitle, Txt } from '@/ui';
 
 function RefCard({ r, onPress }: { r: Reference; onPress: () => void }) {
   const t = useT();
@@ -32,7 +32,11 @@ export default function RefsScreen() {
   const { c, radius, size, space, fonts } = useTheme();
   const name = useAuth((s) => s.account?.name ?? '');
   const refs = useRefs((s) => s.refs);
-  const subjects = useMemo(() => refSubjects(refs), [refs]);
+  const removed = useProgress((st) => st.removed);
+  const userSubjects = useProgress((st) => st.subjects);
+  // Вкладки в том же порядке, что предметы на «Сегодня».
+  const order = useMemo(() => activeSubjectIds({ removed, subjects: userSubjects }), [removed, userSubjects]);
+  const subjects = useMemo(() => refSubjects(refs, order), [refs, order]);
   const [subjectId, setSubjectId] = useState<string>(subjects[0]?.id ?? '');
   const [query, setQuery] = useState('');
   const [weakOnly, setWeakOnly] = useState(false);
@@ -48,25 +52,7 @@ export default function RefsScreen() {
       <AppHeader userName={name} onAvatar={() => router.push('/profile')} />
       <TabTitle title={t.refs} note={t.refsNote} />
       {subjects.length === 0 ? <Txt t="row" color="mut" style={{ marginTop: 18, fontSize: 14, lineHeight: 21 }}>{t.emptyRefsText}</Txt> : null}
-      <View style={{ marginTop: 14, marginHorizontal: -space.screenX }}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: space.screenX, gap: 8 }}>
-          {subjects.map((s) => {
-            const active = s.id === subjectId;
-            return (
-              <Pressable
-                key={s.id}
-                accessibilityRole="button"
-                accessibilityState={{ selected: active }}
-                onPress={() => setSubjectId(s.id)}
-                style={{ height: size.pill, paddingHorizontal: 13, borderRadius: radius.pill, backgroundColor: active ? c.mintInk : c.mint, justifyContent: 'center' }}
-              >
-                <Txt t="pill" style={{ color: active ? c.btnInk : c.mintInk }} numberOfLines={1}>{s.name}</Txt>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
-        <LinearGradient colors={['transparent', c.bg]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} pointerEvents="none" style={{ position: 'absolute', top: 0, right: 0, bottom: 1, width: 36 }} />
-      </View>
+      <SubjectTabs items={subjects} value={subjectId} onChange={setSubjectId} />
       <View style={{ flexDirection: 'row', gap: 8, marginTop: 10, alignItems: 'center' }}>
         <TextInput
           value={query}

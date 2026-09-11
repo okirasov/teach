@@ -1,3 +1,4 @@
+import { sortByOrder } from '@/features/subjects/order';
 import type { Reference, RefRow } from '@/domain/reference';
 
 export function weakCount(ref: Reference): number {
@@ -14,10 +15,12 @@ export interface RefGroup {
 }
 
 /** Предметы, у которых есть справочники, в порядке первого появления. */
-export function refSubjects(refs: Reference[]): { id: string; name: string }[] {
+export function refSubjects(refs: Reference[], order?: string[]): { id: string; name: string }[] {
   const seen = new Map<string, string>();
   for (const r of refs) if (!seen.has(r.subjectId)) seen.set(r.subjectId, r.subjectName);
-  return [...seen].map(([id, name]) => ({ id, name }));
+  const list = [...seen].map(([id, name]) => ({ id, name }));
+  // Без порядка — как записаны; с порядком — как на «Сегодня».
+  return order ? sortByOrder(list, (x) => x.id, order) : list;
 }
 
 /** Живой поиск по названиям и строкам + фильтр «Слабые места»; пустые группы скрываются. */

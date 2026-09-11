@@ -6,6 +6,10 @@ describe('refs filter', () => {
     expect(refSubjects(prototypeRefs).map((s) => s.id)).toEqual(['en', 'qa', 'hist']);
   });
 
+  it('orders subject tabs like the Today screen when an order is given', () => {
+    expect(refSubjects(prototypeRefs, ['hist', 'en']).map((s) => s.id)).toEqual(['hist', 'en', 'qa']);
+  });
+
   it('groups references of a subject in order', () => {
     const g = filterRefs(prototypeRefs, 'en', '', false);
     expect(g.map((x) => x.group)).toEqual(['Грамматика', 'Цель', 'Глоссарий']);

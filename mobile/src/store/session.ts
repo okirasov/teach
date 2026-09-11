@@ -18,7 +18,7 @@ export interface SessionStore {
   s: SessionState | null;
   /** Идёт запись голоса. */
   rec: boolean;
-  /** «Сомневаюсь» по индексу записи в разборе — отправлено на проверку. */
+  /** «Сомневаюсь» по индексу записи в разборе. Пока только отметка в сессии: на сервер не уходит. */
   doubts: Record<number, boolean>;
   /** saved — снимок прерванной сессии этого предмета; подходит только к тому же уроку. */
   start: (subjectId: string, lesson: Lesson, cardIds?: string[], saved?: SavedSession) => void;
@@ -55,6 +55,7 @@ export const useSession = create<SessionStore>((set, get) => ({
   back: () => set((st) => (st.s ? { s: engineGoBack(st.s) } : st)),
   forward: () => set((st) => (st.s ? { s: engineGoForward(st.s), rec: false } : st)),
   setRec: (rec) => set({ rec }),
-  doubt: (i) => set((st) => ({ doubts: { ...st.doubts, [i]: true } })),
+  // «Сомневаюсь» — переключатель: случайное нажатие снимается повторным.
+  doubt: (i) => set((st) => ({ doubts: { ...st.doubts, [i]: !st.doubts[i] } })),
   end: () => set({ s: null, rec: false, doubts: {} }),
 }));

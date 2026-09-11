@@ -54,10 +54,11 @@ import { useShallow } from "zustand/react/shallow";
 export default function SessionScreen() {
   const t = useT();
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, subject } = useLocalSearchParams<{ id: string; subject?: string }>();
   const subjects = useProgress((s) => s.subjects);
   const lessons = useProgress((s) => s.lessons);
-  const plan = useReviewPlan();
+  // Повторы можно запустить по одному предмету — тогда в урок идут только его карточки.
+  const plan = useReviewPlan(subject);
   const lesson = useMemo(
     () =>
       id === REVIEW_ID

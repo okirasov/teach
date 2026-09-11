@@ -93,8 +93,7 @@ export default function RecapScreen() {
                   <Txt t="note" color="mut" numberOfLines={1} style={{ flexShrink: 1 }}>{t.srcL} {source}</Txt>
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityState={{ disabled: sent }}
-                    disabled={sent}
+                    accessibilityState={{ selected: sent }}
                     onPress={() => doubt(i)}
                     hitSlop={6}
                     style={{

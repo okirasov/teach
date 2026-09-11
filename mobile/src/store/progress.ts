@@ -252,7 +252,24 @@ export function getLesson(s: Pick<ProgressState, 'subjects' | 'lessons'>, id: Su
  * поэтому его карточки повторов и справочники продолжают находиться.
  */
 export function migrateProgressSnapshot(saved: Record<string, unknown>): Record<string, unknown> {
-  if (!saved || 'subjects' in saved) return saved;
+  if (!saved) return saved;
+  return withSeedMissions('subjects' in saved ? saved : legacyToCurrent(saved));
+}
+
+/**
+ * Миссии демо-предметов. Сохранённый снимок заменяет `missions` целиком, поэтому демо, добавленное
+ * после сохранения, осталось бы без миссии, и в «Предметах» стоял бы прочерк. Недостающие берём из сида;
+ * миссии, которые человек уже менял, не трогаем.
+ */
+function withSeedMissions(saved: Record<string, unknown>): Record<string, unknown> {
+  const missions = saved.missions as Record<SubjectId, Mission> | undefined;
+  if (!missions) return saved;
+  const missing = DEMO_IDS.filter((id) => !missions[id] && seedMissions[id]);
+  if (missing.length === 0) return saved;
+  return { ...saved, missions: { ...missions, ...Object.fromEntries(missing.map((id) => [id, seedMissions[id]])) } };
+}
+
+function legacyToCurrent(saved: Record<string, unknown>): Record<string, unknown> {
   const { custom, customLesson: lesson, prepStage, prepError: _dropError, ...rest } = saved as Record<string, unknown> & {
     custom?: CustomSubject | null;
     customLesson?: Lesson | null;

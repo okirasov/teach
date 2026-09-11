@@ -343,8 +343,8 @@ export function InputView({ step, value, checked, onChange }: InputViewProps) {
         editable={!checked}
         placeholder={step.placeholder}
         placeholderTextColor={c.mut2}
-        multiline={multi}
-        numberOfLines={multi ? 5 : 1}
+        multiline
+        numberOfLines={multi ? 5 : 3}
         autoCapitalize="none"
         autoCorrect={false}
         style={{
@@ -352,15 +352,16 @@ export function InputView({ step, value, checked, onChange }: InputViewProps) {
           borderWidth: border.input,
           borderColor: c.mintInk,
           borderRadius: radius.card,
-          paddingVertical: multi ? 14 : 15,
+          paddingVertical: 14,
           paddingHorizontal: 16,
           marginTop: 16,
           fontFamily: fonts.sans400,
           fontSize: 15,
-          lineHeight: multi ? 23 : 22,
+          lineHeight: 23,
           color: c.ink,
-          minHeight: multi ? 140 : undefined,
-          textAlignVertical: multi ? "top" : "center",
+          // Однострочное поле было тесным даже для одной фразы: текст переносится, поле растёт.
+          minHeight: multi ? 140 : 96,
+          textAlignVertical: "top",
         }}
       />
     </View>

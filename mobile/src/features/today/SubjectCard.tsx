@@ -30,8 +30,8 @@ export function SubjectCard({ m, onPress }: { m: SubjectCardModel; onPress: () =
   const { c, fonts } = useTheme();
   const failed = !!m.prepFailed;
   const preparing = m.prepStage !== undefined && !failed;
-  const status = failed ? t.prepFailed : m.done ? t.doneToday : preparing ? (m.nextLesson ? t.prepNext(m.nextLesson) : t.prepSteps[Math.min(m.prepStage ?? 0, t.prepSteps.length - 1)]) : t.ready;
-  const cta = failed ? t.retry : preparing ? t.inBg : m.done ? t.more : t.start;
+  const status = failed ? t.prepFailed : m.done ? (m.demo ? t.demoDone : t.doneToday) : preparing ? (m.nextLesson ? t.prepNext(m.nextLesson) : t.prepSteps[Math.min(m.prepStage ?? 0, t.prepSteps.length - 1)]) : t.ready;
+  const cta = failed ? t.retry : preparing ? t.inBg : m.done ? (m.demo ? t.ownSubject : t.more) : t.start;
   const chipTone = failed ? 'amber' : !preparing && !m.done ? 'dark' : 'mint';
 
   return (

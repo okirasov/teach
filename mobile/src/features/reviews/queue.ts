@@ -37,3 +37,8 @@ export function dueLabel(t: Dict, due: Date, now: Date): string {
 export function estimateMinutes(count: number): number {
   return count === 0 ? 0 : Math.max(1, Math.round(count * 0.5));
 }
+
+/** Карточки одного предмета; без id — все. */
+export function forSubject<T extends { subjectId: string }>(cards: T[], subjectId?: string): T[] {
+  return subjectId ? cards.filter((c) => c.subjectId === subjectId) : cards;
+}

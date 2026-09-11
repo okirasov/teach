@@ -16,3 +16,4 @@ export { PillGroup, type PillOption } from './Pill';
 export { TwoStepConfirm } from './TwoStepConfirm';
 export { Segment } from './Segment';
 export { SpeakButton } from './SpeakButton';
+export { SubjectTabs, type SubjectTab } from './SubjectTabs';

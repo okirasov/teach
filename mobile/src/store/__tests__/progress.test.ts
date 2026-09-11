@@ -136,4 +136,15 @@ describe('progress store', () => {
     useProgress.getState().setCfg('en', { voice: false });
     expect(subjectConfig(useProgress.getState(), 'en')).toMatchObject({ voice: false, dur: 10 });
   });
+  it('демо, добавленное после сохранения, получает миссию из сида, а изменённые миссии не трогаются', () => {
+    const saved = { subjects: {}, lessons: {}, missions: { en: { cur: 'моя формулировка', hist: ['v1 · старая'] }, hist: { cur: 'история', hist: [] } } };
+    const next = migrateProgressSnapshot(saved) as Record<string, any>;
+    expect(next.missions.speak.cur).toBe('уверенно выступить перед командой на 10 минут');
+    expect(next.missions.en).toEqual({ cur: 'моя формулировка', hist: ['v1 · старая'] });
+    expect(next.missions.hist).toEqual({ cur: 'история', hist: [] });
+    // Все миссии демо на месте — снимок возвращается как есть.
+    const full = { subjects: {}, missions: { en: next.missions.en, speak: next.missions.speak } };
+    expect(migrateProgressSnapshot(full)).toBe(full);
+  });
+
 });

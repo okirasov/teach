@@ -45,11 +45,18 @@ export default function TodayScreen() {
               <Button label={t.newSubj} onPress={() => router.push('/setup')} style={{ marginTop: 16 }} />
             </Card>
           ) : null}
+          {/* У демо один урок: пройденное демо ведёт к своему предмету, а не повторяет тот же урок. */}
           {subjects.map((m) => (
             <SubjectCard
               key={m.id}
               m={m}
-              onPress={() => (m.prepFailed ? void retryPrepare(content, m.id) : router.push({ pathname: '/session/[id]', params: { id: m.id } }))}
+              onPress={() =>
+                m.prepFailed
+                  ? void retryPrepare(content, m.id)
+                  : m.demo && m.done
+                    ? router.push('/setup')
+                    : router.push({ pathname: '/session/[id]', params: { id: m.id } })
+              }
             />
           ))}
         </View>

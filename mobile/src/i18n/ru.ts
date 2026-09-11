@@ -36,7 +36,7 @@ export const ru = {
   voiceG: 'Голос', recMode: 'Запись', modePtt: 'Удерживать', modeHands: 'Без рук',
   weekLine: (n: number, k: number) => 'за неделю: ' + n + ' ошибок закрыто · ' + k + ' темы окрепли',
   prepSteps: ['Ищу источники', 'Отбираю по доверию', 'Собираю первый урок'] as readonly string[], prepNext: (n: number) => `Собираю урок ${n}`, stage1: 'этап 1',
-  srcL: 'источник:', srcFromPlan: 'Ваш план', doubt: 'Сомневаюсь', doubtSent: 'на проверке',
+  srcL: 'источник:', srcFromPlan: 'Ваш план', doubt: 'Сомневаюсь', doubtSent: 'отмечено',
   criteria: 'ЧТО ДОЛЖНО БЫТЬ В ОТВЕТЕ', critHit: 'есть', critMiss: 'нет', critScore: (a: number, b: number) => a + ' из ' + b + ' пунктов',
   accepted2: 'Принято', right: 'Верно', notQuite: 'Не совсем', orderHint: 'Нажимайте события по порядку — от раннего к позднему',
   badgeRight: 'ВЕРНО', badgeYours: 'ВАШ ВЫБОР', badgeAccepted: 'ПРИНЯТО',
@@ -81,6 +81,7 @@ export const ru = {
   ],
   emptyTodayTitle: 'Предметов пока нет', emptyTodayText: 'Создайте первый: тема, зачем она вам, источники и план — дальше уроки будут приходить сами.',
   emptySubjectsText: 'Пока ни одного предмета. Нажмите «Новый предмет» ниже.', emptyRefsText: 'Справочники появятся вместе с первым уроком предмета.',
+  demoDone: 'Демо пройдено', ownSubject: 'Свой предмет', allSubjects: 'Все',
 };
 
 export type Dict = typeof ru;
