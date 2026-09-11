@@ -1,0 +1,63 @@
+mobile/README.md
+  s_a2145daee18e40::t_4daebd81c6f61b 79-83,111
+mobile/app/(tabs)/today.tsx
+  s_a2145daee18e40::t_3fc109099866d4 5,49,54-61
+mobile/app/recap.tsx
+  s_a2145daee18e40::t_c9e8d20aff13c6 10-11,42-49,62,70-71
+mobile/app/session/[id].tsx
+  s_a2145daee18e40::t_cfd6a176aabe28 60,67-68
+mobile/src/db/DbGate.tsx
+  s_a2145daee18e40::t_868b3493e51d00 45
+mobile/src/db/seedCards.ts
+  s_a2145daee18e40::t_c4565e455a38e1 3,17-18,31
+mobile/src/domain/demo/en.ts
+  s_a2145daee18e40::t_41350079badc6e 2-3,6-9,42-113,116-247,250-393,396-550,553-806,808
+mobile/src/domain/demo/speak.ts
+  s_a2145daee18e40::t_7f2fd4bf2eb1c7 2-3,6-9,42-114,117-234,237-362,365-491,494-708,710
+mobile/src/domain/reviewCard.ts
+  s_a2145daee18e40::t_2084232072cec4 3-4,9-12
+mobile/src/domain/seed.ts
+  s_a2145daee18e40::t_0593be8623d6d7 1,10-22
+mobile/src/features/reviews/__tests__/snapshot.test.ts
+  s_a2145daee18e40::t_8382abf4ed435b 1-26
+mobile/src/features/reviews/buildReviewLesson.ts
+  s_a2145daee18e40::t_635a0db14c22a4 16,25-26
+mobile/src/features/reviews/useReviewPlan.ts
+  s_a2145daee18e40::t_8abcdfbd68b1fe 4,19
+mobile/src/features/subjects/demo.ts
+  s_a2145daee18e40::t_e064502bf4d7e5 1-14
+mobile/src/features/today/SubjectCard.tsx
+  s_a2145daee18e40::t_44c53c0e59ea26 23-24,35-36
+mobile/src/features/today/useTodaySubjects.ts
+  s_a2145daee18e40::t_81285d01ca9950 5,18,38-45,47
+mobile/src/i18n/en.ts
+  s_a2145daee18e40::t_6396a9dc3d5ff1 83
+mobile/src/i18n/ru.ts
+  s_a2145daee18e40::t_a1561e45e036bf 85
+mobile/src/store/__tests__/demoChain.test.ts
+  s_a2145daee18e40::t_ff6a726bab2c42 1-27
+mobile/src/store/__tests__/reviewsByLesson.test.ts
+  s_a2145daee18e40::t_4337447fd7b138 1-27
+mobile/src/store/progress.ts
+  s_a2145daee18e40::t_7bf65a33189b91 4,6,52-53,73-74,96,200-211,259-263,267-298
+mobile/src/store/reviews.ts
+  s_a2145daee18e40::t_73750fa1ddb2a2 7-12,53,83,88,91
+server/Teach.Api/wwwroot/docs/frd.html
+  s_a2145daee18e40::t_1ff845cfb81924 247,262
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "e8159e055e6e650219bfe52933a4a3b5e01df41b",
+  "prompts": {},
+  "sessions": {
+    "s_a2145daee18e40": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b37fca50-a572-4664-93f5-d0fcf31c39ed",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
