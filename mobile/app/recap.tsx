@@ -7,7 +7,8 @@ import { useT } from '@/i18n';
 import { content } from '@/content';
 import { isBaselineCheck } from '@/features/session/baseline';
 import { prepareNextLesson } from '@/features/subjects/prepare';
-import { isUserSubject, REVIEW_ID, useProgress } from '@/store/progress';
+import { goToNextDemoLesson } from '@/features/subjects/demo';
+import { currentDemoLesson, isUserSubject, REVIEW_ID, useProgress } from '@/store/progress';
 import { useReviews } from '@/store/reviews';
 import { useSession } from '@/store/session';
 import { useTheme } from '@/theme';
@@ -38,6 +39,14 @@ export default function RecapScreen() {
   const cardOf = (id?: string) => (id ? cards.find((c) => c.id === id) ?? null : null);
   const now = new Date();
 
+  // Номер урока и сам вопрос кладём в карточку: у предмета потом сменится урок, а повтор должен задать именно этот вопрос.
+  const progress = useProgress.getState();
+  const lessonNumber = isUserSubject(progress, s.subjectId) ? progress.subjects[s.subjectId]?.lessonNumber : currentDemoLesson(progress, s.subjectId)?.number;
+  const practiceAt = (i: number) => {
+    const st = s.lesson.steps[i];
+    return st && st.type !== 'explain' ? st : undefined;
+  };
+
   const leave = () => {
     clearSession(s.subjectId);
     end();
@@ -50,7 +59,7 @@ export default function RecapScreen() {
       await addRecords(
         records.map((r) => ({
           subjectId: s.subjectId, subjectName: s.lesson.name, title: r.title, note: r.note, source: lessonSource,
-          ref: { subjectId: s.subjectId, step: r.stepIndex }, ok: r.ok,
+          ref: { subjectId: s.subjectId, step: r.stepIndex, lessonNumber, snapshot: practiceAt(r.stepIndex) }, ok: r.ok,
         })),
         now,
       );
@@ -58,6 +67,8 @@ export default function RecapScreen() {
       // Пользовательский предмет: записи уходят на сервер, следующий урок готовится в фоне.
       if (isUserSubject(useProgress.getState(), s.subjectId))
         void prepareNextLesson(content, s.subjectId, records.map((r) => ({ title: r.title, note: r.note, ok: r.ok, stepIndex: r.stepIndex })));
+      // Демо: следующий статичный урок открывается сразу; после последнего предмет остаётся пройденным.
+      else await goToNextDemoLesson(s.subjectId);
     }
     leave();
   };

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { useT } from '@/i18n';
-import { getLesson, useProgress } from '@/store/progress';
+import { reviewStep, useProgress } from '@/store/progress';
 import { useReviews } from '@/store/reviews';
 import { useSettings } from '@/store/settings';
 import { buildReviewLesson, type ReviewLessonPlan } from './buildReviewLesson';
@@ -16,7 +16,7 @@ export function useReviewPlan(subjectId?: string): ReviewLessonPlan {
   const cap = useSettings((s) => s.cap);
   return useMemo(() => {
     const due = forSubject(dueToday(cards, new Date()), subjectId);
-    const resolve = (subjectId: string, step: number) => getLesson({ subjects, lessons }, subjectId, t.reviewName)?.steps[step] ?? null;
+    const resolve = (subjectId: string, step: number, lessonNumber?: number) => reviewStep({ subjects, lessons }, subjectId, step, lessonNumber, t.reviewName);
     return buildReviewLesson(due, resolve, t.reviewName, cap);
   }, [cards, subjects, lessons, cap, t, subjectId]);
 }

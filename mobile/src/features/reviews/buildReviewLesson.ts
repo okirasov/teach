@@ -13,7 +13,7 @@ export interface ReviewLessonPlan {
  */
 export function buildReviewLesson(
   cards: ReviewCard[],
-  resolveStep: (subjectId: string, step: number) => LessonStep | null,
+  resolveStep: (subjectId: string, step: number, lessonNumber?: number) => LessonStep | null,
   name: string,
   cap: number,
 ): ReviewLessonPlan {
@@ -22,7 +22,8 @@ export function buildReviewLesson(
   for (const c of cards) {
     if (cap > 0 && steps.length >= cap) break;
     if (!c.ref) continue;
-    const st = resolveStep(c.ref.subjectId, c.ref.step);
+    // Сохранённый вопрос надёжнее поиска: у предмета мог смениться текущий урок.
+    const st = c.ref.snapshot ?? resolveStep(c.ref.subjectId, c.ref.step, c.ref.lessonNumber);
     if (!st || st.type === 'explain') continue;
     steps.push(st);
     cardIds.push(c.id);

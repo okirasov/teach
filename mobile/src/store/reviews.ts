@@ -4,6 +4,12 @@ import type { ReviewsRepo } from '@/db/reviewsRepo';
 import { emptyCard, schedule } from '@/domain/fsrs';
 import type { ReviewCard, StepRef } from '@/domain/reviewCard';
 
+/**
+ * Одна учебная точка — шаг конкретного урока. Пересдача того же урока пересчитывает карточку,
+ * шаг другого урока даёт новую: иначе записи нового урока переписывали бы карточки старого.
+ */
+const refKey = (ref: StepRef) => `${ref.subjectId}:${ref.lessonNumber ?? ''}:${ref.step}`;
+
 export interface NewRecord {
   subjectId: string;
   subjectName: string;
@@ -44,7 +50,7 @@ export interface ReviewsState {
   attach: (repo: ReviewsRepo) => Promise<void>;
   detach: () => void;
   /**
-   * Записи после сессии урока → карточки. Если карточка с той же ссылкой на шаг уже есть,
+   * Записи после сессии урока → карточки. Если карточка с той же ссылкой на шаг того же урока уже есть,
    * она пересчитывается по результату, а не дублируется: одна учебная точка — одна карточка.
    */
   addRecords: (records: NewRecord[], now?: Date) => Promise<ReviewCard[]>;
@@ -74,15 +80,15 @@ export const useReviews = create<ReviewsState>((set, get) => ({
   detach: () => set({ repo: null, cards: [], ready: false, stats: { month: 0, today: 0 } }),
   addRecords: async (records, now = new Date()) => {
     const { repo, cards } = get();
-    const existingByRef = new Map(cards.filter((c) => c.ref).map((c) => [`${c.ref!.subjectId}:${c.ref!.step}`, c]));
+    const existingByRef = new Map(cards.filter((c) => c.ref).map((c) => [refKey(c.ref!), c]));
     const created: ReviewCard[] = [];
     const updated: ReviewCard[] = [];
     const logs = [];
     for (const r of records) {
-      const prev = r.ref ? existingByRef.get(`${r.ref.subjectId}:${r.ref.step}`) : undefined;
+      const prev = r.ref ? existingByRef.get(refKey(r.ref)) : undefined;
       if (prev) {
         const { card, log } = schedule(prev.fsrs, r.ok, now);
-        updated.push({ ...prev, title: r.title, note: r.note, fsrs: card });
+        updated.push({ ...prev, title: r.title, note: r.note, ref: r.ref ?? prev.ref, fsrs: card });
         logs.push({ cardId: prev.id, log });
         continue;
       }

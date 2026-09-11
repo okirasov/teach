@@ -82,6 +82,7 @@ export const ru = {
   emptyTodayTitle: 'Предметов пока нет', emptyTodayText: 'Создайте первый: тема, зачем она вам, источники и план — дальше уроки будут приходить сами.',
   emptySubjectsText: 'Пока ни одного предмета. Нажмите «Новый предмет» ниже.', emptyRefsText: 'Справочники появятся вместе с первым уроком предмета.',
   demoDone: 'Демо пройдено', ownSubject: 'Свой предмет', allSubjects: 'Все',
+  nextLessonCta: 'Следующий урок',
 };
 
 export type Dict = typeof ru;

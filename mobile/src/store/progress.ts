@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 
 import { detectLanguage, type LanguageInfo } from '@/domain/languages';
-import { customLesson, DEMO_IDS, reviewLesson, seedLessons, seedMissions } from '@/domain/seed';
+import { customLesson, DEMO_IDS, demoLessons, reviewLesson, seedLessons, seedMissions, type DemoLesson } from '@/domain/seed';
 import type { SavedSession } from '@/features/session/engine';
-import type { CustomSubject, Lesson, LessonRecord, Mission, SubjectConfig, SubjectId } from '@/domain/types';
+import type { CustomSubject, Lesson, LessonRecord, LessonStep, Mission, SubjectConfig, SubjectId } from '@/domain/types';
 import { defaultSubjectConfig } from '@/domain/types';
 
 /**
@@ -49,6 +49,8 @@ export interface ProgressState {
   prepErrors: Record<SubjectId, string>;
   /** Монотонный счётчик: даёт id и порядок, никогда не переиспользуется. */
   seq: number;
+  /** Демо: индекс текущего урока в цепочке demoLessons. */
+  demoStep: Record<SubjectId, number>;
   missions: Record<SubjectId, Mission>;
   cfg: Record<SubjectId, Partial<SubjectConfig>>;
   reviewLog: { t: string; s: string }[];
@@ -68,6 +70,8 @@ export interface ProgressState {
   startNextLesson: (id: SubjectId, records: LessonRecord[]) => void;
   setMission: (id: SubjectId, text: string) => void;
   setCfg: (id: SubjectId, patch: Partial<SubjectConfig>) => void;
+  /** Демо: перейти к следующему статичному уроку, если он есть. */
+  advanceDemo: (id: SubjectId) => void;
 }
 
 /**
@@ -89,6 +93,7 @@ export const useProgress = create<ProgressState>((set) => ({
   prepStages: {},
   prepErrors: {},
   seq: 0,
+  demoStep: {},
   missions: { ...seedMissions },
   cfg: {},
   reviewLog: [],
@@ -192,6 +197,18 @@ export const useProgress = create<ProgressState>((set) => ({
       return { missions: { ...s.missions, [id]: { cur: text, hist: [...m.hist, `v${m.hist.length + 1} · ${m.cur}`] } } };
     }),
   setCfg: (id, patch) => set((s) => ({ cfg: { ...s.cfg, [id]: { ...s.cfg[id], ...patch } } })),
+  advanceDemo: (id) =>
+    set((s) => {
+      const chain = demoLessons[id];
+      const cur = s.demoStep[id] ?? 0;
+      if (!chain || cur + 1 >= chain.length) return s;
+      return {
+        demoStep: { ...s.demoStep, [id]: cur + 1 },
+        // Следующий урок доступен сразу — предмет снова «не пройден сегодня».
+        done: { ...s.done, [id]: false },
+        sessions: (({ [id]: _dropped, ...rest }) => rest)(s.sessions),
+      };
+    }),
 }));
 
 /** Селекторы. */
@@ -239,11 +256,46 @@ export function subjectConfig(s: Pick<ProgressState, 'cfg'>, id: SubjectId): Sub
   return { ...defaultSubjectConfig, ...s.cfg[id] };
 }
 
-export function getLesson(s: Pick<ProgressState, 'subjects' | 'lessons'>, id: SubjectId, reviewName: string): Lesson | null {
+export function getLesson(
+  s: Pick<ProgressState, 'subjects' | 'lessons'> & Partial<Pick<ProgressState, 'demoStep'>>,
+  id: SubjectId,
+  reviewName: string,
+): Lesson | null {
   if (id === REVIEW_ID) return reviewLesson(reviewName);
   const sub = s.subjects[id];
   if (sub) return s.lessons[id] ?? customLesson(sub.topic, sub.mission);
-  return seedLessons[id] ?? null;
+  return currentDemoLesson(s, id)?.lesson ?? seedLessons[id] ?? null;
+}
+
+/** Текущий урок демо в цепочке. */
+export function currentDemoLesson(s: Partial<Pick<ProgressState, 'demoStep'>>, id: SubjectId): DemoLesson | null {
+  const chain = demoLessons[id];
+  if (!chain?.length) return null;
+  return chain[Math.min(s.demoStep?.[id] ?? 0, chain.length - 1)];
+}
+
+/** После текущего урока демо есть ещё уроки. */
+export function demoHasNext(s: Partial<Pick<ProgressState, 'demoStep'>>, id: SubjectId): boolean {
+  const chain = demoLessons[id];
+  return !!chain && (s.demoStep?.[id] ?? 0) + 1 < chain.length;
+}
+
+/** Вопрос карточки повтора без сохранённого снимка: шаг урока, из которого карточка. */
+export function reviewStep(
+  s: Pick<ProgressState, 'subjects' | 'lessons'>,
+  subjectId: SubjectId,
+  step: number,
+  lessonNumber: number | undefined,
+  reviewName: string,
+): LessonStep | null {
+  const chain = demoLessons[subjectId];
+  if (chain) {
+    // Старые карточки демо без номера урока родились из первого урока цепочки.
+    const src = lessonNumber === undefined ? chain[0] : chain.find((l) => l.number === lessonNumber);
+    return src?.lesson.steps[step] ?? null;
+  }
+  // У своего предмета на клиенте только текущий урок: старые карточки без снимка ищут шаг в нём.
+  return getLesson(s, subjectId, reviewName)?.steps[step] ?? null;
 }
 
 /**

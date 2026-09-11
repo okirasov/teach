@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 
 import { content } from '@/content';
+import { goToNextDemoLesson } from '@/features/subjects/demo';
 import { retryPrepare } from '@/features/subjects/prepare';
 import { HeroCard } from '@/features/today/HeroCard';
 import { SubjectCard } from '@/features/today/SubjectCard';
@@ -45,18 +46,19 @@ export default function TodayScreen() {
               <Button label={t.newSubj} onPress={() => router.push('/setup')} style={{ marginTop: 16 }} />
             </Card>
           ) : null}
-          {/* У демо один урок: пройденное демо ведёт к своему предмету, а не повторяет тот же урок. */}
+          {/* Демо идёт по цепочке статичных уроков; после последнего ведёт к своему предмету. */}
           {subjects.map((m) => (
             <SubjectCard
               key={m.id}
               m={m}
-              onPress={() =>
-                m.prepFailed
-                  ? void retryPrepare(content, m.id)
-                  : m.demo && m.done
-                    ? router.push('/setup')
-                    : router.push({ pathname: '/session/[id]', params: { id: m.id } })
-              }
+              onPress={async () => {
+                if (m.prepFailed) return void retryPrepare(content, m.id);
+                if (m.demo && m.done) {
+                  if (!m.demoHasNext) return router.push('/setup');
+                  await goToNextDemoLesson(m.id);
+                }
+                router.push({ pathname: '/session/[id]', params: { id: m.id } });
+              }}
             />
           ))}
         </View>

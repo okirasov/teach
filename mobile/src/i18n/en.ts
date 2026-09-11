@@ -80,4 +80,5 @@ export const en: Dict = {
   emptyTodayTitle: 'No subjects yet', emptyTodayText: 'Create the first one: topic, why it matters, sources and a plan — lessons will follow on their own.',
   emptySubjectsText: 'No subjects yet. Tap “New subject” below.', emptyRefsText: 'References appear with the first lesson of a subject.',
   demoDone: 'Demo done', ownSubject: 'Your own subject', allSubjects: 'All',
+  nextLessonCta: 'Next lesson',
 };

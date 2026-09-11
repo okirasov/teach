@@ -42,7 +42,7 @@ export function DbGate({ children }: { children: React.ReactNode }) {
             useProgress,
             r.kv,
             'progress',
-            ['done', 'removed', 'added', 'subjects', 'lessons', 'prepStages', 'seq', 'missions', 'cfg', 'reviewLog', 'sessions'],
+            ['done', 'removed', 'added', 'subjects', 'lessons', 'prepStages', 'seq', 'demoStep', 'missions', 'cfg', 'reviewLog', 'sessions'],
             migrateProgressSnapshot,
           ),
         );

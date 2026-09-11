@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { seedLessons, seedPlans } from '@/domain/seed';
 import { useT } from '@/i18n';
-import { activeSubjectIds, prepOf, useProgress } from '@/store/progress';
+import { activeSubjectIds, currentDemoLesson, demoHasNext, prepOf, useProgress } from '@/store/progress';
 import { planProgress } from '@/features/subjects/plan';
 import type { SubjectCardModel } from './SubjectCard';
 
@@ -15,6 +15,7 @@ export function useTodaySubjects(): SubjectCardModel[] {
   const lessons = useProgress((s) => s.lessons);
   const prepStages = useProgress((s) => s.prepStages);
   const prepErrors = useProgress((s) => s.prepErrors);
+  const demoStep = useProgress((s) => s.demoStep);
 
   return useMemo(() => {
     return activeSubjectIds({ removed, subjects }).map((id): SubjectCardModel => {
@@ -34,9 +35,14 @@ export function useTodaySubjects(): SubjectCardModel[] {
           plan: sub.ready ? planProgress(sub.plan, sub.lessonNumber ?? 0, sub.planStage) : undefined,
         };
       }
-      const l = seedLessons[id];
-      // Демо: урок 2 первого этапа плана на пять этапов, как у настоящего предмета после диагностики.
-      return { id, name: l.name, level: l.level, lessonTitle: l.lessonTitle ?? '', done: !!done[id], demo: true, plan: planProgress(seedPlans[id], 2, 0) };
+      // Демо: цепочка статичных уроков; номер урока и этап плана — как у настоящего предмета.
+      const cur = currentDemoLesson({ demoStep }, id);
+      const l = cur?.lesson ?? seedLessons[id];
+      return {
+        id, name: l.name, level: l.level, lessonTitle: l.lessonTitle ?? '', done: !!done[id], demo: true,
+        demoHasNext: demoHasNext({ demoStep }, id),
+        plan: planProgress(seedPlans[id], cur?.number ?? 2, cur?.planStage ?? 0),
+      };
     });
-  }, [t, done, removed, subjects, lessons, prepStages, prepErrors]);
+  }, [t, done, removed, subjects, lessons, prepStages, prepErrors, demoStep]);
 }

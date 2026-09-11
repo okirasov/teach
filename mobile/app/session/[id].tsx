@@ -57,14 +57,15 @@ export default function SessionScreen() {
   const { id, subject } = useLocalSearchParams<{ id: string; subject?: string }>();
   const subjects = useProgress((s) => s.subjects);
   const lessons = useProgress((s) => s.lessons);
+  const demoStep = useProgress((s) => s.demoStep);
   // Повторы можно запустить по одному предмету — тогда в урок идут только его карточки.
   const plan = useReviewPlan(subject);
   const lesson = useMemo(
     () =>
       id === REVIEW_ID
         ? plan.lesson
-        : getLesson({ subjects, lessons }, id, t.reviewName),
-    [subjects, lessons, id, t, plan],
+        : getLesson({ subjects, lessons, demoStep }, id, t.reviewName),
+    [subjects, lessons, demoStep, id, t, plan],
   );
   const cardIds = id === REVIEW_ID ? plan.cardIds : undefined;
   const saved = useProgress((st) => st.sessions[id]);

@@ -1,6 +1,6 @@
 import { emptyCard, schedule } from '@/domain/fsrs';
 import type { ReviewCard } from '@/domain/reviewCard';
-import { seedLessons } from '@/domain/seed';
+import { demoLessons } from '@/domain/seed';
 
 function daysAgo(now: Date, days: number): Date {
   const d = new Date(now);
@@ -14,7 +14,8 @@ function daysAgo(now: Date, days: number): Date {
  */
 export function demoQueue(now: Date): ReviewCard[] {
   const make = (id: string, subjectId: string, step: number, reviewedDaysAgo: number, ok: boolean): ReviewCard | null => {
-    const lesson = seedLessons[subjectId];
+    const first = demoLessons[subjectId]?.[0];
+    const lesson = first?.lesson;
     const st = lesson?.steps[step];
     if (!st || st.type === 'explain') return null;
     const explain = lesson.steps.find((s) => s.type === 'explain');
@@ -27,7 +28,7 @@ export function demoQueue(now: Date): ReviewCard[] {
       title: st.recTitle,
       note: st.recNote,
       source: explain?.type === 'explain' ? explain.source.split(' · ')[0] : '',
-      ref: { subjectId, step },
+      ref: { subjectId, step, lessonNumber: first?.number, snapshot: st },
       createdAt: when.getTime(),
       fsrs: card,
     };

@@ -1,3 +1,4 @@
+import type { ReferenceIn } from '@/content/types';
 import type { Reference } from './reference';
 import type { Lesson, Mission, PlanStage, SubjectId, TopicKind } from './types';
 import * as en from './demo/en';
@@ -6,7 +7,19 @@ import * as speak from './demo/speak';
 /** Демо-предметы приложения: языковой и неязыковой, сгенерированы сервером и зашиты статично. */
 export const DEMO_IDS: SubjectId[] = ['en', 'speak'];
 
-export const seedLessons: Record<SubjectId, Lesson> = { en: en.lesson, speak: speak.lesson };
+/** Один статичный урок демо: номер, этап плана и глоссарий после него. */
+export interface DemoLesson {
+  number: number;
+  planStage: number;
+  lesson: Lesson;
+  references: ReferenceIn[];
+}
+
+/** Цепочка статичных уроков демо: сгенерированы сервером заранее и проходятся по порядку. */
+export const demoLessons: Record<SubjectId, DemoLesson[]> = { en: en.lessons, speak: speak.lessons };
+
+/** Первый урок демо: по нему имя и язык предмета; к нему относятся старые карточки без номера урока. */
+export const seedLessons: Record<SubjectId, Lesson> = { en: en.lessons[0].lesson, speak: speak.lessons[0].lesson };
 export const seedMissions: Record<SubjectId, Mission> = { en: { cur: en.mission, hist: [] }, speak: { cur: speak.mission, hist: [] } };
 export const seedPlans: Record<SubjectId, PlanStage[]> = { en: en.plan, speak: speak.plan };
 export const seedFocus: Record<SubjectId, string> = { en: en.focus, speak: speak.focus };
