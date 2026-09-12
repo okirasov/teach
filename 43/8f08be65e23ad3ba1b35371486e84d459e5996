@@ -1,0 +1,21 @@
+mobile/src/features/session/__tests__/buddyState.test.ts
+  s_e89c0e6a6b23b1::t_e939f30e3ade41 1-38
+mobile/src/features/session/buddyState.ts
+  s_e89c0e6a6b23b1::t_b6898e54d41702 1-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "438f08be65e23ad3ba1b35371486e84d459e5996",
+  "prompts": {},
+  "sessions": {
+    "s_e89c0e6a6b23b1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-abf8fb2bbc5299cbc",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
