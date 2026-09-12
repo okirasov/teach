@@ -1,0 +1,19 @@
+mobile/README.md
+  s_5983f5a8accf5b::t_6fcc1284c26f9c 81-84
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "8ae5db4bce516fa422e25c45c43a1598dda4fd11",
+  "prompts": {},
+  "sessions": {
+    "s_5983f5a8accf5b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-ae0161f45acac5451",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
