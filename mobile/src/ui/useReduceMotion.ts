@@ -12,7 +12,7 @@ export function useReduceMotion(): boolean {
     const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
     return () => {
       alive = false;
-      sub.remove();
+      sub?.remove();
     };
   }, []);
   return reduce;

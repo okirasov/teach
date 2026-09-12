@@ -1,9 +1,8 @@
-// src/ui/BuddyMark.tsx
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, View } from 'react-native';
 
-import type { BuddyState } from '@/features/session/buddyState';
-import { useTheme } from '@/theme';
+import { REACTIONS, type BuddyState } from '@/features/session/buddyState';
+import { brand, useTheme } from '@/theme';
 
 interface BuddyMarkProps {
   state: BuddyState;
@@ -11,8 +10,6 @@ interface BuddyMarkProps {
   reduceMotion: boolean;
   /** false — реакция сразу в конечной позе (просмотр уже сыгранной реакции). */
   animateReaction: boolean;
-  /** Диаметр точки; gap = 0.6 × size. */
-  size?: number;
 }
 
 interface Dot {
@@ -22,21 +19,22 @@ interface Dot {
   ty: Animated.Value;
 }
 
+const DOT = 10;
+const GAP = 6;
+const RING = DOT + 1;
 const THINK_OFFSETS = [24, 8, -8, -24];
 
+function makeDots(): Dot[] {
+  return Array.from({ length: 4 }, () => ({ scale: new Animated.Value(1), scaleY: new Animated.Value(1), tx: new Animated.Value(0), ty: new Animated.Value(0) }));
+}
+
 /** Знак бренда как бадди: четыре точки, последняя контурная янтарная. Вся пластика — здесь. */
-export function BuddyMark({ state, reduceMotion, animateReaction, size = 10 }: BuddyMarkProps) {
+export function BuddyMark({ state, reduceMotion, animateReaction }: BuddyMarkProps) {
   const { c } = useTheme();
-  const dots = useMemo<Dot[]>(
-    () => Array.from({ length: 4 }, () => ({ scale: new Animated.Value(1), scaleY: new Animated.Value(1), tx: new Animated.Value(0), ty: new Animated.Value(0) })),
-    [],
-  );
+  const dots = useRef<Dot[]>(makeDots()).current;
   const fill = useRef(new Animated.Value(0)).current;
-  const running = useRef<Animated.CompositeAnimation | null>(null);
 
   useEffect(() => {
-    running.current?.stop();
-    running.current = null;
     // Сброс в нейтральную позу; залитая точка остаётся только на «верно».
     for (const d of dots) {
       d.scale.setValue(1);
@@ -46,24 +44,22 @@ export function BuddyMark({ state, reduceMotion, animateReaction, size = 10 }: B
     }
     fill.setValue(state === 'right' ? 1 : 0);
     if (reduceMotion) return;
-    const isReaction = state === 'right' || state === 'partial' || state === 'wrong';
+    const isReaction = REACTIONS.has(state);
     if (isReaction && !animateReaction) return;
 
-    const anim = animationFor(state, dots, fill, size);
+    const anim = animationFor(state, dots, fill);
     if (!anim) return;
-    running.current = anim;
     anim.start();
     return () => {
       anim.stop();
     };
-  }, [state, reduceMotion, animateReaction, dots, fill, size]);
+  }, [state, reduceMotion, animateReaction, dots, fill]);
 
-  const gap = Math.round(size * 0.6);
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap, height: size * 2.4 }} accessible={false}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: GAP, height: DOT * 2.4 }} accessible={false}>
       {dots.map((d, i) => {
         const last = i === 3;
-        const ring = last ? size + 1 : size;
+        const ring = last ? RING : DOT;
         return (
           <Animated.View
             key={i}
@@ -73,14 +69,14 @@ export function BuddyMark({ state, reduceMotion, animateReaction, size = 10 }: B
               borderRadius: ring / 2,
               backgroundColor: last ? 'transparent' : c.mintInk,
               borderWidth: last ? 2.5 : 0,
-              borderColor: last ? c.amber : 'transparent',
+              borderColor: last ? brand.markAmber : 'transparent',
               alignItems: 'center',
               justifyContent: 'center',
               transform: [{ translateX: d.tx }, { translateY: d.ty }, { scale: d.scale }, { scaleY: d.scaleY }],
             }}
           >
             {last ? (
-              <Animated.View style={{ width: ring - 5, height: ring - 5, borderRadius: (ring - 5) / 2, backgroundColor: c.amber, transform: [{ scale: fill }] }} />
+              <Animated.View style={{ width: ring - 5, height: ring - 5, borderRadius: (ring - 5) / 2, backgroundColor: brand.markAmber, transform: [{ scale: fill }] }} />
             ) : null}
           </Animated.View>
         );
@@ -93,14 +89,14 @@ const T = (value: Animated.Value, toValue: number, duration: number, easing = Ea
   Animated.timing(value, { toValue, duration, easing, useNativeDriver: true });
 
 /** Анимация состояния; null — статичная поза («читайте», реакции без проигрывания). */
-function animationFor(state: BuddyState, dots: Dot[], fill: Animated.Value, size: number): Animated.CompositeAnimation | null {
+function animationFor(state: BuddyState, dots: Dot[], fill: Animated.Value): Animated.CompositeAnimation | null {
   switch (state) {
     case 'waiting':
-      // Дыхание слева направо, 2.6 с на круг.
+      // Дыхание слева направо, ≈2.6 с на круг.
       return Animated.loop(
         Animated.stagger(
-          300,
-          dots.map((d) => Animated.sequence([T(d.scale, 1.2, 1300), T(d.scale, 1, 1300)])),
+          200,
+          dots.map((d) => Animated.sequence([T(d.scale, 1.2, 1000), T(d.scale, 1, 1000)])),
         ),
       );
     case 'listening': {
@@ -113,11 +109,11 @@ function animationFor(state: BuddyState, dots: Dot[], fill: Animated.Value, size
       );
     }
     case 'speaking':
-      // Волна бежит по ряду, 1 с.
+      // Волна бежит по ряду, ≈1 с на точку.
       return Animated.loop(
         Animated.stagger(
           120,
-          dots.map((d) => Animated.sequence([T(d.ty, -size * 0.6, 300), T(d.ty, size * 0.2, 300), T(d.ty, 0, 400)])),
+          dots.map((d) => Animated.sequence([T(d.ty, -DOT * 0.6, 250), T(d.ty, DOT * 0.2, 250), T(d.ty, 0, 140)])),
         ),
       );
     case 'thinking':
@@ -128,31 +124,31 @@ function animationFor(state: BuddyState, dots: Dot[], fill: Animated.Value, size
         ),
       );
     case 'right': {
-      // Контурная точка заливается и подпрыгивает; остаётся залитой.
+      // Контурная точка заливается и подпрыгивает; финальная поза — заливка + scale 1.
       const last = dots[3];
       fill.setValue(0);
       return Animated.parallel([
         T(fill, 1, 350, Easing.out(Easing.back(1.5))),
-        Animated.sequence([T(last.scale, 1.5, 250), T(last.scale, 1.15, 200)]),
+        Animated.sequence([T(last.scale, 1.5, 250), T(last.scale, 1, 200)]),
       ]);
     }
     case 'partial':
       // Половина ряда оседает и выпрямляется.
-      return sag(dots.slice(2), size);
+      return sag(dots.slice(2));
     case 'wrong':
       // Весь ряд оседает и выпрямляется.
-      return sag(dots, size);
+      return sag(dots);
     case 'reading':
       return null;
   }
 }
 
-function sag(dots: Dot[], size: number): Animated.CompositeAnimation {
+function sag(dots: Dot[]): Animated.CompositeAnimation {
   return Animated.stagger(
     50,
     dots.map((d) =>
       Animated.sequence([
-        Animated.parallel([T(d.ty, size * 0.5, 400), T(d.scale, 0.9, 400)]),
+        Animated.parallel([T(d.ty, DOT * 0.5, 400), T(d.scale, 0.9, 400)]),
         Animated.delay(500),
         Animated.parallel([T(d.ty, 0, 550), T(d.scale, 1, 550)]),
       ]),
