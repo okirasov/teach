@@ -5,6 +5,7 @@ import { useT } from '@/i18n';
 import { useTheme } from '@/theme';
 import { BuddyMark, Txt, useReduceMotion } from '@/ui';
 import { buddyStateOf, REACTIONS, type BuddyInput, type BuddyState } from './buddyState';
+import { buddyHaptic } from './buddyHaptics';
 import { useSpeaker } from './speaker';
 
 export interface BuddyDockProps extends Omit<BuddyInput, 'speaking'> {
@@ -37,8 +38,10 @@ export function BuddyDock({ stepIndex, reduceMotion: reduceOverride, ...input }:
   const isReaction = REACTIONS.has(state);
   const animateReaction = isReaction && played.current !== key;
   useEffect(() => {
-    if (isReaction) played.current = key;
-  }, [isReaction, key]);
+    if (!isReaction) return;
+    if (played.current !== key) buddyHaptic(state);
+    played.current = key;
+  }, [isReaction, key, state]);
 
   // iOS не читает live-region у обычного View — объявляем переходы сами.
   useEffect(() => {

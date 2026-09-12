@@ -6,6 +6,13 @@ import { ru } from '@/i18n/ru';
 import { palette } from '@/theme/tokens';
 import { BuddyMark } from '@/ui';
 
+jest.mock('expo-haptics', () => ({
+  notificationAsync: jest.fn(() => Promise.resolve()),
+  impactAsync: jest.fn(() => Promise.resolve()),
+  NotificationFeedbackType: { Success: 'success', Warning: 'warning' },
+  ImpactFeedbackStyle: { Light: 'light' },
+}));
+
 const base = { stepType: 'free' as const, checked: false, viewingPast: false, rec: false, grading: false, tone: null, stepIndex: 1, reduceMotion: true };
 
 function render(props: Partial<React.ComponentProps<typeof BuddyDock>>) {
@@ -55,5 +62,14 @@ describe('BuddyDock', () => {
 
     act(() => tree.update(<BuddyDock {...base} checked tone="mint" stepIndex={2} />));
     expect(tree.root.findByType(BuddyMark).props.animateReaction).toBe(true);
+  });
+  it('fires one haptic per reaction', () => {
+    const Haptics = jest.requireMock('expo-haptics');
+    Haptics.notificationAsync.mockClear();
+    const tree = render({ checked: true, tone: 'mint' });
+    act(() => {
+      tree.update(<BuddyDock {...base} checked tone="mint" />);
+    });
+    expect(Haptics.notificationAsync).toHaveBeenCalledTimes(1);
   });
 });
