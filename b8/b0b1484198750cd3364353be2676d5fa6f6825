@@ -1,0 +1,21 @@
+mobile/src/i18n/en.ts
+  s_e89c0e6a6b23b1::t_15f65b46aae1bf 47
+mobile/src/i18n/ru.ts
+  s_e89c0e6a6b23b1::t_bdc6a8e4f4391a 48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "b8b0b1484198750cd3364353be2676d5fa6f6825",
+  "prompts": {},
+  "sessions": {
+    "s_e89c0e6a6b23b1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-abf8fb2bbc5299cbc",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
