@@ -17,3 +17,4 @@ export { TwoStepConfirm } from './TwoStepConfirm';
 export { Segment } from './Segment';
 export { SpeakButton } from './SpeakButton';
 export { SubjectTabs, type SubjectTab } from './SubjectTabs';
+export { useReduceMotion } from './useReduceMotion';
