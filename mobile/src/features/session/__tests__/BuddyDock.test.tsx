@@ -3,7 +3,9 @@ import { act, create } from 'react-test-renderer';
 
 import { BuddyDock } from '../BuddyDock';
 import { ru } from '@/i18n/ru';
+import { ThemeProvider } from '@/theme';
 import { palette } from '@/theme/tokens';
+import { useSettings } from '@/store/settings';
 import { BuddyMark } from '@/ui';
 
 jest.mock('expo-haptics', () => ({
@@ -54,8 +56,9 @@ describe('BuddyDock', () => {
     expect(root.props.accessibilityLabel).toBe(ru.buddy.wrong);
   });
   it('plays a reaction once per step', () => {
+    // Реакция, уже стоящая при монтировании, не проигрывается заново (см. F2).
     const tree = render({ checked: true, tone: 'mint', stepIndex: 1 });
-    expect(tree.root.findByType(BuddyMark).props.animateReaction).toBe(true);
+    expect(tree.root.findByType(BuddyMark).props.animateReaction).toBe(false);
 
     act(() => tree.update(<BuddyDock {...base} checked tone="mint" stepIndex={1} />));
     expect(tree.root.findByType(BuddyMark).props.animateReaction).toBe(false);
@@ -66,10 +69,82 @@ describe('BuddyDock', () => {
   it('fires one haptic per reaction', () => {
     const Haptics = jest.requireMock('expo-haptics');
     Haptics.notificationAsync.mockClear();
-    const tree = render({ checked: true, tone: 'mint' });
+    const tree = render({ checked: false, tone: null });
     act(() => {
       tree.update(<BuddyDock {...base} checked tone="mint" />);
     });
     expect(Haptics.notificationAsync).toHaveBeenCalledTimes(1);
+    act(() => {
+      tree.update(<BuddyDock {...base} checked tone="mint" />);
+    });
+    expect(Haptics.notificationAsync).toHaveBeenCalledTimes(1);
+  });
+  it('does not replay a reaction already checked at mount', () => {
+    const Haptics = jest.requireMock('expo-haptics');
+    Haptics.notificationAsync.mockClear();
+    const tree = render({ checked: true, tone: 'mint' });
+    expect(tree.root.findByType(BuddyMark).props.animateReaction).toBe(false);
+    expect(Haptics.notificationAsync).not.toHaveBeenCalled();
+  });
+  it('animates and haptics on a later transition into a reaction', () => {
+    const Haptics = jest.requireMock('expo-haptics');
+    Haptics.notificationAsync.mockClear();
+    const tree = render({ checked: false, tone: null, stepIndex: 3 });
+    expect(tree.root.findByType(BuddyMark).props.animateReaction).toBe(false);
+    act(() => tree.update(<BuddyDock {...base} checked tone="mint" stepIndex={3} />));
+    expect(tree.root.findByType(BuddyMark).props.animateReaction).toBe(true);
+    expect(Haptics.notificationAsync).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('BuddyDock dark theme', () => {
+  afterEach(() => {
+    act(() => {
+      useSettings.getState().setTheme('light');
+    });
+  });
+
+  it('tints the dock using the dark palette', () => {
+    act(() => {
+      useSettings.getState().setTheme('dark');
+    });
+    let tree!: ReturnType<typeof create>;
+    act(() => {
+      tree = create(
+        <ThemeProvider>
+          <BuddyDock {...base} />
+        </ThemeProvider>,
+      );
+    });
+    expect(bgOf(tree)).toBe(palette.dark.card);
+
+    act(() => {
+      tree.update(
+        <ThemeProvider>
+          <BuddyDock {...base} checked tone="mint" />
+        </ThemeProvider>,
+      );
+    });
+    expect(bgOf(tree)).toBe(palette.dark.mint);
+
+    act(() => {
+      tree.update(
+        <ThemeProvider>
+          <BuddyDock {...base} checked tone="amber" />
+        </ThemeProvider>,
+      );
+    });
+    expect(bgOf(tree)).toBe(palette.dark.amberBg);
+
+    act(() => {
+      tree.update(
+        <ThemeProvider>
+          <BuddyDock {...base} checked tone="err" />
+        </ThemeProvider>,
+      );
+    });
+    expect(bgOf(tree)).toBe(palette.dark.errBg);
+
+    act(() => tree.unmount());
   });
 });

@@ -33,18 +33,26 @@ export function BuddyDock({ stepIndex, reduceMotion: reduceOverride, ...input }:
   const word = t.buddy[state];
 
   // Ключ уже сыгранной реакции: «шаг:состояние». Повторный показ идёт без анимации.
-  const played = useRef<string | null>(null);
+  // Сид при монтировании: реакция, уже застигнутая на первом рендере (восстановленная
+  // сессия), считается уже сыгранной и не должна анимироваться/хаптить/объявляться заново.
   const key = `${stepIndex}:${state}`;
   const isReaction = REACTIONS.has(state);
+  const played = useRef<string | null>(isReaction ? key : null);
   const animateReaction = isReaction && played.current !== key;
   useEffect(() => {
     if (!isReaction) return;
     if (played.current !== key) buddyHaptic(state);
     played.current = key;
-  }, [isReaction, key, state]);
+  }, [isReaction, key]);
 
   // iOS не читает live-region у обычного View — объявляем переходы сами.
+  // На первом монтировании ничего не объявляем: это не переход, а восстановленное состояние.
+  const mounted = useRef(false);
   useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
     if (Platform.OS === 'ios' && ANNOUNCED.has(state)) AccessibilityInfo.announceForAccessibility(word);
   }, [state, word]);
 
@@ -72,6 +80,7 @@ export function BuddyDock({ stepIndex, reduceMotion: reduceOverride, ...input }:
       <View style={{ width: 64, alignItems: 'center' }}>
         <BuddyMark state={state} reduceMotion={reduceMotion} animateReaction={animateReaction} />
       </View>
+      {/* Одна строка намеренно: высота дока не должна прыгать между состояниями. */}
       <Txt t="body" color="ink" style={{ flex: 1 }} numberOfLines={1}>
         {word}
       </Txt>

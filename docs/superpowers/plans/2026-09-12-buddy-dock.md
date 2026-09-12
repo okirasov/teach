@@ -16,7 +16,7 @@
 - No new animation libraries (no reanimated, lottie, rive, skia). RN `Animated` only.
 - Only new dependency allowed: `expo-haptics` (Task 7). Everything else must work with what is in `package.json`.
 - Dock is rendered only on the session screen (`app/session/[id].tsx`). Nowhere else.
-- Colors only through theme tokens (`useTheme().c`): dots `mintInk`, contour dot `amber`, dock background `card` / `mint` / `amberBg` / `errBg`, border `line`.
+- Colors only through theme tokens (`useTheme().c`): dots `mintInk`, dock background `card` / `mint` / `amberBg` / `errBg`, border `line`. Contour dot uses `brand.markAmber` (from `@/theme`), as in the logo — not the theme's `c.amber`.
 - Words from i18n (`src/i18n/ru.ts` is the type source; `en.ts` must have the same keys).
 - Reduce-motion: when enabled, no loops and no one-shot animations; only final poses.
 - Priority of states: `listening` > `speaking` > `thinking` > reaction (`right`/`partial`/`wrong`) > `reading` > `waiting`.
