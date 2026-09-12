@@ -1,0 +1,29 @@
+docs/superpowers/plans/2026-09-12-buddy-dock.md
+  s_b0115d4abac10a::t_6d392794f23433 19
+docs/superpowers/specs/2026-09-12-buddy-dock-design.md
+  s_b0115d4abac10a::t_aed25a6d4bd6ab 15,32
+mobile/README.md
+  s_b0115d4abac10a::t_77f8b27088c78f 83
+mobile/src/features/session/BuddyDock.tsx
+  s_b0115d4abac10a::t_1829a66da8eeec 36-37,40,46,49-50,52-55,83
+mobile/src/features/session/__tests__/BuddyDock.test.tsx
+  s_b0115d4abac10a::t_3a943e76b73a47 6,8,59,61,72-76,82-149
+mobile/src/features/session/buddyState.ts
+  s_b0115d4abac10a::t_d563c5d85345aa 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "74ac1e0c54c4bb8c039338ca9ecc7cd3e8ebe07d",
+  "prompts": {},
+  "sessions": {
+    "s_b0115d4abac10a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-a25dd22522782b972",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
