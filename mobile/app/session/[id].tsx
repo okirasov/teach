@@ -8,6 +8,8 @@ import {
 } from "react-native-gesture-handler";
 
 import { isBaselineCheck } from "@/features/session/baseline";
+import { BuddyDock } from "@/features/session/BuddyDock";
+import type { FeedbackTone } from "@/features/session/buddyState";
 import { gradeFreeAnswer } from "@/features/session/gradeFree";
 import { SpeakerProvider, useStopSpeechOn } from "@/features/session/speaker";
 import { stepSubjectId } from "@/features/session/stepSubject";
@@ -126,6 +128,16 @@ export default function SessionScreen() {
 
   const n = lesson.steps.length;
   const ok = a.checked ? evaluateStep(step, a) : false;
+  const hits = a.checked && step.type === "free" ? hitsOf(step, a) : [];
+  // Тон фидбека нужен и карточке, и доку бадди.
+  const tone: FeedbackTone | null =
+    a.checked && step.type !== "explain"
+      ? ok
+        ? "mint"
+        : step.type === "free" && hits.some(Boolean)
+          ? "amber"
+          : "err"
+      : null;
   const action = primaryAction(s);
   const label = {
     toPractice: t.toPractice,
@@ -160,7 +172,6 @@ export default function SessionScreen() {
 
   let feedback: React.ReactNode = null;
   if (a.checked && step.type !== "explain") {
-    const hits = step.type === "free" ? hitsOf(step, a) : [];
     const accepted =
       (step.type === "choice" && step.correct === -1) ||
       (step.type === "input" && step.tokens.length === 0);
@@ -171,16 +182,11 @@ export default function SessionScreen() {
         : ok
           ? t.right
           : t.notQuite;
-    const tone = ok
-      ? "mint"
-      : step.type === "free" && hits.some(Boolean)
-        ? "amber"
-        : "err";
     feedback = (
       <FeedbackCard
         title={title}
         text={step.explain}
-        tone={tone}
+        tone={tone ?? "err"}
         answer={step.type === "input" && !ok ? step.answer : undefined}
         criteria={
           step.type === "free"
@@ -298,6 +304,15 @@ export default function SessionScreen() {
                 </ScrollView>
               </View>
             </GestureDetector>
+            <BuddyDock
+              stepType={step.type}
+              checked={a.checked}
+              viewingPast={past}
+              rec={voice.rec}
+              grading={grading}
+              tone={tone}
+              stepIndex={s.step}
+            />
             <Button
               label={label}
               onPress={() => void onPrimary()}
