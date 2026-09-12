@@ -1,0 +1,21 @@
+mobile/src/ui/index.ts
+  s_e89c0e6a6b23b1::t_6cd39484a450fc 20
+mobile/src/ui/useReduceMotion.ts
+  s_e89c0e6a6b23b1::t_4ada3267881144 1-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "5e75b7650a94fb9765493aa68aac9350555f8a2f",
+  "prompts": {},
+  "sessions": {
+    "s_e89c0e6a6b23b1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-abf8fb2bbc5299cbc",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
