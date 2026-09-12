@@ -1,0 +1,21 @@
+mobile/src/features/session/BuddyDock.tsx
+  s_0b12b4ed8fc6a3::t_fe87e04fe1d0d7 1-77
+mobile/src/features/session/__tests__/BuddyDock.test.tsx
+  s_0b12b4ed8fc6a3::t_18708ac02fea42 1-48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "52753a5abcc906db4f6bc17e22d5e0744ad4a8c4",
+  "prompts": {},
+  "sessions": {
+    "s_0b12b4ed8fc6a3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-aa8c41c49ac6b3df2",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
