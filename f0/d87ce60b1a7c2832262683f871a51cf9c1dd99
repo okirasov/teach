@@ -1,0 +1,21 @@
+.gitignore
+  s_f394a5ca0a09c3::t_e913739c93f83e 1
+docs/superpowers/specs/2026-09-12-buddy-dock-design.md
+  s_f394a5ca0a09c3::t_5a83ad8b991c5a 1-59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "f0d87ce60b1a7c2832262683f871a51cf9c1dd99",
+  "prompts": {},
+  "sessions": {
+    "s_f394a5ca0a09c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "44646b57-362a-4092-9ced-0efdf2e5cd5a",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
