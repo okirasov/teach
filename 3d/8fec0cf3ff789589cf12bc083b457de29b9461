@@ -1,0 +1,19 @@
+mobile/app/session/[id].tsx
+  s_16bed1db0169ca::t_9384981b1e3bd3 11-12,131-140,189,307-315
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "3d8fec0cf3ff789589cf12bc083b457de29b9461",
+  "prompts": {},
+  "sessions": {
+    "s_16bed1db0169ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-ac9c61fb9e3648ea7",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
