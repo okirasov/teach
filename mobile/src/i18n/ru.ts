@@ -45,6 +45,7 @@ export const ru = {
   delYes: 'Да, удалить', delNo: 'Оставить',
   why: 'ЗАЧЕМ', example: 'ПРИМЕР', noHints: 'Подсказок нет — разбор откроется после попытки', howRight: 'КАК ПРАВИЛЬНО',
   micIdle: 'Или ответьте голосом — транскрипт появится в поле', micRec: 'Слушаю… нажмите ещё раз, чтобы закончить',
+  buddy: { reading: 'Читайте', waiting: 'Ваш ход', listening: 'Слушаю', speaking: 'Читаю пример', thinking: 'Думаю', right: 'Верно', partial: 'Частично', wrong: 'Не совсем' },
   toPractice: 'К практике', answer: 'Ответить', next: 'Дальше', toRecap: 'К разбору', toCurrent: 'К текущему шагу', viewingPast: 'Пройденный шаг — свайп вправо назад, влево вперёд', done: 'Готово',
   setupNext: 'Дальше', setupBuild: 'Собрать план',
   newSubjChip: 'НОВЫЙ ПРЕДМЕТ', recapChip: 'РАЗБОР', toReviews: 'УЙДЁТ В ПОВТОРЫ', baselineKicker: 'СТАРТ', baselineNote: 'Этому ещё не учили — проверяем стартовую границу. Ошибка здесь не ошибка.', baselineRecap: 'ТОЧКА ОТСЧЁТА',
