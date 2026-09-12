@@ -1,0 +1,35 @@
+mobile/package-lock.json
+  s_f394a5ca0a09c3::t_50a6d02a17c75c 22,4972-4980
+mobile/package.json
+  s_f394a5ca0a09c3::t_08a0c265079d28 27
+mobile/src/features/session/BuddyDock.tsx
+  s_9c886e81d4cfb0::t_8ef0771ce01db3 8,41-44
+mobile/src/features/session/__tests__/BuddyDock.test.tsx
+  s_9c886e81d4cfb0::t_cd6496f62898bb 9-15,66-74
+mobile/src/features/session/buddyHaptics.ts
+  s_9c886e81d4cfb0::t_5fb07ed159a27e 1-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "7d22e32b0f3c358b43bb45a7799257782aa20831",
+  "prompts": {},
+  "sessions": {
+    "s_9c886e81d4cfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-a390db7d0a17fc5c8",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    },
+    "s_f394a5ca0a09c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "44646b57-362a-4092-9ced-0efdf2e5cd5a",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
