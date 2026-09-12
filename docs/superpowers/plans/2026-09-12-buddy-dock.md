@@ -19,7 +19,7 @@
 - Colors only through theme tokens (`useTheme().c`): dots `mintInk`, dock background `card` / `mint` / `amberBg` / `errBg`, border `line`. Contour dot uses `brand.markAmber` (from `@/theme`), as in the logo — not the theme's `c.amber`.
 - Words from i18n (`src/i18n/ru.ts` is the type source; `en.ts` must have the same keys).
 - Reduce-motion: when enabled, no loops and no one-shot animations; only final poses.
-- Priority of states: `listening` > `speaking` > `thinking` > reaction (`right`/`partial`/`wrong`) > `reading` > `waiting`.
+- Priority of states: `listening` > `speaking` > `thinking` > `reading` (explain step or a past step) > reaction (`right`/`partial`/`wrong`) > `waiting`.
 - Keep `npm run typecheck` and `npm test` green after every task. Commit after every task.
 - Comments in code are in Russian, like the rest of the codebase; identifiers in English.
 

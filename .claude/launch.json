@@ -33,6 +33,16 @@
       ],
       "cwd": "mobile",
       "port": 8082
+    },
+    {
+      "name": "expo-metro-sim",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "CI=1 EXPO_PUBLIC_AUTH_LOCAL=1 EXPO_PUBLIC_VOICE_SIM=1 npx expo start --clear --port 8082"
+      ],
+      "cwd": "mobile",
+      "port": 8082
     }
   ]
 }
