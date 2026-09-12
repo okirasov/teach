@@ -1,0 +1,29 @@
+mobile/package.json
+  s_191a3445060378::t_b7562bcb73f451 22
+mobile/package-lock.json
+  s_f394a5ca0a09c3::t_e1c02e46a20344 17,4891-4905,4925-4927
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "2bd25a8418ebbba7cba69a7d604c3bac95502c0b",
+  "prompts": {},
+  "sessions": {
+    "s_191a3445060378": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-a9a4b5ff1acb1bfc3",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    },
+    "s_f394a5ca0a09c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "44646b57-362a-4092-9ced-0efdf2e5cd5a",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
