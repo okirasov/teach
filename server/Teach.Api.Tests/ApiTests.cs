@@ -398,9 +398,12 @@ public class ApiTests : IClassFixture<ApiFactory>
     {
         var r = await Post<TitleResponse>("/subjects/title", new FocusRequest("Итальянский язык с самого начала"));
         Assert.Equal("Итальянский", r!.Title);
-        Assert.Equal("Публичные выступления", StubLessonModel.TrimWords("Публичные выступления перед руководством"));
-        Assert.Equal("Английский", StubLessonModel.TrimWords("Английский для собеседований"));
-        Assert.Equal("SQL", StubLessonModel.TrimWords("SQL"));
+        // Имя предмета — одно слово: длинная тема даёт значимое слово, а не первое.
+        Assert.Equal("Выступления", StubLessonModel.ShortTitle("Публичные выступления перед руководством"));
+        Assert.Equal("Английский", StubLessonModel.ShortTitle("Английский для собеседований"));
+        Assert.Equal("SQL", StubLessonModel.ShortTitle("SQL"));
+        // Название фокуса печатается на карточке предмета: не длиннее 30 символов, по словам.
+        Assert.Equal("Структура речи и работа", StubLessonModel.TrimWords("Структура речи и работа с паузами на длинной дистанции", maxChars: 30));
     }
 
     [Fact]

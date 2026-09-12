@@ -75,19 +75,21 @@ export function localPlan(mission: string, later: string): PlanStage[] {
   ];
 }
 
-/** Короткое имя: язык предмета или первые три слова темы. */
+/** Служебные слова темы: в имя предмета не идут. Тот же список, что у сервера в StubLessonModel. */
+const TITLE_STOP = new Set([
+  'для', 'и', 'в', 'на', 'с', 'со', 'по', 'к', 'о', 'об', 'от', 'из', 'за', 'перед', 'при', 'без', 'до', 'у', 'как',
+  'for', 'and', 'of', 'to', 'in', 'on', 'with', 'at', 'by', 'from', 'the', 'a', 'an',
+]);
+
+/** Короткое имя: язык предмета, одно слово или два коротких — вместе до 20 символов. */
 export function shortTitle(topic: string): string {
   const t = topic.trim();
   const lang = detectLanguage(t);
   if (lang) return lang.ru;
-  // До трёх слов и до 24 символов, слова не режем.
-  let s = '';
-  for (const w of t.split(/\s+/).slice(0, 3)) {
-    const next = s ? `${s} ${w}` : w;
-    if (next.length > 24) break;
-    s = next;
-  }
-  if (!s) s = t.slice(0, 24).trimEnd();
+  const words = t.split(/\s+/).filter((w) => w && !TITLE_STOP.has(w.toLowerCase())).slice(0, 2);
+  // Два слова остаются, только если вместе коротки; иначе берём значимое — самое длинное.
+  const pick = words.length === 2 && words.join(' ').length > 20 ? [...words].sort((a, b) => b.length - a.length)[0] : words.join(' ');
+  const s = (pick || t).slice(0, 20).trimEnd();
   return s ? s[0].toUpperCase() + s.slice(1) : 'Предмет';
 }
 

@@ -9,9 +9,9 @@ describe('local content service', () => {
     expect((await svc.suggestFocus('Садоводство'))[0].t).toBe('Садоводство: основы');
   });
 
-  it('suggests a short title: language name or first words', async () => {
+  it('suggests a short title: language name or one significant word', async () => {
     expect(await svc.suggestTitle('Итальянский язык с самого начала')).toBe('Итальянский');
-    expect(await svc.suggestTitle('публичные выступления перед руководством и инвесторами')).toBe('Публичные выступления');
+    expect(await svc.suggestTitle('публичные выступления перед руководством и инвесторами')).toBe('Выступления');
     expect(await svc.suggestTitle('SQL')).toBe('SQL');
   });
 

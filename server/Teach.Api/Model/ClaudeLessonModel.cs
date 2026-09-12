@@ -28,9 +28,10 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
     {
         Log ??= log;
         var r = await AskAsync<FocusList>(
-            $"Тема ученика: «{topic}». Предложи ровно 3 фокуса — с чего начать, чтобы один урок не был «про всё». t — короткое название, d — одна строка пояснения.",
+            $"Тема ученика: «{topic}». Предложи ровно 3 фокуса — с чего начать, чтобы один урок не был «про всё». t — короткое название до 30 символов (оно печатается на карточке предмета), d — одна строка пояснения.",
             Schemas.FocusList, ct, effort: Effort.Medium, model: WizardModel);
-        return r.Items;
+        // Длинное название фокуса не влезает на карточку предмета: режем по словам.
+        return r.Items.Select(f => f with { T = StubLessonModel.TrimWords(f.T, maxChars: 30) }).ToList();
     }
 
     public async Task<string> SuggestTitleAsync(string topic, CancellationToken ct)
@@ -38,10 +39,10 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         // Языковой предмет: имя языка без вызова модели — так же, как считает клиент.
         if (StubLessonModel.LanguageName(topic) is { } lang) return lang;
         var r = await AskAsync<TitleOut>(
-            $"Тема ученика: «{topic}». Дай короткое имя предмета для карточки: 1–3 слова, до 24 символов, без кавычек и точки, с заглавной буквы. Для языка — просто название языка («Итальянский»).",
+            $"Тема ученика: «{topic}». Дай короткое имя предмета для карточки: одно слово; два коротких — только если одним не назвать. До 20 символов, без кавычек и точки, с заглавной буквы. Для языка — просто название языка («Итальянский»).",
             Schemas.Title, ct, effort: Effort.Low, model: WizardModel);
         var t = r.Title.Trim().Trim('«', '»', '"', '.');
-        return t.Length == 0 ? StubLessonModel.ShortTitle(topic) : StubLessonModel.TrimWords(t);
+        return t.Length == 0 ? StubLessonModel.ShortTitle(topic) : StubLessonModel.TrimWords(t, 2);
     }
 
     public async Task<IReadOnlyList<RefRowDto>> ExtractGlossaryAsync(Lesson lesson, CancellationToken ct)

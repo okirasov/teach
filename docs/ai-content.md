@@ -151,8 +151,11 @@ thinking = { type: "adaptive" }, output_config = { effort: "high", format: { jso
   вывод) и сливает их в глоссарий предмета без дублей по термину; он приходит с уроком в `references`
   и ложится в SQLite клиента, вкладка «Справочники» показывает предмет сразу. Другие группы справочников
   (грамматика, цель) — следующий шаг конденсации.
-- **Короткое имя предмета** (`POST /subjects/title`) модель даёт из формулировки темы; оно идёт в карточки,
-  пиллы и в поле `name` уроков, полная формулировка хранится как описание.
+- **Короткое имя предмета** (`POST /subjects/title`) модель даёт из формулировки темы: одно слово, два коротких —
+  только если одним не назвать. Имя идёт в карточки, пиллы и в поле `name` уроков, полная формулировка хранится
+  как описание. Если модель недоступна, имя считает `ShortTitle`: язык предмета или значимое слово темы
+  (из «публичные выступления перед руководством» — «Выступления»). Название фокуса сервер режет по словам
+  до 30 символов: оно печатается на карточке предмета рядом с именем.
 - **Язык предмета** определяется на клиенте при создании по таблице языков (`domain/languages.ts`):
   код для STT и имена ru/en для пилла «Язык распознавания». Модель к этому не привлекается.
 - **Проверка свободного ответа.** Дешёвая задача классификации: критерии + текст → какие покрыты.
@@ -168,8 +171,8 @@ thinking = { type: "adaptive" }, output_config = { effort: "high", format: { jso
 Живое описание: <https://teach-tutor-api.fly.dev/scalar> (Scalar) и `/openapi/v1.json`; техническая документация: <https://teach-tutor-api.fly.dev/docs/>.
 
 ```
-POST /subjects/focus            { topic }                          → FocusOption[]
-POST /subjects/title            { topic }                          → { title }   короткое имя ≤ 24 символов
+POST /subjects/focus            { topic }                          → FocusOption[]  t ≤ 30 символов
+POST /subjects/title            { topic }                          → { title }   имя в одно слово (два коротких)
 POST /subjects/sources          { topic, focus }                   → 202 { jobId, status: "running" }
 GET  /subjects/sources/{jobId}  → { status: "running" } | { status: "ready", items } | { status: "failed", error }
 POST /subjects/plan             { topic, focus, mission }          → PlanStage[]

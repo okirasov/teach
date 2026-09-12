@@ -54,20 +54,30 @@ public sealed partial class StubLessonModel : ILessonModel
         ("хинди|hindi", "Хинди"), ("украин|ukrainian", "Украинский"),
     ];
 
-    public static string ShortTitle(string topic) => LanguageName(topic) ?? TrimWords(topic, 3);
+    /// <summary>Имя предмета для карточки: язык, одно слово или два коротких — вместе до 20 символов.</summary>
+    public static string ShortTitle(string topic)
+    {
+        if (LanguageName(topic) is { } lang) return lang;
+        var words = (topic ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Where(w => !StopWords.Contains(w.ToLowerInvariant())).Take(2).ToList();
+        if (words.Count == 0) return TrimWords(topic, 1, 20);
+        // Два слова остаются, только если вместе коротки; иначе берём значимое — самое длинное.
+        var pick = words.Count == 2 && string.Join(' ', words).Length > 20 ? words.MaxBy(w => w.Length)! : string.Join(' ', words);
+        return TrimWords(pick, 2, 20);
+    }
 
-    /// <summary>До maxWords слов и до 24 символов, слова не режем; слишком длинное первое слово режется жёстко.</summary>
-    public static string TrimWords(string text, int maxWords = int.MaxValue)
+    /// <summary>До maxWords слов и до maxChars символов, слова не режем; слишком длинное первое слово режется жёстко.</summary>
+    public static string TrimWords(string text, int maxWords = int.MaxValue, int maxChars = 24)
     {
         var t = (text ?? "").Trim();
         var s = "";
         foreach (var w in t.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(maxWords))
         {
             var next = s.Length == 0 ? w : $"{s} {w}";
-            if (next.Length > 24) break;
+            if (next.Length > maxChars) break;
             s = next;
         }
-        if (s.Length == 0) s = t.Length > 24 ? t[..24].TrimEnd() : t;
+        if (s.Length == 0) s = t.Length > maxChars ? t[..maxChars].TrimEnd() : t;
         // Хвостовой предлог или союз после обрезки («Английский для») убираем.
         var parts = s.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
         while (parts.Count > 1 && StopWords.Contains(parts[^1].ToLowerInvariant())) parts.RemoveAt(parts.Count - 1);

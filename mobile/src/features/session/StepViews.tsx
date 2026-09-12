@@ -359,8 +359,8 @@ export function InputView({ step, value, checked, onChange }: InputViewProps) {
           fontSize: 15,
           lineHeight: 23,
           color: c.ink,
-          // Однострочное поле было тесным даже для одной фразы: текст переносится, поле растёт.
-          minHeight: multi ? 140 : 96,
+          // Поле должно вмещать ответ целиком: одна фраза без прокрутки, развёрнутый ответ — несколько строк.
+          minHeight: multi ? 200 : 132,
           textAlignVertical: "top",
         }}
       />

@@ -11,7 +11,7 @@ public sealed record PlanStage(string N, string T, string D);
 
 public sealed record FocusRequest(string Topic);
 
-/// <summary>Короткое имя предмета для карточек и пиллов (≤ 24 символов), из полной формулировки темы.</summary>
+/// <summary>Короткое имя предмета для карточек и пиллов: одно слово, максимум два коротких, из полной формулировки темы.</summary>
 public sealed record TitleResponse(string Title);
 
 public sealed record RefRowDto(string K, string V, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Sec = null);

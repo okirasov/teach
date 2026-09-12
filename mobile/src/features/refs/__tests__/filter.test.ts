@@ -16,6 +16,12 @@ describe('refs filter', () => {
     expect(g[0].items).toHaveLength(3);
   });
 
+  it('without a subject keeps references of every subject', () => {
+    const g = filterRefs(prototypeRefs, undefined, '', false);
+    expect(new Set(g.flatMap((x) => x.items.map((r) => r.subjectId)))).toEqual(new Set(['en', 'qa', 'hist']));
+    expect(g.flatMap((x) => x.items).length).toBe(prototypeRefs.length);
+  });
+
   it('weak-only keeps references with mistakes and hides empty groups', () => {
     const g = filterRefs(prototypeRefs, 'en', '', true);
     expect(g.map((x) => x.group)).toEqual(['Грамматика', 'Цель']);

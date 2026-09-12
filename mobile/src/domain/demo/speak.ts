@@ -3,7 +3,7 @@ import type { DemoLesson } from "../seed";
 import type { PlanStage } from "../types";
 
 /**
- * Демо-предмет «Публичные выступления»: сгенерирован живым сервером (тема «Публичные выступления», фокус «Структура речи»,
+ * Демо-предмет «Выступления»: сгенерирован живым сервером (тема «Выступления», фокус «Структура речи»,
  * миссия «уверенно выступить перед командой на 10 минут»). План на пять этапов и цепочка уроков 2–6 после стартовой диагностики:
  * разборы подавались с ошибкой в уроках 2 и 4, поэтому следующий урок разбирает её, а этап плана
  * сменяется после двух уверенных уроков. Статичен: дальше урока 6 демо не идёт.
@@ -45,7 +45,7 @@ export const lessons: DemoLesson[] = [
     number: 2,
     planStage: 0,
     lesson: {
-      name: "Публичные выступления",
+      name: "Выступления",
       level: "Структура речи",
       lessonTitle: "Урок 2 · Вступление как карта речи",
       steps: [
@@ -118,7 +118,7 @@ export const lessons: DemoLesson[] = [
       {
         id: "442eb1e0-1a0a-496b-a8ac-9dd147262d36",
         group: "Глоссарий",
-        title: "Термины · Публичные выступления",
+        title: "Термины · Выступления",
         updatedAfter: 2,
         rows: [
           {
@@ -165,7 +165,7 @@ export const lessons: DemoLesson[] = [
     number: 3,
     planStage: 0,
     lesson: {
-      name: "Публичные выступления",
+      name: "Выступления",
       level: "Структура речи",
       lessonTitle: "Урок 3 · Переход — это мостик, а не карта",
       steps: [
@@ -238,7 +238,7 @@ export const lessons: DemoLesson[] = [
       {
         id: "442eb1e0-1a0a-496b-a8ac-9dd147262d36",
         group: "Глоссарий",
-        title: "Термины · Публичные выступления",
+        title: "Термины · Выступления",
         updatedAfter: 3,
         rows: [
           {
@@ -293,7 +293,7 @@ export const lessons: DemoLesson[] = [
     number: 4,
     planStage: 1,
     lesson: {
-      name: "Публичные выступления",
+      name: "Выступления",
       level: "Структура речи",
       lessonTitle: "Урок 4 · Первые 30 секунд: чем зацепить",
       steps: [
@@ -366,7 +366,7 @@ export const lessons: DemoLesson[] = [
       {
         id: "442eb1e0-1a0a-496b-a8ac-9dd147262d36",
         group: "Глоссарий",
-        title: "Термины · Публичные выступления",
+        title: "Термины · Выступления",
         updatedAfter: 4,
         rows: [
           {
@@ -425,7 +425,7 @@ export const lessons: DemoLesson[] = [
     number: 5,
     planStage: 1,
     lesson: {
-      name: "Публичные выступления",
+      name: "Выступления",
       level: "Структура речи",
       lessonTitle: "Урок 5 · 30 секунд, которые решают всё",
       steps: [
@@ -495,7 +495,7 @@ export const lessons: DemoLesson[] = [
       {
         id: "442eb1e0-1a0a-496b-a8ac-9dd147262d36",
         group: "Глоссарий",
-        title: "Термины · Публичные выступления",
+        title: "Термины · Выступления",
         updatedAfter: 5,
         rows: [
           {
@@ -554,7 +554,7 @@ export const lessons: DemoLesson[] = [
     number: 6,
     planStage: 2,
     lesson: {
-      name: "Публичные выступления",
+      name: "Выступления",
       level: "Структура речи",
       lessonTitle: "Урок 6 · Пункт тела = мысль + опора",
       steps: [
@@ -634,7 +634,7 @@ export const lessons: DemoLesson[] = [
       {
         id: "442eb1e0-1a0a-496b-a8ac-9dd147262d36",
         group: "Глоссарий",
-        title: "Термины · Публичные выступления",
+        title: "Термины · Выступления",
         updatedAfter: 6,
         rows: [
           {
@@ -712,9 +712,9 @@ export const references: Reference[] = [
   {
     id: "speak-gloss",
     subjectId: "speak",
-    subjectName: "Публичные выступления",
+    subjectName: "Выступления",
     group: "Глоссарий",
-    title: "Термины · Публичные выступления",
+    title: "Термины · Выступления",
     updatedAfter: 2,
     rows: [
       {

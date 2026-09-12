@@ -3,12 +3,12 @@ import type { DemoLesson } from "../seed";
 import type { PlanStage } from "../types";
 
 /**
- * Демо-предмет «Английский»: сгенерирован живым сервером (тема «Английский для собеседований», фокус «Рассказ о себе (Tell me about yourself)»,
+ * Демо-предмет «Английский»: сгенерирован живым сервером (тема «Английский для собеседований», фокус «Рассказ о себе»,
  * миссия «проходить собеседования на английском»). План на пять этапов и цепочка уроков 2–6 после стартовой диагностики:
  * разборы подавались с ошибкой в уроках 2 и 4, поэтому следующий урок разбирает её, а этап плана
  * сменяется после двух уверенных уроков. Статичен: дальше урока 6 демо не идёт.
  */
-export const focus = "Рассказ о себе (Tell me about yourself)";
+export const focus = "Рассказ о себе";
 export const mission = "проходить собеседования на английском";
 
 export const plan: PlanStage[] = [
@@ -46,7 +46,7 @@ export const lessons: DemoLesson[] = [
     planStage: 0,
     lesson: {
       name: "Английский",
-      level: "Рассказ о себе (Tell me about yourself)",
+      level: "Рассказ о себе",
       lessonTitle: "Урок 2 · Present — Past — Future",
       steps: [
         {
@@ -165,7 +165,7 @@ export const lessons: DemoLesson[] = [
     planStage: 0,
     lesson: {
       name: "Английский",
-      level: "Рассказ о себе (Tell me about yourself)",
+      level: "Рассказ о себе",
       lessonTitle: "Урок 3 · Слова, которые держат каркас",
       steps: [
         {
@@ -315,7 +315,7 @@ export const lessons: DemoLesson[] = [
     planStage: 1,
     lesson: {
       name: "Английский",
-      level: "Рассказ о себе (Tell me about yourself)",
+      level: "Рассказ о себе",
       lessonTitle: "Урок 4 · Настоящее и достижение в двух фразах",
       steps: [
         {
@@ -477,7 +477,7 @@ export const lessons: DemoLesson[] = [
     planStage: 1,
     lesson: {
       name: "Английский",
-      level: "Рассказ о себе (Tell me about yourself)",
+      level: "Рассказ о себе",
       lessonTitle: "Урок 5 · Три слова про опыт",
       steps: [
         {
@@ -634,7 +634,7 @@ export const lessons: DemoLesson[] = [
     planStage: 2,
     lesson: {
       name: "Английский",
-      level: "Рассказ о себе (Tell me about yourself)",
+      level: "Рассказ о себе",
       lessonTitle: "Урок 6 · Мост от опыта к цели",
       steps: [
         {

@@ -23,12 +23,12 @@ export function refSubjects(refs: Reference[], order?: string[]): { id: string; 
   return order ? sortByOrder(list, (x) => x.id, order) : list;
 }
 
-/** Живой поиск по названиям и строкам + фильтр «Слабые места»; пустые группы скрываются. */
-export function filterRefs(refs: Reference[], subjectId: string, query: string, weakOnly: boolean): RefGroup[] {
+/** Живой поиск по названиям и строкам + фильтр «Слабые места»; пустые группы скрываются. Без subjectId — все предметы. */
+export function filterRefs(refs: Reference[], subjectId: string | undefined, query: string, weakOnly: boolean): RefGroup[] {
   const q = query.trim().toLowerCase();
   const groups: RefGroup[] = [];
   for (const r of refs) {
-    if (r.subjectId !== subjectId) continue;
+    if (subjectId && r.subjectId !== subjectId) continue;
     if (weakOnly && weakCount(r) === 0) continue;
     if (q && !matches(q, r.title) && !r.rows.some((row) => matches(q, row.k, row.v))) continue;
     let g = groups.find((x) => x.group === r.group);

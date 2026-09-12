@@ -11,7 +11,9 @@ import { useRefs } from '@/store/refs';
 import { useTheme } from '@/theme';
 import { AppHeader, Card, Chip, Screen, SubjectTabs, TabTitle, Txt } from '@/ui';
 
-function RefCard({ r, onPress }: { r: Reference; onPress: () => void }) {
+const ALL = 'all';
+
+function RefCard({ r, subject, onPress }: { r: Reference; subject?: string; onPress: () => void }) {
   const t = useT();
   const weak = weakCount(r);
   return (
@@ -20,7 +22,7 @@ function RefCard({ r, onPress }: { r: Reference; onPress: () => void }) {
         <Txt t="rowMed" style={{ flex: 1, fontFamily: 'GolosText_600SemiBold', lineHeight: 20 }}>{r.title}</Txt>
         {weak > 0 ? <Chip label={t.weakN(weak)} tone="amber" small /> : null}
       </View>
-      <Txt t="tiny" color="mut" style={{ marginTop: 5 }}>{`${t.updL} ${r.updatedAfter} · ${r.rows.length} ${t.rowsL}`}</Txt>
+      <Txt t="tiny" color="mut" style={{ marginTop: 5 }}>{`${subject ? `${subject} · ` : ''}${t.updL} ${r.updatedAfter} · ${r.rows.length} ${t.rowsL}`}</Txt>
     </Card>
   );
 }
@@ -37,22 +39,25 @@ export default function RefsScreen() {
   // Вкладки в том же порядке, что предметы на «Сегодня».
   const order = useMemo(() => activeSubjectIds({ removed, subjects: userSubjects }), [removed, userSubjects]);
   const subjects = useMemo(() => refSubjects(refs, order), [refs, order]);
-  const [subjectId, setSubjectId] = useState<string>(subjects[0]?.id ?? '');
+  // «Все» открыты по умолчанию, как в «Повторах»: справочники сразу видны все.
+  const tabs = useMemo(() => [{ id: ALL, name: t.allSubjects }, ...subjects], [subjects, t]);
+  const [subjectId, setSubjectId] = useState<string>(ALL);
   const [query, setQuery] = useState('');
   const [weakOnly, setWeakOnly] = useState(false);
 
   useEffect(() => {
-    if (!subjects.some((s) => s.id === subjectId) && subjects[0]) setSubjectId(subjects[0].id);
-  }, [subjects, subjectId]);
+    if (!tabs.some((x) => x.id === subjectId)) setSubjectId(ALL);
+  }, [tabs, subjectId]);
 
-  const groups = useMemo(() => filterRefs(refs, subjectId, query, weakOnly), [refs, subjectId, query, weakOnly]);
+  const scoped = subjectId === ALL ? undefined : subjectId;
+  const groups = useMemo(() => filterRefs(refs, scoped, query, weakOnly), [refs, scoped, query, weakOnly]);
 
   return (
     <Screen noBottom>
       <AppHeader userName={name} onAvatar={() => router.push('/profile')} />
       <TabTitle title={t.refs} note={t.refsNote} />
       {subjects.length === 0 ? <Txt t="row" color="mut" style={{ marginTop: 18, fontSize: 14, lineHeight: 21 }}>{t.emptyRefsText}</Txt> : null}
-      <SubjectTabs items={subjects} value={subjectId} onChange={setSubjectId} />
+      {tabs.length > 2 ? <SubjectTabs items={tabs} value={subjectId} onChange={setSubjectId} /> : null}
       <View style={{ flexDirection: 'row', gap: 8, marginTop: 10, alignItems: 'center' }}>
         <TextInput
           value={query}
@@ -81,7 +86,7 @@ export default function RefsScreen() {
             <Txt t="kicker" color="mut" style={{ marginTop: 18 }}>{g.group}</Txt>
             <View style={{ gap: 9, marginTop: 10 }}>
               {g.items.map((r) => (
-                <RefCard key={r.id} r={r} onPress={() => router.push({ pathname: '/ref/[id]', params: { id: r.id } })} />
+                <RefCard key={r.id} r={r} subject={scoped ? undefined : r.subjectName} onPress={() => router.push({ pathname: '/ref/[id]', params: { id: r.id } })} />
               ))}
             </View>
           </View>

@@ -11,7 +11,7 @@ public interface ILessonModel
 {
     string Name { get; }
     Task<IReadOnlyList<FocusOption>> SuggestFocusAsync(string topic, CancellationToken ct);
-    /// <summary>Короткое имя предмета (≤ 24 символов) из формулировки темы.</summary>
+    /// <summary>Короткое имя предмета (одно слово, максимум два коротких) из формулировки темы.</summary>
     Task<string> SuggestTitleAsync(string topic, CancellationToken ct);
     /// <summary>Термины урока для глоссария: термин → определение в одну строку.</summary>
     Task<IReadOnlyList<RefRowDto>> ExtractGlossaryAsync(Lesson lesson, CancellationToken ct);
