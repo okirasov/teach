@@ -1,0 +1,19 @@
+mobile/app.json
+  s_f394a5ca0a09c3::t_752ea93bd3c8ae 23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "30731d7b30de1028470ff05c2d7e9fdb966e8ebb",
+  "prompts": {},
+  "sessions": {
+    "s_f394a5ca0a09c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "44646b57-362a-4092-9ced-0efdf2e5cd5a",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
