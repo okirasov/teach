@@ -1,0 +1,39 @@
+docs/superpowers/specs/2026-09-12-buddy-dock-design.md
+  s_f394a5ca0a09c3::t_97b668997c8ad7 31,33
+mobile/README.md
+  s_f394a5ca0a09c3::t_017fbb4e42d563 83
+mobile/app/session/[id].tsx
+  s_f394a5ca0a09c3::t_26618557d31d51 173-178,317
+mobile/src/features/session/BuddyDock.tsx
+  s_f394a5ca0a09c3::t_06bc5a2ac85ee1 19,59-60
+mobile/src/features/session/__tests__/BuddyDock.test.tsx
+  s_f394a5ca0a09c3::t_c29ef5699ee529 18,54-70
+mobile/src/features/session/__tests__/buddyState.test.ts
+  s_f394a5ca0a09c3::t_1c823648450222 3,35-43,45
+mobile/src/features/session/buddyHaptics.ts
+  s_f394a5ca0a09c3::t_7d449e80b85873 17
+mobile/src/features/session/buddyState.ts
+  s_f394a5ca0a09c3::t_079becc9bca579 6,19-23,26,35
+mobile/src/i18n/en.ts
+  s_f394a5ca0a09c3::t_519131e4b29322 47
+mobile/src/i18n/ru.ts
+  s_f394a5ca0a09c3::t_4c94acdd7b455b 48
+mobile/src/ui/BuddyMark.tsx
+  s_f394a5ca0a09c3::t_d0c1659fd737f4 141-146
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "c81f79ba09e78d005196bb2ba7b573c25fe1a283",
+  "prompts": {},
+  "sessions": {
+    "s_f394a5ca0a09c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "44646b57-362a-4092-9ced-0efdf2e5cd5a",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
