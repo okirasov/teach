@@ -61,7 +61,14 @@ export interface ReferenceIn {
   rows: ReferenceRowIn[];
 }
 
+/** Последняя выложенная сборка приложения (GET /app/latest). */
+export interface LatestApp {
+  ios: { build: number; url: string };
+}
+
 export interface ContentService {
+  /** Последняя сборка для подсказки «есть новая версия»; null — сервер её не знает (заглушка). */
+  latestApp(): Promise<LatestApp | null>;
   suggestFocus(topic: string): Promise<FocusOption[]>;
   /** Короткое имя предмета из формулировки темы. */
   suggestTitle(topic: string): Promise<string>;

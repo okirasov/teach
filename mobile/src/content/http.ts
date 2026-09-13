@@ -1,5 +1,5 @@
 import type { Lesson, LessonRecord } from '@/domain/types';
-import type { ContentService, FocusOption, PlanStage, PrepStage, ReferenceIn, SourceCandidate, SubjectDraft } from './types';
+import type { ContentService, FocusOption, LatestApp, PlanStage, PrepStage, ReferenceIn, SourceCandidate, SubjectDraft } from './types';
 
 /** Контракт сервера — docs/ai-content.md, server/Teach.Api. */
 export interface HttpContentOptions {
@@ -104,6 +104,9 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
       onCreated?.(created.subjectId);
       const r = await waitLesson(created.subjectId, 1, onStage);
       return { lesson: r.lesson, remoteId: created.subjectId, references: r.references, planStage: r.planStage };
+    },
+    async latestApp() {
+      return call<LatestApp>('GET', '/app/latest');
     },
     async prefetchNextLesson(remoteId) {
       if (!remoteId) return;

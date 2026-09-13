@@ -5,6 +5,7 @@ import { content } from '@/content';
 import { goToNextDemoLesson } from '@/features/subjects/demo';
 import { retryPrepare } from '@/features/subjects/prepare';
 import { HeroCard } from '@/features/today/HeroCard';
+import { UpdateBanner } from '@/features/update/UpdateBanner';
 import { SubjectCard } from '@/features/today/SubjectCard';
 import { useTodaySubjects } from '@/features/today/useTodaySubjects';
 import { dueToday, estimateMinutes } from '@/features/reviews/queue';
@@ -30,6 +31,7 @@ export default function TodayScreen() {
     <Screen noBottom>
       <AppHeader userName={name} onAvatar={() => router.push('/profile')} />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 16 }}>
+        <UpdateBanner />
         <HeroCard count={due} minutes={estimateMinutes(due)} onPress={() => router.navigate('/(tabs)/reviews')} />
         {added > 0 ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 10, paddingHorizontal: 4 }}>

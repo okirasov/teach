@@ -18,6 +18,15 @@ public static class ContentEndpoints
     {
         app.MapGet("/health", (ILessonModel model) => Results.Ok(new { ok = true, model = model.Name, prompts = Prompts.Version })).WithSummary("Состояние сервера: модель и версия промптов. Без токена.").WithTags("Служебные");
 
+        // Последняя выложенная сборка: клиент сравнивает со своим номером и подсказывает обновиться.
+        // Значения из конфигурации (Teach:App:LatestIosBuild, Teach:App:IosUrl): после выгрузки в TestFlight
+        // достаточно `fly secrets set Teach__App__LatestIosBuild=<n>`, деплой кода не нужен. 0 — подсказки нет.
+        app.MapGet("/app/latest", (IConfiguration config) =>
+        {
+            var app = config.GetSection("Teach:App");
+            return Results.Ok(new { ios = new { build = app.GetValue("LatestIosBuild", 0), url = app["IosUrl"] ?? "itms-beta://" } });
+        }).WithSummary("Последняя сборка приложения и ссылка на обновление. Без токена.").WithTags("Служебные");
+
         app.MapPost("/subjects/focus", async (FocusRequest r, ILessonModel model, CancellationToken ct) =>
             string.IsNullOrWhiteSpace(r.Topic) ? Results.BadRequest("topic is required") : Results.Ok(await model.SuggestFocusAsync(r.Topic.Trim(), ct))).WithSummary("Три варианта сужения темы для мастера (claude-sonnet-5).").WithTags("Мастер предмета");
 

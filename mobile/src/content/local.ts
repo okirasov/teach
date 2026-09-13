@@ -157,6 +157,9 @@ export function createLocalContentService(opts: { stageMs?: number; planLater?: 
         return { lesson, references: stubGlossary(lesson, 1) };
       });
     },
+    async latestApp() {
+      return null;
+    },
     async prefetchNextLesson() {
       /* у заглушки генерация мгновенная */
     },

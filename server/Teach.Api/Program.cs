@@ -73,7 +73,7 @@ app.MapGet("/", () => Results.Redirect("/docs/")).ExcludeFromDescription();
 // Общий bearer-токен (Teach:ApiToken). Пустой — открытый режим только для локальной разработки.
 var apiToken = cfg["ApiToken"];
 static bool IsPublic(PathString path) =>
-    path == "/health" || path == "/" || path.StartsWithSegments("/docs") || path.StartsWithSegments("/openapi") || path.StartsWithSegments("/scalar")
+    path == "/health" || path == "/app/latest" || path == "/" || path.StartsWithSegments("/docs") || path.StartsWithSegments("/openapi") || path.StartsWithSegments("/scalar")
     // Вход по Apple — сам источник токена, своего ещё нет.
     || path.StartsWithSegments("/auth");
 if (!string.IsNullOrEmpty(apiToken))

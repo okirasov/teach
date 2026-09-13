@@ -13,6 +13,12 @@ function fakeFetch(handler: Handler) {
 }
 
 describe('http content service', () => {
+  it('reads the latest app build without a body', async () => {
+    const { fn, calls } = fakeFetch((url) => (url.endsWith('/app/latest') ? { body: { ios: { build: 18, url: 'itms-beta://' } } } : { status: 404, body: null }));
+    const svc = createHttpContentService({ baseUrl: 'http://srv', fetchFn: fn });
+    expect(await svc.latestApp()).toEqual({ ios: { build: 18, url: 'itms-beta://' } });
+    expect(calls[0].init?.method).toBe('GET');
+  });
   it('posts wizard requests to the contract paths', async () => {
     const { fn, calls } = fakeFetch((url, init) => {
       if (url.endsWith('/subjects/focus')) return { body: [{ t: 'A', d: 'a' }] };

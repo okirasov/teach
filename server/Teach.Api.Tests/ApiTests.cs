@@ -19,6 +19,7 @@ public class ApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("Teach:Db", $"Data Source={_db}");
         builder.UseSetting("Teach:Model", "stub");
         builder.UseSetting("Teach:StageDelayMs", "20");
+        builder.UseSetting("Teach:App:LatestIosBuild", "42");
     }
 
     protected override void Dispose(bool disposing)
@@ -142,6 +143,7 @@ public class AuthTests(SecuredApiFactory f) : IClassFixture<SecuredApiFactory>
     {
         var anon = f.CreateClient();
         Assert.Equal(HttpStatusCode.OK, (await anon.GetAsync("/health")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await anon.GetAsync("/app/latest")).StatusCode);
         // Документация и описание API публичны.
         Assert.Equal(HttpStatusCode.OK, (await anon.GetAsync("/openapi/v1.json")).StatusCode);
         Assert.Equal(HttpStatusCode.OK, (await anon.GetAsync("/docs/")).StatusCode);
@@ -169,6 +171,14 @@ public class ApiTests : IClassFixture<ApiFactory>
     {
         var r = await _http.GetFromJsonAsync<JsonElement>("/health");
         Assert.Equal("stub", r.GetProperty("model").GetString());
+    }
+
+    [Fact]
+    public async Task LatestAppComesFromConfiguration()
+    {
+        var r = await _http.GetFromJsonAsync<JsonElement>("/app/latest");
+        Assert.Equal(42, r.GetProperty("ios").GetProperty("build").GetInt32());
+        Assert.Equal("itms-beta://", r.GetProperty("ios").GetProperty("url").GetString());
     }
 
     [Fact]

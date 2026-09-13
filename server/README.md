@@ -17,6 +17,7 @@ ASPNETCORE_URLS=http://0.0.0.0:5180 dotnet run --no-launch-profile
 - `Teach__Db` — строка подключения SQLite (по умолчанию `Data Source=teach.db`).
 - `Teach__StageDelayMs` — пауза между этапами подготовки, только чтобы этапы были видны на карточке.
 - `GET /health` показывает активную модель и версию промптов.
+- `GET /app/latest` (без токена) отдаёт последнюю выложенную сборку iOS и ссылку на обновление из `Teach__App__LatestIosBuild` и `Teach__App__IosUrl` (по умолчанию 0 и `itms-beta://`). После выгрузки в TestFlight: `fly secrets set Teach__App__LatestIosBuild=<n>` из `server/Teach.Api`, деплой кода не нужен; клиент показывает подсказку «Есть сборка n» на «Сегодня».
 
 Тесты: `dotnet test server/Teach.slnx`.
 

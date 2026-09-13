@@ -78,6 +78,7 @@ export const en: Dict = {
     { n: '03', title: 'Reviews and references', text: 'Whatever turned out non-obvious comes back as review cards on the right day. The gist of lessons settles into references, available offline.' },
     { n: '04', title: 'By voice and by ear', text: 'Answer by voice, listen to examples in the subject language. Typing is always available.' },
   ],
+  updateTitle: (n: number) => `Build ${n} is out`, updateText: 'Update the app in TestFlight', updateBtn: 'Update', updateHide: 'Hide',
   emptyTodayTitle: 'No subjects yet', emptyTodayText: 'Create the first one: topic, why it matters, sources and a plan — lessons will follow on their own.',
   emptySubjectsText: 'No subjects yet. Tap “New subject” below.', emptyRefsText: 'References appear with the first lesson of a subject.',
   demoDone: 'Demo done', ownSubject: 'Your own subject', allSubjects: 'All',
