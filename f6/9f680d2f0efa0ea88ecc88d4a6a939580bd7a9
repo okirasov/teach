@@ -1,0 +1,53 @@
+mobile/README.md
+  s_f394a5ca0a09c3::t_69d08504f0978b 81-84
+mobile/app/(tabs)/today.tsx
+  s_f394a5ca0a09c3::t_606f4bbf4a4185 8,34
+mobile/src/content/__tests__/http.test.ts
+  s_f394a5ca0a09c3::t_dbef36bd131cf9 16-21
+mobile/src/content/http.ts
+  s_f394a5ca0a09c3::t_3624824a52adc9 2,108-110
+mobile/src/content/local.ts
+  s_f394a5ca0a09c3::t_bfe6efddaca56a 160-162
+mobile/src/content/types.ts
+  s_f394a5ca0a09c3::t_db0e2bf721a93f 64-68,70-71
+mobile/src/features/update/UpdateBanner.tsx
+  s_f394a5ca0a09c3::t_1f6636163ed95d 1-39
+mobile/src/features/update/__tests__/checkForUpdate.test.ts
+  s_f394a5ca0a09c3::t_4ee755ad877e8f 1-13
+mobile/src/features/update/__tests__/version.test.ts
+  s_f394a5ca0a09c3::t_a2fffa0d2917ed 1-16
+mobile/src/features/update/useUpdateNudge.ts
+  s_f394a5ca0a09c3::t_d4c3676f34740c 1-57
+mobile/src/features/update/version.ts
+  s_f394a5ca0a09c3::t_19874a51cb63cc 1-7
+mobile/src/i18n/en.ts
+  s_f394a5ca0a09c3::t_67a7da53770196 81
+mobile/src/i18n/ru.ts
+  s_f394a5ca0a09c3::t_6b83b1dc056f20 83
+server/README.md
+  s_f394a5ca0a09c3::t_dc3034339e27cc 20
+server/Teach.Api.Tests/ApiTests.cs
+  s_f394a5ca0a09c3::t_79edf96603e6b7 22,146,176-183
+server/Teach.Api/Endpoints/ContentEndpoints.cs
+  s_f394a5ca0a09c3::t_23ba46d5eecd5d 21-29
+server/Teach.Api/Program.cs
+  s_f394a5ca0a09c3::t_bc2c0d47aada07 76
+server/Teach.Api/appsettings.json
+  s_f394a5ca0a09c3::t_149ac5b7562aeb 9-10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "f69f680d2f0efa0ea88ecc88d4a6a939580bd7a9",
+  "prompts": {},
+  "sessions": {
+    "s_f394a5ca0a09c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "44646b57-362a-4092-9ced-0efdf2e5cd5a",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
