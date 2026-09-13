@@ -39,7 +39,7 @@
       "runtimeExecutable": "sh",
       "runtimeArgs": [
         "-c",
-        "CI=1 EXPO_PUBLIC_AUTH_LOCAL=1 EXPO_PUBLIC_VOICE_SIM=1 npx expo start --clear --port 8082"
+        "CI=1 EXPO_PUBLIC_AUTH_LOCAL=1 EXPO_PUBLIC_VOICE_SIM=1 EXPO_PUBLIC_CONTENT_URL=https://teach-tutor-api.fly.dev npx expo start --clear --port 8082"
       ],
       "cwd": "mobile",
       "port": 8082
