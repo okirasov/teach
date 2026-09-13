@@ -170,11 +170,14 @@ export default function SessionScreen() {
     router.back();
   };
 
+  // Шаг без оценки: принимает любой ответ или это промах на диагностике («ошибка не ошибка»).
+  const accepted =
+    (step.type === "choice" && step.correct === -1) ||
+    (step.type === "input" && step.tokens.length === 0);
+  const neutral = accepted || (isBaselineCheck(lesson, step) && !ok);
+
   let feedback: React.ReactNode = null;
   if (a.checked && step.type !== "explain") {
-    const accepted =
-      (step.type === "choice" && step.correct === -1) ||
-      (step.type === "input" && step.tokens.length === 0);
     const title = accepted
       ? t.accepted2
       : step.type === "free"
@@ -311,6 +314,7 @@ export default function SessionScreen() {
               rec={voice.rec}
               grading={grading}
               tone={tone}
+              neutral={neutral}
               stepIndex={s.step}
             />
             <Button

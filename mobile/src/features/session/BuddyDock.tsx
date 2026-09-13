@@ -16,7 +16,7 @@ export interface BuddyDockProps extends Omit<BuddyInput, 'speaking'> {
 }
 
 /** Состояния, о которых VoiceOver сообщает вслух: смена хода и реакции. */
-const ANNOUNCED: ReadonlySet<BuddyState> = new Set<BuddyState>(['listening', 'right', 'partial', 'wrong']);
+const ANNOUNCED: ReadonlySet<BuddyState> = new Set<BuddyState>(['listening', 'right', 'partial', 'wrong', 'accepted']);
 
 /**
  * Док бадди над главной кнопкой сессии: знак бренда + слово статуса.
@@ -56,7 +56,8 @@ export function BuddyDock({ stepIndex, reduceMotion: reduceOverride, ...input }:
     if (Platform.OS === 'ios' && ANNOUNCED.has(state)) AccessibilityInfo.announceForAccessibility(word);
   }, [state, word]);
 
-  const bg = state === 'right' ? c.mint : state === 'partial' ? c.amberBg : state === 'wrong' ? c.errBg : c.card;
+  const bg =
+    state === 'right' ? c.mint : state === 'partial' ? c.amberBg : state === 'wrong' ? c.errBg : state === 'accepted' ? c.sand : c.card;
   return (
     <View
       testID="buddy-dock"

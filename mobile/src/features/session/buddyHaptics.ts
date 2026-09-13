@@ -14,7 +14,7 @@ export function buddyHaptic(state: BuddyState): void {
       ? Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
       : state === 'partial'
         ? Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning)
-        : state === 'wrong'
+        : state === 'wrong' || state === 'accepted'
           ? Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
           : null;
   run?.catch(() => {});

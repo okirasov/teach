@@ -1,6 +1,6 @@
 import { buddyStateOf, REACTIONS, type BuddyInput } from '../buddyState';
 
-const base: BuddyInput = { stepType: 'free', checked: false, viewingPast: false, rec: false, speaking: false, grading: false, tone: null };
+const base: BuddyInput = { stepType: 'free', checked: false, viewingPast: false, rec: false, speaking: false, grading: false, tone: null, neutral: false };
 
 describe('buddyStateOf', () => {
   it('reads on explain steps and on past steps', () => {
@@ -32,7 +32,16 @@ describe('buddyStateOf', () => {
     expect(buddyStateOf({ ...base, speaking: true, stepType: 'explain' })).toBe('speaking');
     expect(buddyStateOf({ ...base, speaking: true, viewingPast: true, checked: true, tone: 'mint' })).toBe('speaking');
   });
+  it('shows accepted instead of a graded reaction on neutral steps', () => {
+    // Принимающий шаг или промах на диагностике: без оценки, но с реакцией «Принято».
+    expect(buddyStateOf({ ...base, checked: true, tone: 'err', neutral: true })).toBe('accepted');
+    expect(buddyStateOf({ ...base, checked: true, tone: 'mint', neutral: true })).toBe('accepted');
+    expect(buddyStateOf({ ...base, checked: true, tone: null, neutral: true })).toBe('accepted');
+    expect(buddyStateOf({ ...base, neutral: true })).toBe('waiting');
+    expect(buddyStateOf({ ...base, checked: true, tone: 'err', neutral: true, viewingPast: true })).toBe('reading');
+    expect(buddyStateOf({ ...base, checked: true, tone: 'err', neutral: true, rec: true })).toBe('listening');
+  });
   it('lists reactions', () => {
-    expect([...REACTIONS].sort()).toEqual(['partial', 'right', 'wrong']);
+    expect([...REACTIONS].sort()).toEqual(['accepted', 'partial', 'right', 'wrong']);
   });
 });

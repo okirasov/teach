@@ -44,7 +44,7 @@ export const en: Dict = {
   delYes: 'Yes, delete', delNo: 'Keep it',
   why: 'WHY', example: 'EXAMPLE', noHints: 'No hints — the breakdown opens after your attempt', howRight: 'CORRECT ANSWER',
   micIdle: 'Or answer by voice — the transcript lands in the field', micRec: 'Listening… tap again to finish',
-  buddy: { reading: 'Read on', waiting: 'Your turn', listening: 'Listening', speaking: 'Reading the example', thinking: 'Thinking', right: 'Correct', partial: 'Partly', wrong: 'Not quite' },
+  buddy: { reading: 'Read on', waiting: 'Your turn', listening: 'Listening', speaking: 'Reading the example', thinking: 'Thinking', right: 'Correct', partial: 'Partly', wrong: 'Not quite', accepted: 'Noted' },
   toPractice: 'To practice', answer: 'Answer', next: 'Next', toRecap: 'To recap', toCurrent: 'Back to current step', viewingPast: 'Completed step — swipe right for earlier, left for later', done: 'Done',
   setupNext: 'Next', setupBuild: 'Build plan',
   newSubjChip: 'NEW SUBJECT', recapChip: 'RECAP', toReviews: 'GOES TO REVIEWS', baselineKicker: 'BASELINE', baselineNote: 'Not taught yet — we are finding your starting line. A miss here is not a mistake.', baselineRecap: 'STARTING POINT',

@@ -138,6 +138,12 @@ function animationFor(state: BuddyState, dots: Dot[], fill: Animated.Value): Ani
     case 'wrong':
       // Весь ряд оседает и выпрямляется.
       return sag(dots);
+    case 'accepted':
+      // Без оценки: один мягкий вдох всего ряда, без оседания и без заливки.
+      return Animated.stagger(
+        80,
+        dots.map((d) => Animated.sequence([T(d.scale, 1.2, 350), T(d.scale, 1, 450)])),
+      );
     case 'reading':
       return null;
   }

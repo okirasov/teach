@@ -15,7 +15,7 @@ jest.mock('expo-haptics', () => ({
   ImpactFeedbackStyle: { Light: 'light' },
 }));
 
-const base = { stepType: 'free' as const, checked: false, viewingPast: false, rec: false, grading: false, tone: null, stepIndex: 1, reduceMotion: true };
+const base = { stepType: 'free' as const, checked: false, viewingPast: false, rec: false, grading: false, tone: null, neutral: false, stepIndex: 1, reduceMotion: true };
 
 function render(props: Partial<React.ComponentProps<typeof BuddyDock>>) {
   let tree!: ReturnType<typeof create>;
@@ -50,6 +50,23 @@ describe('BuddyDock', () => {
     expect(bgOf(render({ checked: true, tone: 'mint' }))).toBe(palette.light.mint);
     expect(bgOf(render({ checked: true, tone: 'amber' }))).toBe(palette.light.amberBg);
     expect(bgOf(render({ checked: true, tone: 'err' }))).toBe(palette.light.errBg);
+  });
+  it('tints the dock sand and says «Принято» on neutral steps', () => {
+    const tree = render({ checked: true, tone: 'err', neutral: true });
+    expect(bgOf(tree)).toBe(palette.light.sand);
+    expect(wordOf(tree)).toContain(ru.buddy.accepted);
+  });
+  it('taps lightly on an accepted step', () => {
+    const Haptics = jest.requireMock('expo-haptics');
+    Haptics.impactAsync.mockClear();
+    Haptics.notificationAsync.mockClear();
+    render({});
+    const tree = render({});
+    act(() => {
+      tree.update(<BuddyDock {...base} checked tone="mint" neutral />);
+    });
+    expect(Haptics.impactAsync).toHaveBeenCalledTimes(1);
+    expect(Haptics.notificationAsync).not.toHaveBeenCalled();
   });
   it('exposes the word to screen readers', () => {
     const root = render({ checked: true, tone: 'err' }).root.findByProps({ testID: 'buddy-dock' });
