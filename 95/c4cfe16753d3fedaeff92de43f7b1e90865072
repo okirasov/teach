@@ -1,0 +1,21 @@
+server/Teach.Api/wwwroot/docs/frd.html
+  s_f394a5ca0a09c3::t_065fb38ef874ba 105,188,234,386
+server/Teach.Api/wwwroot/docs/index.html
+  s_f394a5ca0a09c3::t_31be91977032bc 139-140,193,200,322
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "95c4cfe16753d3fedaeff92de43f7b1e90865072",
+  "prompts": {},
+  "sessions": {
+    "s_f394a5ca0a09c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "44646b57-362a-4092-9ced-0efdf2e5cd5a",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
