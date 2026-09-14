@@ -1,0 +1,31 @@
+mobile/src/content/__tests__/http.test.ts
+  s_d57d15dffd0119::t_4e082ba3686960 138-180
+mobile/src/content/__tests__/sse.test.ts
+  s_d57d15dffd0119::t_65dca88e8db38e 1-16
+mobile/src/content/http.ts
+  s_d57d15dffd0119::t_252474a69654b4 2-3,18-19,41,137-168
+mobile/src/content/local.ts
+  s_d57d15dffd0119::t_64a07a0b0ca5fb 187-198
+mobile/src/content/sse.ts
+  s_d57d15dffd0119::t_c13924b11e8584 1-34
+mobile/src/content/streamFetch.ts
+  s_d57d15dffd0119::t_00458c69b9beee 1-7
+mobile/src/content/types.ts
+  s_d57d15dffd0119::t_812b914d2ed761 105-112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "759f073bbdf8954b24fa19cc28fd226decf33f8a",
+  "prompts": {},
+  "sessions": {
+    "s_d57d15dffd0119": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-a8ed11d01d91126e0",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
