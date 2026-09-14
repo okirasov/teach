@@ -1,0 +1,37 @@
+mobile/README.md
+  s_5ed9ac590cd856::t_f18fcb1d914ac2 89,91-95
+docs/qa/make_qa_doc.py
+  s_5ed9ac590cd856::t_cf259517e233db 437
+server/Teach.Api/wwwroot/docs/index.html
+  s_5ed9ac590cd856::t_69a0fa11d22140 143,197
+server/Teach.Api/wwwroot/docs/frd.html
+  s_5ed9ac590cd856::t_2a0b6a2e0aa10a 105,297-298,391
+.claude/launch.json
+  s_45a5854b0f8202::t_8dd8ba35399ad6 46-55
+.gitignore
+  s_5ed9ac590cd856::t_24e1c528ecd5b3 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "26eb91e6762f1b96a913763764539559d490845d",
+  "prompts": {},
+  "sessions": {
+    "s_45a5854b0f8202": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5df78986-61ec-4306-b8df-f639605999ab",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    },
+    "s_5ed9ac590cd856": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-aeaa640c20640c2f9",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
