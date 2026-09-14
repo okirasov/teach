@@ -1,0 +1,21 @@
+docs/qa/README.md
+  s_45a5854b0f8202::t_eecd05649600c5 3
+docs/qa/make_qa_doc.py
+  s_45a5854b0f8202::t_744711f5020e8a 65,436-482,510-511
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "98ccffbcf4ff705aebaeafea2c58cdf1b6224460",
+  "prompts": {},
+  "sessions": {
+    "s_45a5854b0f8202": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5df78986-61ec-4306-b8df-f639605999ab",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
