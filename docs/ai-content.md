@@ -183,10 +183,23 @@ GET  /subjects/{id}/lessons     → [{ number, lesson }]              все у�
 POST /sessions/{id}/recap       { records }                        → 202 { status: "preparing" | "stored" }
 POST /subjects/{id}/prefetch    → 202 { status: "queued" | "exists" | "running" | "skipped" }
 POST /grade/free                { criteria, text, lang }           → { hits: boolean[] }
+POST /subjects/{id}/talks       → 201 { talkId }                   дайджест предмета собирается, если его ещё нет
+POST /talks/{id}/turns          { text }                           → text/event-stream: delta (кусок ответа), done (полный ответ и номер реплики), error
+POST /talks/{id}/end            → 202 { status: "ended" }
 ```
 
 Всё, что у модели занимает больше нескольких секунд, сервер делает фоновой задачей, а клиент
 опрашивает статус: iOS обрывает HTTP-запрос через 60 с, а web search у модели идёт 30–120 с.
+
+## Разговор с бадди
+
+`POST /talks/{id}/turns` — единственный эндпоинт со стримингом: клиент шлёт распознанный текст,
+сервер отдаёт реплику бадди по SSE кусками (`delta`), затем `done` с полным ответом и номером
+реплики, чтобы телефон озвучивал первое предложение до конца генерации. Промпт собран из трёх
+слоёв с `cache_control`: персона и правила бадди (общие для всех разговоров), дайджест предмета
+(общий для предмета, собирает `DigestService`/`claude-haiku-4-5` после разбора), хвост диалога.
+История разговора хранится на сервере: последние `TalkHistory.Keep` (10) реплик как есть, старше —
+сворачивается моделью в `OlderSummary` (две-три фразы), чтобы контекст не рос неограниченно.
 
 `HttpContentService` реализует `ContentService`: `findSources` = `POST` + опрос задачи;
 `prepareFirstLesson` = `POST /subjects` + опрос `GET …/lesson` до `ready` с `onStage` на каждом переходе,

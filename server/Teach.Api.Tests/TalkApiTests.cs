@@ -48,4 +48,69 @@ public class TalkApiTests(ApiFactory f) : IClassFixture<ApiFactory>
         Assert.Contains("Испанский", row.DigestText);
         Assert.Contains("Этап 01", row.DigestText);
     }
+
+    private static async Task<List<JsonElement>> ReadEventsAsync(HttpResponseMessage res)
+    {
+        Assert.Equal("text/event-stream", res.Content.Headers.ContentType!.MediaType);
+        var body = await res.Content.ReadAsStringAsync();
+        return body.Split("\n\n", StringSplitOptions.RemoveEmptyEntries)
+            .Select(chunk => chunk.Trim()).Where(chunk => chunk.StartsWith("data: "))
+            .Select(chunk => JsonSerializer.Deserialize<JsonElement>(chunk[6..])).ToList();
+    }
+
+    [Fact]
+    public async Task TalkOpensStreamsAndStoresTurns()
+    {
+        var id = await ReadySubjectAsync();
+        var created = await _http.PostAsJsonAsync($"/subjects/{id}/talks", new { });
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var talkId = (await created.Content.ReadFromJsonAsync<TalkCreated>(Json))!.TalkId;
+
+        var opening = await ReadEventsAsync(await _http.PostAsJsonAsync($"/talks/{talkId}/turns", new TurnRequest("")));
+        Assert.True(opening.Count(e => e.GetProperty("t").GetString() == "delta") > 3);
+        var done = opening.Last();
+        Assert.Equal("done", done.GetProperty("t").GetString());
+        Assert.Equal(1, done.GetProperty("turn").GetInt32());
+        Assert.Contains("?", done.GetProperty("reply").GetString());
+
+        var second = await ReadEventsAsync(await _http.PostAsJsonAsync($"/talks/{talkId}/turns", new TurnRequest("Hola, un café por favor")));
+        Assert.Equal(3, second.Last().GetProperty("turn").GetInt32());
+        Assert.Contains("Hola, un café por favor", second.Last().GetProperty("reply").GetString());
+
+        using var scope = f.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<TeachDb>();
+        var row = await db.Talks.AsNoTracking().FirstAsync(t => t.Id == Guid.Parse(talkId));
+        var turns = JsonSerializer.Deserialize<Teach.Api.Domain.TalkTurn[]>(row.TurnsJson, Json)!;
+        Assert.Equal(["buddy", "user", "buddy"], turns.Select(t => t.Role));
+        Assert.False(row.Ended);
+    }
+
+    [Fact]
+    public async Task OldTurnsAreFoldedIntoASummary()
+    {
+        var id = await ReadySubjectAsync();
+        var talkId = (await (await _http.PostAsJsonAsync($"/subjects/{id}/talks", new { })).Content.ReadFromJsonAsync<TalkCreated>(Json))!.TalkId;
+        await _http.PostAsJsonAsync($"/talks/{talkId}/turns", new TurnRequest(""));
+        for (var i = 1; i <= 6; i++) await _http.PostAsJsonAsync($"/talks/{talkId}/turns", new TurnRequest($"реплика {i}"));
+        // 1 + 6·2 = 13 реплик → хранится 10, три старших свёрнуты.
+        using var scope = f.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<TeachDb>();
+        var row = await db.Talks.AsNoTracking().FirstAsync(t => t.Id == Guid.Parse(talkId));
+        var turns = JsonSerializer.Deserialize<Teach.Api.Domain.TalkTurn[]>(row.TurnsJson, Json)!;
+        Assert.Equal(10, turns.Length);
+        Assert.Contains("Свёрнуто 3 реплик", row.OlderSummary);
+    }
+
+    [Fact]
+    public async Task EndedTalkRejectsTurnsAndStrangersGet404()
+    {
+        var id = await ReadySubjectAsync();
+        var talkId = (await (await _http.PostAsJsonAsync($"/subjects/{id}/talks", new { })).Content.ReadFromJsonAsync<TalkCreated>(Json))!.TalkId;
+        var ended = await _http.PostAsJsonAsync($"/talks/{talkId}/end", new { });
+        Assert.Equal(HttpStatusCode.Accepted, ended.StatusCode);
+        Assert.Equal("ended", (await ended.Content.ReadFromJsonAsync<TalkEnded>(Json))!.Status);
+        Assert.Equal(HttpStatusCode.Conflict, (await _http.PostAsJsonAsync($"/talks/{talkId}/turns", new TurnRequest("ещё"))).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await _http.PostAsJsonAsync($"/talks/{Guid.NewGuid()}/turns", new TurnRequest("x"))).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await _http.PostAsJsonAsync($"/subjects/{Guid.NewGuid()}/talks", new { })).StatusCode);
+    }
 }

@@ -101,6 +101,7 @@ else
 }
 
 app.MapContent();
+app.MapTalks();
 app.MapAuth();
 app.MapOpenApi();
 app.MapScalarApiReference(o => o.WithTitle("Teach API").WithTheme(ScalarTheme.Kepler).WithDefaultHttpClient(ScalarTarget.Shell, ScalarClient.Curl));

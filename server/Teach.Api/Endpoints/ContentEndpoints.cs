@@ -185,6 +185,6 @@ public static class ContentEndpoints
     /// и остаются доступны всем: их и раньше видел каждый с общим токеном, а терять предметы
     /// тестировщиков при обновлении нельзя. Новые предметы принадлежат конкретному аккаунту.
     /// </summary>
-    private static bool Owns(HttpContext ctx, SubjectRow s) =>
+    internal static bool Owns(HttpContext ctx, SubjectRow s) =>
         s.OwnerId == AuthEndpoints.Caller(ctx).Owner || s.OwnerId == Caller.SharedOwner;
 }
