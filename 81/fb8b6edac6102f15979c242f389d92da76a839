@@ -1,0 +1,23 @@
+server/Teach.Api.Tests/SchemaUpgraderTests.cs
+  s_0fec17bad9c1ff::t_971abb3cbafae5 33-39
+server/Teach.Api/Data/SchemaUpgrader.cs
+  s_0fec17bad9c1ff::t_2bb8bf286ca18f 28-29,54-60
+server/Teach.Api/Data/TeachDb.cs
+  s_0fec17bad9c1ff::t_0848b267fd520e 44-47,92-105,112,127-128
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "81fb8b6edac6102f15979c242f389d92da76a839",
+  "prompts": {},
+  "sessions": {
+    "s_0fec17bad9c1ff": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-a8f958950b8666ce7",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
