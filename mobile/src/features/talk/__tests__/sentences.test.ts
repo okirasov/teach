@@ -10,7 +10,7 @@ describe('sentence splitter', () => {
   });
   it('does not split on abbreviations with a digit or a single letter before the dot', () => {
     const s = createSentenceSplitter();
-    expect(s.push('Это стоит 3.50 евро. Т. е. недорого. Ясно?')).toEqual(['Это стоит 3.50 евро.', 'Т. е.', 'недорого.']);
+    expect(s.push('Это стоит 3.50 евро. Т. е. недорого. Ясно?')).toEqual(['Это стоит 3.50 евро.', 'Т. е. недорого.']);
     expect(s.flush()).toEqual(['Ясно?']);
   });
   it('treats ¿…? and ellipsis as one sentence', () => {

@@ -4,7 +4,6 @@
  */
 export function createSentenceSplitter(): { push(delta: string): string[]; flush(): string[] } {
   let buf = '';
-  const out: string[] = [];
   const scan = () => {
     const found: string[] = [];
     for (;;) {
@@ -15,15 +14,24 @@ export function createSentenceSplitter(): { push(delta: string): string[]; flush
       // Точка после числа (3.50) или одной буквы (т. е.) не заканчивает предложение.
       const beforeDot = head.slice(0, m.index);
       if (m[0] === '.' && /(\d|(^|\s)\p{L})$/u.test(beforeDot)) {
-        const next = buf.slice(cut).search(/\S/);
-        if (next < 0) break;
-        // Ищем следующий терминатор, не отрезая этот.
-        const rest = buf.slice(cut);
-        const m2 = /[.!?…]+(?=\s)/.exec(rest);
-        if (!m2) break;
-        const cut2 = cut + m2.index + m2[0].length;
-        found.push(buf.slice(0, cut2).trim());
-        buf = buf.slice(cut2);
+        let scanFrom = cut;
+        let realCut = -1;
+        for (;;) {
+          const rest = buf.slice(scanFrom);
+          const m2 = /[.!?…]+(?=\s)/.exec(rest);
+          if (!m2) break;
+          const abs = scanFrom + m2.index;
+          const beforeDot2 = buf.slice(0, abs);
+          if (m2[0] === '.' && /(\d|(^|\s)\p{L})$/u.test(beforeDot2)) {
+            scanFrom = abs + m2[0].length;
+            continue;
+          }
+          realCut = abs + m2[0].length;
+          break;
+        }
+        if (realCut < 0) break;
+        found.push(buf.slice(0, realCut).trim());
+        buf = buf.slice(realCut);
         continue;
       }
       found.push(head.trim());
