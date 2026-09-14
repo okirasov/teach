@@ -1,0 +1,21 @@
+mobile/src/features/talk/__tests__/talkMachine.test.ts
+  s_fce15f99a6ecfd::t_35634fcb88313c 1-57
+mobile/src/features/talk/talkMachine.ts
+  s_fce15f99a6ecfd::t_893eba2c8fa637 1-81
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "096350cfee4e31e9912dbc076e995ff31eb54283",
+  "prompts": {},
+  "sessions": {
+    "s_fce15f99a6ecfd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-ad07ff79fbdb0a01a",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
