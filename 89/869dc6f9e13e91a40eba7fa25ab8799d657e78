@@ -1,0 +1,21 @@
+mobile/src/features/today/SubjectCard.tsx
+  s_643cc32932e967::t_c5ed4499578db8 40-41,82-98
+mobile/src/features/today/__tests__/SubjectCard.test.tsx
+  s_643cc32932e967::t_7828c759b95195 19-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "89869dc6f9e13e91a40eba7fa25ab8799d657e78",
+  "prompts": {},
+  "sessions": {
+    "s_643cc32932e967": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-afc694aea68e0593f",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
