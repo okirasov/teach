@@ -1,0 +1,19 @@
+server/Teach.Api/Model/ClaudeLessonModel.cs
+  s_9491bc5e02ca8e::t_5a29591fc53ccb 149-151,153-175,183-185,187-202,243-246,248,250-255,258-271
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "faef7303e0a3295dc0c538dee97fb806f9806186",
+  "prompts": {},
+  "sessions": {
+    "s_9491bc5e02ca8e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-a83dcc5b2708eed48",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
