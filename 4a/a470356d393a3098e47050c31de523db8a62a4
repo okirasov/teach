@@ -1,0 +1,41 @@
+server/Teach.Api.Tests/TalkApiTests.cs
+  s_45a5854b0f8202::t_4853f01a8cce55 51-115
+docs/ai-content.md
+  s_d955838dbbdcd1::t_73354fde455f9f 186-188,194-203
+server/README.md
+  s_d955838dbbdcd1::t_85be36e3971336 71-84
+server/Teach.Api/Endpoints/ContentEndpoints.cs
+  s_d955838dbbdcd1::t_36d2d3da36dfef 188
+server/Teach.Api/Endpoints/TalkEndpoints.cs
+  s_d955838dbbdcd1::t_7e0bbce5dd432f 1-121
+server/Teach.Api/Program.cs
+  s_d955838dbbdcd1::t_f4d1c64f92ce75 104
+server/Teach.Api/wwwroot/docs/frd.html
+  s_d955838dbbdcd1::t_54ef835bea1003 340
+server/Teach.Api/wwwroot/docs/index.html
+  s_d955838dbbdcd1::t_e3ba8e34f59325 164,166,223-225
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "4aa470356d393a3098e47050c31de523db8a62a4",
+  "prompts": {},
+  "sessions": {
+    "s_45a5854b0f8202": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5df78986-61ec-4306-b8df-f639605999ab",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    },
+    "s_d955838dbbdcd1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-af9330b81ad48defb",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
