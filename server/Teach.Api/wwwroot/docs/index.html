@@ -136,6 +136,8 @@
       <h3>Что важно знать</h3>
       <ul class="plain">
         <li><b>Сессия урока</b> — чистый движок: активный шаг и показанный, ответы пройденных шагов заморожены, свайпы назад и вперёд до активного. Крестик сохраняет снимок сессии в предмете, следующее открытие того же урока продолжает с места остановки.</li>
+        <li><b>Бадди</b> — док над главной кнопкой сессии: четыре точки знака и слово состояния. Чистая стейт-машина <code>buddyStateOf</code> над флагами, которые уже есть (запись, озвучка, оценка на сервере, тон фидбека): слушает &gt; читает пример &gt; думает &gt; читайте &gt; реакция &gt; ваш ход. Реакции «Верно / Частично / Не совсем» играют один раз на шаг; шаги без оценки (калибровка, промах на диагностике) дают «Принято». Анимация на RN Animated, при «Уменьшении движения» только конечные позы; хаптика через expo-haptics с флагом.</li>
+        <li><b>Подсказка о новой сборке</b>: при запуске на iOS клиент один раз спрашивает <code>GET /app/latest</code> и, если номер выше своего <code>ios.buildNumber</code>, показывает на «Сегодня» карточку «Есть сборка N» с кнопкой в TestFlight и крестиком до следующего запуска. Сбои сети молчат, локальная заглушка обновлений не знает.</li>
         <li><b>Проверка ответов на устройстве</b>: выбор и порядок точно, ввод по группам синонимов, свободный ответ по ключевым словам критериев. Серверная оценка по смыслу есть в API, в сессии пока не включена.</li>
         <li><b>Повторы</b>: одна учебная точка — одна карточка; сроками владеет FSRS без краткосрочных шагов (ошибка → 1 день, успех → 3 дня). Карточка знает свой предмет, поэтому язык распознавания и озвучки в повторах берётся у него.</li>
         <li><b>Голос никогда не блокирует</b>: без разрешения или без голоса для языка кнопки просто не рисуются, текстовый ввод доступен всегда.</li>
@@ -188,13 +190,14 @@
     <section id="s4">
       <div class="kicker">4</div>
       <h2>API для интеграций и тестов</h2>
-      <p>База: <code>https://teach-tutor-api.fly.dev</code>. Все маршруты, кроме <code>/health</code> и документации, требуют общий токен сервера в заголовке <code>Authorization: Bearer &lt;token&gt;</code>. Токен выдаёт владелец проекта; в документации его нет. Интерактивная справка с формами запросов: <a href="/scalar">/scalar</a>, машинное описание: <a href="/openapi/v1.json">/openapi/v1.json</a>.</p>
+      <p>База: <code>https://teach-tutor-api.fly.dev</code>. Все маршруты, кроме <code>/health</code>, <code>/app/latest</code> и документации, требуют общий токен сервера в заголовке <code>Authorization: Bearer &lt;token&gt;</code>. Токен выдаёт владелец проекта; в документации его нет. Интерактивная справка с формами запросов: <a href="/scalar">/scalar</a>, машинное описание: <a href="/openapi/v1.json">/openapi/v1.json</a>.</p>
       <div class="note amber">Каждый вызов генерации тратит деньги: предмет с диагностикой и одним уроком стоит порядка 10–20 центов, поиск источников — самая дорогая часть. Для проверки формата ответов достаточно одного предмета; повторные разборы того же урока бесплатны, сервер их не генерирует заново.</div>
       <h3>Маршруты</h3>
       <div class="tablewrap"><table>
         <thead><tr><th>Метод и путь</th><th>Назначение</th></tr></thead>
         <tbody>
           <tr><td class="m">GET /health</td><td>Состояние сервера: <code>{ ok, model, prompts }</code>. Без токена.</td></tr>
+          <tr><td class="m">GET /app/latest</td><td>Последняя выложенная сборка: <code>{ ios: { build, url } }</code> из <code>Teach__App__LatestIosBuild</code> и <code>Teach__App__IosUrl</code>. Без токена; клиент показывает подсказку «Есть сборка N», если номер выше установленного.</td></tr>
           <tr><td class="m">POST /subjects/focus</td><td><code>{ topic }</code> → три фокуса <code>[{ t, d }]</code>.</td></tr>
           <tr><td class="m">POST /subjects/title</td><td><code>{ topic }</code> → <code>{ title }</code>, короткое имя до 24 символов.</td></tr>
           <tr><td class="m">POST /subjects/sources</td><td><code>{ topic, focus }</code> → 202 <code>{ jobId, status: "running" }</code>. Поиск идёт в фоне.</td></tr>
@@ -316,7 +319,7 @@ xcodebuild -workspace Teach.xcworkspace -scheme Teach -configuration Release -sd
   -allowProvisioningUpdates DEVELOPMENT_TEAM=… archive
 xcodebuild -exportArchive -archivePath build-device/Teach.xcarchive \
   -exportOptionsPlist ../ExportOptions.plist -exportPath build-device/export -allowProvisioningUpdates</code></pre>
-      <p>Перед сборкой поднять <code>ios.buildNumber</code> в <code>app.json</code> и <code>CFBundleVersion</code> в Info.plist. Адрес сервера и токен зашиваются в бандл на этапе сборки.</p>
+      <p>После выгрузки задать номер для подсказки об обновлении: <code>fly secrets set Teach__App__LatestIosBuild=N</code> из <code>server/Teach.Api</code> (перезапуск без деплоя); тестеры на предыдущих сборках увидят «Есть сборка N». Перед сборкой поднять <code>ios.buildNumber</code> в <code>app.json</code> и <code>CFBundleVersion</code> в Info.plist. Адрес сервера и токен зашиваются в бандл на этапе сборки.</p>
     </section>
 
     <section id="s8">
