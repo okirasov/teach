@@ -87,7 +87,8 @@ export function SubjectCard({ m, onPress, onTalk }: { m: SubjectCardModel; onPre
       {onTalk ? (
         <Pressable
           testID="subject-main"
-          accessibilityRole="button"
+          accessibilityRole={preparing ? undefined : 'button'}
+          accessibilityState={{ disabled: preparing }}
           onPress={preparing ? undefined : onPress}
           style={({ pressed }) => (pressed ? { opacity: 0.9 } : undefined)}
         >
