@@ -1,9 +1,9 @@
 import React from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { useT } from '@/i18n';
 import { useTheme } from '@/theme';
-import { Card, Chip, Txt } from '@/ui';
+import { BuddyMark, Card, Chip, Txt, useReduceMotion } from '@/ui';
 import type { PlanProgress } from '@/features/subjects/plan';
 
 export interface SubjectCardModel {
@@ -27,9 +27,10 @@ export interface SubjectCardModel {
 }
 
 /** Карточка предмета на «Сегодня» (DESIGN.md §4.2): имя + уровень, урок, чип-статус, CTA. */
-export function SubjectCard({ m, onPress }: { m: SubjectCardModel; onPress: () => void }) {
+export function SubjectCard({ m, onPress, onTalk }: { m: SubjectCardModel; onPress: () => void; onTalk?: () => void }) {
   const t = useT();
   const { c, fonts } = useTheme();
+  const reduceMotion = useReduceMotion();
   const failed = !!m.prepFailed;
   const preparing = m.prepStage !== undefined && !failed;
   const status = failed ? t.prepFailed : m.done ? (m.demo && !m.demoHasNext ? t.demoDone : t.doneToday) : preparing ? (m.nextLesson ? t.prepNext(m.nextLesson) : t.prepSteps[Math.min(m.prepStage ?? 0, t.prepSteps.length - 1)]) : t.ready;
@@ -78,6 +79,23 @@ export function SubjectCard({ m, onPress }: { m: SubjectCardModel; onPress: () =
         </View>
         <Txt t="metaMed" color="mintInk">{cta} →</Txt>
       </View>
+      {onTalk ? (
+        <Pressable
+          testID="talk-row"
+          accessibilityRole="button"
+          onPress={onTalk}
+          style={({ pressed }) => ({ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: c.lineSoft, flexDirection: 'row', alignItems: 'center', gap: 12, opacity: pressed ? 0.85 : 1 })}
+        >
+          <View style={{ width: 64, alignItems: 'center' }}>
+            <BuddyMark state="waiting" reduceMotion={reduceMotion} animateReaction={false} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Txt t="rowMed" style={{ lineHeight: 19 }}>{t.talk.entry}</Txt>
+            <Txt t="tiny" color="mut" style={{ marginTop: 3 }}>{t.talk.entryNote}</Txt>
+          </View>
+          <Txt t="body" color="mintInk" style={{ fontSize: 18, lineHeight: 22 }}>→</Txt>
+        </Pressable>
+      ) : null}
     </Card>
   );
 }

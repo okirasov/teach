@@ -8,6 +8,7 @@ import { HeroCard } from '@/features/today/HeroCard';
 import { UpdateBanner } from '@/features/update/UpdateBanner';
 import { SubjectCard } from '@/features/today/SubjectCard';
 import { useTodaySubjects } from '@/features/today/useTodaySubjects';
+import { useSttAvailable } from '@/features/talk/useSttAvailable';
 import { dueToday, estimateMinutes } from '@/features/reviews/queue';
 import { useT } from '@/i18n';
 import { useAuth } from '@/store/auth';
@@ -26,6 +27,8 @@ export default function TodayScreen() {
   const due = dueToday(cards, new Date()).length;
   const added = useProgress((s) => s.added);
   const subjects = useTodaySubjects();
+  const sttOk = useSttAvailable();
+  const subjectsById = useProgress((s) => s.subjects);
 
   return (
     <Screen noBottom>
@@ -61,6 +64,7 @@ export default function TodayScreen() {
                 }
                 router.push({ pathname: '/session/[id]', params: { id: m.id } });
               }}
+              onTalk={sttOk && !m.demo && !m.prepFailed && m.prepStage === undefined && subjectsById[m.id]?.remoteId ? () => router.push({ pathname: '/talk/[id]', params: { id: m.id } }) : undefined}
             />
           ))}
         </View>
