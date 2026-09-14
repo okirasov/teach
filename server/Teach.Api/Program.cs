@@ -35,6 +35,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<TokenStore>();
 builder.Services.AddHttpClient<IAppleTokenVerifier, AppleTokenVerifier>();
 builder.Services.AddSingleton(new AppleTokenVerifierOptions { Audiences = (cfg["AppleAudience"] ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) });
+builder.Services.AddSingleton<DigestService>();
 builder.Services.AddSingleton<LessonQueue>();
 builder.Services.AddSingleton<SourcesJobs>();
 builder.Services.AddSingleton<LessonWorker>();

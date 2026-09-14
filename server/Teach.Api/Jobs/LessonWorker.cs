@@ -27,7 +27,7 @@ public static class Plans
 }
 
 /// <summary>Очередь подготовки первых уроков: без спиннера у пользователя, этапы видны на карточке.</summary>
-public enum LessonJobKind { Prepare, Prefetch, Promote }
+public enum LessonJobKind { Prepare, Prefetch, Promote, Digest }
 
 /// <summary>Задача воркера: собрать текущий урок, заготовить следующий или продвинуть заготовку в текущие.</summary>
 public sealed record LessonJob(Guid SubjectId, LessonJobKind Kind);
@@ -49,7 +49,7 @@ public sealed class WorkerOptions
     public int DurationMinutes { get; set; } = 10;
 }
 
-public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes, ILessonModel model, WorkerOptions opts, ILogger<LessonWorker> log)
+public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes, ILessonModel model, WorkerOptions opts, DigestService digests, ILogger<LessonWorker> log)
     : BackgroundService
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
@@ -89,13 +89,14 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
                 case LessonJobKind.Prepare: await PrepareAsync(job.SubjectId, ct); break;
                 case LessonJobKind.Prefetch: await PrefetchAsync(job.SubjectId, ct); break;
                 case LessonJobKind.Promote: await PromoteAsync(job.SubjectId, ct); break;
+                case LessonJobKind.Digest: await DigestAsync(job.SubjectId, ct); break;
             }
         }
         catch (Exception e)
         {
             log.LogError(e, "{Kind} {Subject} failed", job.Kind, job.SubjectId);
             if (job.Kind == LessonJobKind.Prefetch) await ClearPrefetchAsync(job.SubjectId, ct);
-            else await MarkFailedAsync(job.SubjectId, e.Message, ct);
+            else if (job.Kind != LessonJobKind.Digest) await MarkFailedAsync(job.SubjectId, e.Message, ct);
         }
     }
 
@@ -156,6 +157,16 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
         }
         s.UpdatedAt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync(ct);
+    }
+
+    /// <summary>Дайджест для разговора с бадди — после того, как урок стал ready (клиент его не ждёт).</summary>
+    private async Task DigestAsync(Guid id, CancellationToken ct)
+    {
+        using var scope = scopes.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<TeachDb>();
+        var s = await db.Subjects.FindAsync([id], ct);
+        if (s is null || s.Status != SubjectStatus.Ready) return;
+        await digests.EnsureAsync(db, s, ct);
     }
 
     /// <summary>Заготовка становится текущим уроком: история, глоссарий, ready.</summary>
@@ -257,6 +268,7 @@ public sealed class LessonWorker(LessonQueue queue, IServiceScopeFactory scopes,
         await UpdateGlossaryAsync(db, s, lesson, number, ct);
         await db.SaveChangesAsync(ct);
         log.LogInformation("subject {Subject} lesson {Number} ready ({Model}, prefetch={Prefetch})", s.Id, number, model.Name, fromPrefetch);
+        await queue.EnqueueAsync(s.Id, LessonJobKind.Digest, ct);
     }
 
     /// <summary>Очередь живёт в памяти: после перезапуска сервера предметы «в подготовке» ставим заново.</summary>
