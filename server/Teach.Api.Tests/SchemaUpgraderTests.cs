@@ -31,6 +31,13 @@ public class SchemaUpgraderTests
             db.Lessons.Add(new LessonRow { SubjectId = Guid.NewGuid(), Number = 1, Json = "{}", PromptVersion = "v1", CreatedAt = DateTimeOffset.UtcNow });
             await db.SaveChangesAsync();
             Assert.Equal(1, await db.Subjects.CountAsync(x => x.Title == "T"));
+            db.Talks.Add(new TalkRow { Id = Guid.NewGuid(), SubjectId = Guid.NewGuid(), OwnerId = "shared", TurnsJson = "[]", StartedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow });
+            var subj = await db.Subjects.FirstAsync(x => x.Title == "T");
+            subj.DigestText = "digest";
+            subj.DigestLesson = 2;
+            await db.SaveChangesAsync();
+            Assert.Equal(1, await db.Talks.CountAsync());
+            Assert.Equal("digest", (await db.Subjects.FirstAsync(x => x.Title == "T")).DigestText);
         }
         File.Delete(path);
     }

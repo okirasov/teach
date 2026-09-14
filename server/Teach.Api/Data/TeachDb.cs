@@ -41,6 +41,10 @@ public sealed class SubjectRow
     public bool LastFromPrefetch { get; set; }
     public string? PromptVersion { get; set; }
     public string? LastError { get; set; }
+    /// <summary>Дайджест предмета для разговора с бадди: тема, этап, глоссарий, свёртка записей (≤ 2000 символов).</summary>
+    public string? DigestText { get; set; }
+    /// <summary>Номер урока, после которого собран дайджест; 0 — нет.</summary>
+    public int DigestLesson { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }
@@ -85,12 +89,27 @@ public sealed class LessonRow
     public DateTimeOffset CreatedAt { get; set; }
 }
 
+/// <summary>Разговор с бадди: последние реплики как есть, старое свёрнуто в OlderSummary.</summary>
+public sealed class TalkRow
+{
+    public Guid Id { get; set; }
+    public Guid SubjectId { get; set; }
+    public required string OwnerId { get; set; }
+    /// <summary>JSON-массив Domain.TalkTurn (role: user | buddy).</summary>
+    public required string TurnsJson { get; set; }
+    public string? OlderSummary { get; set; }
+    public bool Ended { get; set; }
+    public DateTimeOffset StartedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+}
+
 public sealed class TeachDb(DbContextOptions<TeachDb> options) : DbContext(options)
 {
     public DbSet<SubjectRow> Subjects => Set<SubjectRow>();
     public DbSet<LearningRecordRow> Records => Set<LearningRecordRow>();
     public DbSet<LessonRow> Lessons => Set<LessonRow>();
     public DbSet<ReferenceRow> References => Set<ReferenceRow>();
+    public DbSet<TalkRow> Talks => Set<TalkRow>();
     public DbSet<ApiTokenRow> ApiTokens => Set<ApiTokenRow>();
 
     protected override void OnModelCreating(ModelBuilder b)
@@ -105,6 +124,8 @@ public sealed class TeachDb(DbContextOptions<TeachDb> options) : DbContext(optio
         b.Entity<LessonRow>().HasIndex(x => new { x.SubjectId, x.Number }).IsUnique();
         b.Entity<ReferenceRow>().HasKey(x => x.Id);
         b.Entity<ReferenceRow>().HasIndex(x => x.SubjectId);
+        b.Entity<TalkRow>().HasKey(x => x.Id);
+        b.Entity<TalkRow>().HasIndex(x => x.SubjectId);
     }
 }
 

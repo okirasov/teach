@@ -25,6 +25,8 @@ public static class SchemaUpgrader
         ("Subjects", "LastFromPrefetch", "ALTER TABLE Subjects ADD COLUMN LastFromPrefetch INTEGER NOT NULL DEFAULT 0"),
         // Предметы, созданные до входа по Apple, остаются у общего владельца — старые сборки продолжают их видеть.
         ("Subjects", "OwnerId", "ALTER TABLE Subjects ADD COLUMN OwnerId TEXT NOT NULL DEFAULT 'shared'"),
+        ("Subjects", "DigestText", "ALTER TABLE Subjects ADD COLUMN DigestText TEXT NULL"),
+        ("Subjects", "DigestLesson", "ALTER TABLE Subjects ADD COLUMN DigestLesson INTEGER NOT NULL DEFAULT 0"),
     ];
 
     private static readonly (string Table, string Ddl)[] Tables =
@@ -48,6 +50,13 @@ public static class SchemaUpgrader
               SubjectId TEXT NOT NULL, "Group" TEXT NOT NULL, Title TEXT NOT NULL, RowsJson TEXT NOT NULL,
               UpdatedAfter INTEGER NOT NULL, UpdatedAt TEXT NOT NULL);
             CREATE INDEX IF NOT EXISTS IX_References_SubjectId ON "References" (SubjectId);
+            """),
+        ("Talks", """
+            CREATE TABLE IF NOT EXISTS Talks (
+              Id TEXT NOT NULL CONSTRAINT PK_Talks PRIMARY KEY,
+              SubjectId TEXT NOT NULL, OwnerId TEXT NOT NULL, TurnsJson TEXT NOT NULL, OlderSummary TEXT NULL,
+              Ended INTEGER NOT NULL DEFAULT 0, StartedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL);
+            CREATE INDEX IF NOT EXISTS IX_Talks_SubjectId ON Talks (SubjectId);
             """),
     ];
 
