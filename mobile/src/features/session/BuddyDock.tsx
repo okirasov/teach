@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { AccessibilityInfo, Platform, View } from 'react-native';
+import { AccessibilityInfo, Platform } from 'react-native';
 
 import { useT } from '@/i18n';
-import { useTheme } from '@/theme';
-import { BuddyMark, Txt, useReduceMotion } from '@/ui';
+import type { Palette } from '@/theme';
+import { BuddyDockView, useReduceMotion } from '@/ui';
 import { buddyStateOf, REACTIONS, type BuddyInput, type BuddyState } from './buddyState';
 import { buddyHaptic } from './buddyHaptics';
 import { useSpeaker } from './speaker';
@@ -25,7 +25,6 @@ const ANNOUNCED: ReadonlySet<BuddyState> = new Set<BuddyState>(['listening', 'ri
  */
 export function BuddyDock({ stepIndex, reduceMotion: reduceOverride, ...input }: BuddyDockProps) {
   const t = useT();
-  const { c, radius, border } = useTheme();
   const speaker = useSpeaker();
   const systemReduce = useReduceMotion();
   const reduceMotion = reduceOverride ?? systemReduce;
@@ -56,35 +55,18 @@ export function BuddyDock({ stepIndex, reduceMotion: reduceOverride, ...input }:
     if (Platform.OS === 'ios' && ANNOUNCED.has(state)) AccessibilityInfo.announceForAccessibility(word);
   }, [state, word]);
 
-  const bg =
-    state === 'right' ? c.mint : state === 'partial' ? c.amberBg : state === 'wrong' ? c.errBg : state === 'accepted' ? c.sand : c.card;
+  const bg: keyof Palette = state === 'right' ? 'mint' : state === 'partial' ? 'amberBg' : state === 'wrong' ? 'errBg' : state === 'accepted' ? 'sand' : 'card';
   return (
-    <View
-      testID="buddy-dock"
+    <BuddyDockView
+      state={state}
+      word={word}
+      bg={bg}
+      reduceMotion={reduceMotion}
+      animateReaction={animateReaction}
       accessible
       accessibilityRole="text"
       accessibilityLabel={word}
       accessibilityLiveRegion="polite"
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-        paddingVertical: 12,
-        paddingHorizontal: 14,
-        marginTop: 10,
-        borderRadius: radius.card,
-        borderWidth: border.card,
-        borderColor: c.line,
-        backgroundColor: bg,
-      }}
-    >
-      <View style={{ width: 64, alignItems: 'center' }}>
-        <BuddyMark state={state} reduceMotion={reduceMotion} animateReaction={animateReaction} />
-      </View>
-      {/* Одна строка намеренно: высота дока не должна прыгать между состояниями. */}
-      <Txt t="body" color="ink" style={{ flex: 1 }} numberOfLines={1}>
-        {word}
-      </Txt>
-    </View>
+    />
   );
 }

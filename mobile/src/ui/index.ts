@@ -19,3 +19,4 @@ export { SpeakButton } from './SpeakButton';
 export { SubjectTabs, type SubjectTab } from './SubjectTabs';
 export { useReduceMotion } from './useReduceMotion';
 export { BuddyMark } from './BuddyMark';
+export { BuddyDockView } from './BuddyDockView';
