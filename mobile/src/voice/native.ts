@@ -54,6 +54,7 @@ export const nativeRecognizer: SpeechRecognizer = {
         requiresOnDeviceRecognition: false,
         addsPunctuation: true,
         iosTaskHint: 'dictation',
+        iosCategory: opts.playback ? { category: 'playAndRecord', categoryOptions: ['defaultToSpeaker', 'allowBluetooth', 'duckOthers'], mode: 'spokenAudio' } : undefined,
       });
     } catch (e) {
       h.onError?.(e instanceof Error ? e.message : String(e));

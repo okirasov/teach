@@ -10,6 +10,8 @@ export interface SpeechOptions {
   hint?: string;
   /** Без рук: слушать до явной остановки; удерживать: одна реплика. */
   continuous?: boolean;
+  /** Разговор: запись и озвучка в одной аудиосессии (iOS playAndRecord). */
+  playback?: boolean;
 }
 
 export interface SpeechSession {

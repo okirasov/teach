@@ -30,6 +30,7 @@ function RootStack() {
           <Stack.Screen name="recap" options={{ presentation: 'fullScreenModal', gestureEnabled: false, animation: 'fade' }} />
           <Stack.Screen name="setup" options={{ presentation: 'fullScreenModal' }} />
           <Stack.Screen name="subject/[id]" options={{ presentation: 'fullScreenModal' }} />
+          <Stack.Screen name="talk/[id]" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
           <Stack.Screen name="ref/[id]" />
         </Stack.Protected>
       </Stack>
