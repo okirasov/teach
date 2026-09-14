@@ -1,0 +1,25 @@
+server/Teach.Api.Tests/TalkHistoryTests.cs
+  s_0563dffa15b872::t_f1fa29e2dbba5f 1-32
+server/Teach.Api/Contracts/Dtos.cs
+  s_0563dffa15b872::t_b134a519640cdf 75-82
+server/Teach.Api/Domain/TalkHistory.cs
+  s_0563dffa15b872::t_9c6ffdaea18b7b 1-20
+server/Teach.Api/Model/Prompts.cs
+  s_0563dffa15b872::t_4f03225515e236 33-61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "82ddc8841880341c0e522ce2885d4df9ba1112a8",
+  "prompts": {},
+  "sessions": {
+    "s_0563dffa15b872": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-ac5957c26c7ae4e41",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
