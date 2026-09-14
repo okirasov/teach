@@ -1,0 +1,45 @@
+mobile/app/_layout.tsx
+  s_5c6fe98d1c15db::t_37e44d157b0c0a 33
+mobile/app/talk/[id].tsx
+  s_5c6fe98d1c15db::t_0084164b57c5ab 1-70
+mobile/src/features/talk/__tests__/useTalk.test.tsx
+  s_2372cb08d633fa::t_895b434d1477e1 1-71
+mobile/src/features/talk/useTalk.ts
+  s_2372cb08d633fa::t_c4ab446636fc8e 1-140
+mobile/src/voice/native.ts
+  s_3d81171fa1e2c9::t_03116355857acb 57
+mobile/src/voice/types.ts
+  s_3d81171fa1e2c9::t_cce260bcab0bb7 13-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "65a163c45b88ad361da0fb236f2e0f6284c398d6",
+  "prompts": {},
+  "sessions": {
+    "s_2372cb08d633fa": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "38e65fd6-4f1c-4802-a3c8-a683dc499ab7",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    },
+    "s_3d81171fa1e2c9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-af52db195b99b202f",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    },
+    "s_5c6fe98d1c15db": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03285-3780-7953-8181-a8b2bfdc5e7d",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
