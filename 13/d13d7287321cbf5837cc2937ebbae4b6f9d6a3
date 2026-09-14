@@ -1,0 +1,29 @@
+mobile/src/features/talk/useTalk.ts
+  s_45a5854b0f8202::t_5141252d49df0d 34-37,73,75,82,87,91,94-97,127
+mobile/src/features/talk/__tests__/useTalk.test.tsx
+  s_3d81171fa1e2c9::t_fdd29d81082366 26-31,35,48-59,62,71,83-141
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "13d13d7287321cbf5837cc2937ebbae4b6f9d6a3",
+  "prompts": {},
+  "sessions": {
+    "s_3d81171fa1e2c9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-af52db195b99b202f",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    },
+    "s_45a5854b0f8202": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5df78986-61ec-4306-b8df-f639605999ab",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
