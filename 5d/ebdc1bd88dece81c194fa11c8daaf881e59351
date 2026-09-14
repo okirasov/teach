@@ -1,0 +1,33 @@
+mobile/src/features/talk/__tests__/talkMachine.test.ts
+  s_45a5854b0f8202::t_24b59713f80e6e 15-21,27-50,66
+mobile/src/features/talk/talkMachine.ts
+  s_45a5854b0f8202::t_b3d6b13f7de653 23,56-57,72
+mobile/src/features/talk/useTalk.ts
+  s_45a5854b0f8202::t_8501e962d67c62 25,29-32,38-40,64,73-75,78-81,87-89,101,106,114,121,143,165-172
+mobile/src/features/talk/__tests__/useTalk.test.tsx
+  s_0a91596b3da5d3::t_e070ea7d287105 26,35,142-166
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "5debdc1bd88dece81c194fa11c8daaf881e59351",
+  "prompts": {},
+  "sessions": {
+    "s_0a91596b3da5d3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-ac3f9bbfe6430538d",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    },
+    "s_45a5854b0f8202": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5df78986-61ec-4306-b8df-f639605999ab",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
