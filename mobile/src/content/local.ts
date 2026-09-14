@@ -187,7 +187,7 @@ export function createLocalContentService(opts: { stageMs?: number; planLater?: 
     async startTalk() {
       return 'local-talk';
     },
-    async talkTurn(_talkId, text, onDelta) {
+    async talkTurn(_talkId, text, onDelta, _signal) {
       const reply = text ? `Ты сказал: «${text}». Хорошо, продолжим. Что скажешь дальше?` : 'Привет. Давай немного поговорим по теме. С чего начнём?';
       for (const w of reply.split(' ')) {
         await new Promise((r) => setTimeout(r, 60));

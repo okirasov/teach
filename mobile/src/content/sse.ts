@@ -1,16 +1,16 @@
 /** События потока реплики бадди (POST /talks/{id}/turns, text/event-stream). */
-export type TalkEvent = { t: 'delta'; text: string } | { t: 'done'; reply: string; turn: number } | { t: 'error'; message: string };
+export type SseTalkEvent = { t: 'delta'; text: string } | { t: 'done'; reply: string; turn: number } | { t: 'error'; message: string };
 
 /**
  * Разбор SSE по кускам: событие — строки до пустой строки, полезная нагрузка — JSON после `data: `.
  * Неполный хвост хранится до следующего куска.
  */
-export function createSseParser(): { push(chunk: string): TalkEvent[] } {
+export function createSseParser(): { push(chunk: string): SseTalkEvent[] } {
   let buf = '';
   return {
     push(chunk) {
       buf += chunk;
-      const out: TalkEvent[] = [];
+      const out: SseTalkEvent[] = [];
       for (;;) {
         const end = buf.indexOf('\n\n');
         if (end < 0) break;
@@ -23,7 +23,7 @@ export function createSseParser(): { push(chunk: string): TalkEvent[] } {
           .join('\n');
         if (!data) continue;
         try {
-          out.push(JSON.parse(data) as TalkEvent);
+          out.push(JSON.parse(data) as SseTalkEvent);
         } catch {
           // Битое событие пропускаем: поток продолжается, done всё равно придёт или сервер закроет соединение.
         }

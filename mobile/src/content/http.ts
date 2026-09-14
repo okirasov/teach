@@ -138,11 +138,12 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
       const r = await call<{ talkId: string }>('POST', `/subjects/${remoteId}/talks`, {});
       return r.talkId;
     },
-    async talkTurn(talkId, text, onDelta) {
+    async talkTurn(talkId, text, onDelta, signal) {
       const res = await sf(`${base}/talks/${talkId}/turns`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream', ...(bearer() ? { Authorization: `Bearer ${bearer()}` } : {}) },
         body: JSON.stringify({ text }),
+        ...(signal ? { signal } : {}),
       });
       if (!res.ok) throw new ContentHttpError(res.status, `POST /talks/${talkId}/turns → ${res.status}`);
       if (!res.body) throw new Error('talk stream unavailable');
@@ -151,22 +152,24 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
       const parser = createSseParser();
       let reply: string | null = null;
       try {
-        for (;;) {
+        // Резолвим сразу на событии done — не дожидаясь закрытия потока (сервер держит SSE-соединение
+        // до собственного сворачивания истории уже после ответа); последнее предложение иначе ждало бы этого.
+        outer: for (;;) {
           const { value, done } = await reader.read();
           const events = parser.push(decoder.decode(value ?? new Uint8Array(), { stream: !done }));
           for (const ev of events) {
             if (ev.t === 'delta') onDelta(ev.text);
-            else if (ev.t === 'done') reply = ev.reply;
-            else throw new Error('talk model failed');
+            else if (ev.t === 'done') {
+              reply = ev.reply;
+              break outer;
+            } else throw new Error('talk model failed');
           }
           if (done) break;
         }
         if (reply === null) throw new Error('talk stream ended without done');
         return reply;
-      } catch (e) {
-        await reader.cancel().catch(() => {});
-        throw e;
       } finally {
+        await reader.cancel().catch(() => {});
         try {
           reader.releaseLock();
         } catch {

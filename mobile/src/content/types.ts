@@ -108,7 +108,7 @@ export interface ContentService {
    * Реплика ученика → реплика бадди. onDelta получает куски по мере генерации,
    * промис резолвится полным текстом. text "" — вступительная реплика бадди.
    */
-  talkTurn(talkId: string, text: string, onDelta: (text: string) => void): Promise<string>;
+  talkTurn(talkId: string, text: string, onDelta: (text: string) => void, signal?: AbortSignal): Promise<string>;
   endTalk(talkId: string): Promise<void>;
 }
 

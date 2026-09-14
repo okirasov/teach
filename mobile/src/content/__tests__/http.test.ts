@@ -139,11 +139,14 @@ describe('http content service', () => {
   it('talkTurn streams deltas from SSE and resolves with the full reply', async () => {
     const enc = new TextEncoder();
     const chunks = ['data: {"t":"delta","text":"Hola, "}\n\ndata: {"t":"del', 'ta","text":"¿qué tal?"}\n\ndata: {"t":"done","reply":"Hola, ¿qué tal?","turn":1}\n\n'];
+    const cancelSpy = jest.fn();
     const stream = new ReadableStream<Uint8Array>({
       start(c) {
         chunks.forEach((x) => c.enqueue(enc.encode(x)));
-        c.close();
+        // Не закрываем поток: сервер держит SSE-соединение и после done (сворачивание истории на
+        // сервере, keep-alive) — резолв не должен ждать этого закрытия.
       },
+      cancel: cancelSpy,
     });
     const calls: { url: string; init?: RequestInit }[] = [];
     const streamFn = (async (url: string, init?: RequestInit) => {
@@ -164,6 +167,8 @@ describe('http content service', () => {
     expect(calls[0].url).toBe('http://srv/talks/t1/turns');
     expect(JSON.parse(calls[0].init!.body as string)).toEqual({ text: 'Hola' });
     expect((calls[0].init!.headers as Record<string, string>).Authorization).toBe('Bearer tok-1');
+    // Резолвится по done, не дожидаясь закрытия стрима — и сама отменяет reader, чтобы освободить соединение.
+    expect(cancelSpy).toHaveBeenCalled();
     await expect(svc.endTalk('t1')).resolves.toBeUndefined();
   });
 
