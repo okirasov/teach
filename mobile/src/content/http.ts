@@ -1,4 +1,6 @@
 import type { Lesson, LessonRecord } from '@/domain/types';
+import { createSseParser } from './sse';
+import { streamFetch } from './streamFetch';
 import type { ContentService, FocusOption, LatestApp, PlanStage, PrepStage, ReferenceIn, SourceCandidate, SubjectDraft } from './types';
 
 /** Контракт сервера — docs/ai-content.md, server/Teach.Api. */
@@ -13,6 +15,8 @@ export interface HttpContentOptions {
   /** Сколько подряд сбоев сети терпит опрос (деплой сервера, потеря сети), мс. */
   outageMs?: number;
   fetchFn?: typeof fetch;
+  /** fetch со стримингом тела (expo/fetch); по умолчанию streamFetch. */
+  streamFetchFn?: typeof fetch;
 }
 
 export class ContentHttpError extends Error {
@@ -34,6 +38,7 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
   const timeoutMs = opts.timeoutMs ?? 600_000;
   const outageMs = opts.outageMs ?? 180_000;
   const f = opts.fetchFn ?? fetch;
+  const sf = opts.streamFetchFn ?? streamFetch;
   const bearer = () => (typeof opts.token === 'function' ? opts.token() : opts.token);
 
   async function call<T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T> {
@@ -128,6 +133,38 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
       const r = await call<{ status: string }>('POST', `/sessions/${remoteId}/recap`, { records, durationMinutes: opts?.durationMinutes });
       if (r.status !== 'preparing') throw new Error('server did not schedule the next lesson');
       return waitLesson(remoteId, number, onStage);
+    },
+    async startTalk(remoteId) {
+      const r = await call<{ talkId: string }>('POST', `/subjects/${remoteId}/talks`, {});
+      return r.talkId;
+    },
+    async talkTurn(talkId, text, onDelta) {
+      const res = await sf(`${base}/talks/${talkId}/turns`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream', ...(bearer() ? { Authorization: `Bearer ${bearer()}` } : {}) },
+        body: JSON.stringify({ text }),
+      });
+      if (!res.ok) throw new ContentHttpError(res.status, `POST /talks/${talkId}/turns → ${res.status}`);
+      if (!res.body) throw new Error('talk stream unavailable');
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      const parser = createSseParser();
+      let reply: string | null = null;
+      for (;;) {
+        const { value, done } = await reader.read();
+        const events = parser.push(decoder.decode(value ?? new Uint8Array(), { stream: !done }));
+        for (const ev of events) {
+          if (ev.t === 'delta') onDelta(ev.text);
+          else if (ev.t === 'done') reply = ev.reply;
+          else throw new Error('talk model failed');
+        }
+        if (done) break;
+      }
+      if (reply === null) throw new Error('talk stream ended without done');
+      return reply;
+    },
+    async endTalk(talkId) {
+      await call<{ status: string }>('POST', `/talks/${talkId}/end`, {});
     },
   };
 }

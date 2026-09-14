@@ -135,4 +135,47 @@ describe('http content service', () => {
     expect(calls[0].init?.method).toBe('GET');
     expect(h[0].number).toBe(1);
   });
+
+  it('talkTurn streams deltas from SSE and resolves with the full reply', async () => {
+    const enc = new TextEncoder();
+    const chunks = ['data: {"t":"delta","text":"Hola, "}\n\ndata: {"t":"del', 'ta","text":"¿qué tal?"}\n\ndata: {"t":"done","reply":"Hola, ¿qué tal?","turn":1}\n\n'];
+    const stream = new ReadableStream<Uint8Array>({
+      start(c) {
+        chunks.forEach((x) => c.enqueue(enc.encode(x)));
+        c.close();
+      },
+    });
+    const calls: { url: string; init?: RequestInit }[] = [];
+    const streamFn = (async (url: string, init?: RequestInit) => {
+      calls.push({ url, init });
+      return { ok: true, status: 200, body: stream } as unknown as Response;
+    }) as unknown as typeof fetch;
+    const { fn } = fakeFetch((url, init) => {
+      if (url.endsWith('/subjects/abc/talks') && init?.method === 'POST') return { status: 201, body: { talkId: 't1' } };
+      if (url.endsWith('/talks/t1/end')) return { status: 202, body: { status: 'ended' } };
+      return { status: 404, body: null };
+    });
+    const svc = createHttpContentService({ baseUrl: 'http://srv', fetchFn: fn, streamFetchFn: streamFn, token: 'tok-1' });
+    expect(await svc.startTalk('abc')).toBe('t1');
+    const deltas: string[] = [];
+    const reply = await svc.talkTurn('t1', 'Hola', (d) => deltas.push(d));
+    expect(deltas).toEqual(['Hola, ', '¿qué tal?']);
+    expect(reply).toBe('Hola, ¿qué tal?');
+    expect(calls[0].url).toBe('http://srv/talks/t1/turns');
+    expect(JSON.parse(calls[0].init!.body as string)).toEqual({ text: 'Hola' });
+    expect((calls[0].init!.headers as Record<string, string>).Authorization).toBe('Bearer tok-1');
+    await expect(svc.endTalk('t1')).resolves.toBeUndefined();
+  });
+
+  it('talkTurn rejects on an error event', async () => {
+    const stream = new ReadableStream<Uint8Array>({
+      start(c) {
+        c.enqueue(new TextEncoder().encode('data: {"t":"error","message":"model failed"}\n\n'));
+        c.close();
+      },
+    });
+    const streamFn = (async () => ({ ok: true, status: 200, body: stream }) as unknown as Response) as unknown as typeof fetch;
+    const svc = createHttpContentService({ baseUrl: 'http://srv', fetchFn: fakeFetch(() => ({ status: 404, body: null })).fn, streamFetchFn: streamFn });
+    await expect(svc.talkTurn('t1', 'x', () => {})).rejects.toThrow('talk model failed');
+  });
 });

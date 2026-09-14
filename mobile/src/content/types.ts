@@ -102,6 +102,14 @@ export interface ContentService {
   lessonHistory(remoteId: string): Promise<{ number: number; lesson: Lesson }[]>;
   /** Продолжить ожидание урока N после перезапуска приложения: записи уже на сервере, заново не шлём. */
   resumeLesson(remoteId: string | undefined, number: number, onStage: (stage: PrepStage) => void): Promise<PreparedLesson>;
+  /** Разговор с бадди (FR-66): создать разговор по предмету на сервере → talkId. */
+  startTalk(remoteId: string): Promise<string>;
+  /**
+   * Реплика ученика → реплика бадди. onDelta получает куски по мере генерации,
+   * промис резолвится полным текстом. text "" — вступительная реплика бадди.
+   */
+  talkTurn(talkId: string, text: string, onDelta: (text: string) => void): Promise<string>;
+  endTalk(talkId: string): Promise<void>;
 }
 
 export interface PreparedLesson {
