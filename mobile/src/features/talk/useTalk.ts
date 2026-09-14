@@ -31,6 +31,10 @@ export function useTalk({ remoteId, sttLang, ttsLang, uiLang }: UseTalkOptions) 
   const queue = useRef<string[]>([]);
   const speakingNow = useRef(false);
   const streamOpen = useRef(false);
+  // Монотонный номер текущего хода: каждый send() захватывает свой номер и в каждом продолжении
+  // (onDelta, после await, catch, finally) проверяет его против gen.current — если ход устарел
+  // (перебили и начали следующий), продолжение ничего не делает: ни dispatch, ни очередь, ни pump.
+  const gen = useRef(0);
   const [seconds, setSeconds] = useState(0);
 
   const dispatch = useCallback((e: TalkEvent) => {
@@ -66,24 +70,31 @@ export function useTalk({ remoteId, sttLang, ttsLang, uiLang }: UseTalkOptions) 
     // talkId уже кэширован, ушла бы в replyStart синхронно в том же тике, что и sttEnd/dispatch,
     // и «thinking» стал бы недостижим для наблюдателя (тест, экран) — фаза сразу оказалась бы «speaking».
     await Promise.resolve();
+    const my = ++gen.current;
     const id = talkId.current ?? (talkId.current = await content.startTalk(remoteId));
+    if (my !== gen.current) return; // перебили во время старта талка — этот ход больше не актуален
     const splitter = createSentenceSplitter();
     queue.current = [];
     streamOpen.current = true;
     dispatch({ type: 'replyStart' });
     try {
       const reply = await content.talkTurn(id, text, (delta) => {
+        if (my !== gen.current) return; // хвост устаревшего стрима — не трогаем чужой ход
         dispatch({ type: 'replyDelta', text: delta });
         queue.current.push(...splitter.push(delta));
         pump();
       });
+      if (my !== gen.current) return;
       queue.current.push(...splitter.flush());
       dispatch({ type: 'replyDone', text: reply });
     } catch (e) {
+      if (my !== gen.current) return;
       dispatch({ type: 'error', message: e instanceof Error ? e.message : 'network' });
     } finally {
-      streamOpen.current = false;
-      pump();
+      if (my === gen.current) {
+        streamOpen.current = false;
+        pump();
+      }
     }
   }, [dispatch, pump, remoteId]);
 
@@ -113,6 +124,7 @@ export function useTalk({ remoteId, sttLang, ttsLang, uiLang }: UseTalkOptions) 
         break;
       }
       case 'stopSpeech':
+        gen.current += 1; // инвалидирует текущий send() до того, как начнётся следующий
         queue.current = [];
         streamOpen.current = false;
         speakingNow.current = false;
