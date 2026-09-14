@@ -37,8 +37,8 @@ export function SubjectCard({ m, onPress, onTalk }: { m: SubjectCardModel; onPre
   const cta = failed ? t.retry : preparing ? t.inBg : m.done ? (m.demo ? (m.demoHasNext ? t.nextLessonCta : t.ownSubject) : t.more) : t.start;
   const chipTone = failed ? 'amber' : !preparing && !m.done ? 'dark' : 'mint';
 
-  return (
-    <Card large onPress={preparing ? undefined : onPress}>
+  const main = (
+    <>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
         <Txt t="cardTitle" style={{ flexShrink: 1 }}>{m.name}</Txt>
         <Txt t="monoMeta" color="mut" numberOfLines={1}>{m.level}</Txt>
@@ -79,6 +79,23 @@ export function SubjectCard({ m, onPress, onTalk }: { m: SubjectCardModel; onPre
         </View>
         <Txt t="metaMed" color="mintInk">{cta} →</Txt>
       </View>
+    </>
+  );
+
+  return (
+    <Card large onPress={onTalk ? undefined : (preparing ? undefined : onPress)}>
+      {onTalk ? (
+        <Pressable
+          testID="subject-main"
+          accessibilityRole="button"
+          onPress={preparing ? undefined : onPress}
+          style={({ pressed }) => (pressed ? { opacity: 0.9 } : undefined)}
+        >
+          {main}
+        </Pressable>
+      ) : (
+        main
+      )}
       {onTalk ? (
         <Pressable
           testID="talk-row"
