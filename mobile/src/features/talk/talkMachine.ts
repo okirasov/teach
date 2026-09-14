@@ -20,6 +20,7 @@ export interface TalkState {
 }
 
 export type TalkEvent =
+  | { type: 'turnStart' }
   | { type: 'micTap' }
   | { type: 'sttResult'; text: string; final: boolean }
   | { type: 'sttEnd' }
@@ -52,6 +53,8 @@ export function reduceTalk(s: TalkState, e: TalkEvent): { state: TalkState; effe
   const ok = (state: TalkState, ...effects: TalkEffect[]) => ({ state, effects });
   if (s.ended) return ok(s);
   switch (e.type) {
+    case 'turnStart':
+      return s.phase === 'waiting' ? ok({ ...s, phase: 'thinking' }) : ok(s);
     case 'micTap':
       if (s.phase === 'waiting') return ok({ ...s, phase: 'listening', error: null, lines: [...s.lines, { side: 'user', text: '', live: true }] }, 'startStt');
       if (s.phase === 'listening') return ok(s, 'stopStt');
@@ -66,7 +69,7 @@ export function reduceTalk(s: TalkState, e: TalkEvent): { state: TalkState; effe
       return ok({ ...s, phase: 'thinking', lines: setLast(s, { text, live: false }) }, 'send');
     }
     case 'replyStart':
-      return ok({ ...s, phase: 'speaking', lines: [...s.lines, { side: 'buddy', text: '', live: true }] });
+      return s.phase === 'thinking' ? ok({ ...s, phase: 'speaking', lines: [...s.lines, { side: 'buddy', text: '', live: true }] }) : ok(s);
     case 'replyDelta':
       return s.phase === 'speaking' ? ok({ ...s, lines: setLast(s, { text: last(s).text + e.text }) }) : ok(s);
     case 'replyDone':

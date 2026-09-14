@@ -22,15 +22,22 @@ const PHASE_TO_BUDDY: Record<TalkState['phase'], BuddyState> = { waiting: 'waiti
  * Разговор с бадди: исполняет эффекты стейт-машины. Порядок реплики:
  * STT → send (стрим с сервера) → предложения в очередь озвучки → speakDone, когда очередь пуста и стрим закрыт.
  */
-export function useTalk({ remoteId, sttLang, ttsLang, uiLang }: UseTalkOptions) {
+export function useTalk(options: UseTalkOptions) {
   const [state, dispatchRaw] = useReducer((s: TalkState, e: TalkEvent) => reduceTalk(s, e).state, undefined, initialTalk);
   const stateRef = useRef(state);
   stateRef.current = state;
+  // Опции читаются эффектами через opts.current, а не захватываются в замыкание на монтировании:
+  // remoteId/sttLang/ttsLang/uiLang могут поменяться между рендерами (смена предмета/языка сессии).
+  const opts = useRef(options);
+  opts.current = options;
   const talkId = useRef<string | null>(null);
   const stt = useRef<SpeechSession | null>(null);
   const queue = useRef<string[]>([]);
   const speakingNow = useRef(false);
   const streamOpen = useRef(false);
+  // Контроллер прерывания текущего сетевого хода: stopSpeech (перебивание микрофоном) и close
+  // абортят его до того, как начнётся следующий ход.
+  const controller = useRef<AbortController | null>(null);
   // Монотонный номер текущего хода: каждый send() захватывает свой номер и в каждом продолжении
   // (onDelta, после await, catch, finally) проверяет его против gen.current — если ход устарел
   // (перебили и начали следующий), продолжение ничего не делает: ни dispatch, ни очередь, ни pump.
@@ -54,6 +61,7 @@ export function useTalk({ remoteId, sttLang, ttsLang, uiLang }: UseTalkOptions) 
       if (!streamOpen.current) dispatch({ type: 'speakDone' });
       return;
     }
+    const ttsLang = opts.current.ttsLang;
     if (!ttsLang) {
       pump();
       return;
@@ -62,16 +70,23 @@ export function useTalk({ remoteId, sttLang, ttsLang, uiLang }: UseTalkOptions) 
     speak(next, ttsLang, () => {
       speakingNow.current = false;
       pump();
-    }, uiLang);
-  }, [dispatch, ttsLang, uiLang]);
+    }, opts.current.uiLang);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch]);
 
   const send = useCallback(async (text: string) => {
+    // turnStart переводит waiting → thinking синхронно, до того как микрофон (если тапнули на
+    // вступительной реплике, пока фаза ещё waiting) успеет запустить STT и увидеть неготовую машину;
+    // в остальных фазах (уже thinking из sttEnd) это no-op.
+    dispatch({ type: 'turnStart' });
     // Гарантируем настоящую асинхронную границу: без неё вторая (и следующие) реплика, когда
     // talkId уже кэширован, ушла бы в replyStart синхронно в том же тике, что и sttEnd/dispatch,
     // и «thinking» стал бы недостижим для наблюдателя (тест, экран) — фаза сразу оказалась бы «speaking».
     await Promise.resolve();
     const my = ++gen.current;
-    const id = talkId.current ?? (talkId.current = await content.startTalk(remoteId));
+    const ac = new AbortController();
+    controller.current = ac;
+    const id = talkId.current ?? (talkId.current = await content.startTalk(opts.current.remoteId));
     if (my !== gen.current) return; // перебили во время старта талка — этот ход больше не актуален
     const splitter = createSentenceSplitter();
     queue.current = [];
@@ -83,12 +98,12 @@ export function useTalk({ remoteId, sttLang, ttsLang, uiLang }: UseTalkOptions) 
         dispatch({ type: 'replyDelta', text: delta });
         queue.current.push(...splitter.push(delta));
         pump();
-      });
+      }, ac.signal);
       if (my !== gen.current) return;
       queue.current.push(...splitter.flush());
       dispatch({ type: 'replyDone', text: reply });
     } catch (e) {
-      if (my !== gen.current) return;
+      if (my !== gen.current) return; // устаревший ход перебили — abort или любая другая ошибка молча игнорируется
       dispatch({ type: 'error', message: e instanceof Error ? e.message : 'network' });
     } finally {
       if (my === gen.current) {
@@ -96,14 +111,14 @@ export function useTalk({ remoteId, sttLang, ttsLang, uiLang }: UseTalkOptions) 
         pump();
       }
     }
-  }, [dispatch, pump, remoteId]);
+  }, [dispatch, pump]);
 
   function run(effect: TalkEffect) {
     switch (effect) {
       case 'startStt':
         stt.current = recognizer.start(
           {
-            lang: sttLang,
+            lang: opts.current.sttLang,
             continuous: false,
             playback: true,
             hint: process.env.EXPO_PUBLIC_VOICE_SIM === '1' ? 'La cuenta, por favor' : undefined,
@@ -125,6 +140,7 @@ export function useTalk({ remoteId, sttLang, ttsLang, uiLang }: UseTalkOptions) 
       }
       case 'stopSpeech':
         gen.current += 1; // инвалидирует текущий send() до того, как начнётся следующий
+        controller.current?.abort(); // абортит сетевой запрос устаревшего хода (перебивание или close)
         queue.current = [];
         streamOpen.current = false;
         speakingNow.current = false;
@@ -146,7 +162,14 @@ export function useTalk({ remoteId, sttLang, ttsLang, uiLang }: UseTalkOptions) 
 
   const onMic = useCallback(() => dispatch({ type: 'micTap' }), [dispatch]);
   const close = useCallback(() => dispatch({ type: 'close' }), [dispatch]);
-  useEffect(() => () => { stt.current?.stop(); stopSpeaking(); }, []);
+  useEffect(() => () => {
+    stt.current?.stop();
+    stopSpeaking();
+    // Экран может закрыться без тапа по ✕ (навигация назад, размонтирование): без close() машина
+    // никогда не дошла бы до end и endTalk на сервере не вызвался бы.
+    if (!stateRef.current.ended) dispatch({ type: 'close' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return { state, buddyState: PHASE_TO_BUDDY[state.phase], onMic, close, seconds };
 }

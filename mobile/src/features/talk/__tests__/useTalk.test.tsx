@@ -23,7 +23,7 @@ jest.mock('@/voice', () => ({
   },
 }));
 const mockTurns: string[] = [];
-const mockTalkTurn = jest.fn(async (_id: string, text: string, onDelta: (d: string) => void): Promise<string> => {
+const mockTalkTurn = jest.fn(async (_id: string, text: string, onDelta: (d: string) => void, _signal?: AbortSignal): Promise<string> => {
   mockTurns.push(text);
   const reply = text ? 'Sí. ¿Y la cuenta?' : 'Привет. С чего начнём?';
   for (const w of reply.split(' ')) onDelta(w + ' ');
@@ -32,7 +32,7 @@ const mockTalkTurn = jest.fn(async (_id: string, text: string, onDelta: (d: stri
 jest.mock('@/content', () => ({
   content: {
     startTalk: async () => 't1',
-    talkTurn: (id: string, text: string, onDelta: (d: string) => void) => mockTalkTurn(id, text, onDelta),
+    talkTurn: (id: string, text: string, onDelta: (d: string) => void, signal?: AbortSignal) => mockTalkTurn(id, text, onDelta, signal),
     endTalk: jest.fn(async () => {}),
   },
 }));
@@ -138,5 +138,30 @@ describe('useTalk', () => {
     expect(mockTurns).toEqual(['', 'a', 'b']);
     expect(api.state.lines[api.state.lines.length - 1].text).toBe('Ответ.');
     expect(api.state.phase).toBe('waiting');
+  });
+
+  it('aborts the in-flight talkTurn request when interrupted', async () => {
+    let capturedSignal: AbortSignal | undefined;
+    let settle: (() => void) | null = null;
+    mockTalkTurn.mockImplementationOnce((_id: string, text: string, _onDelta: (d: string) => void, signal?: AbortSignal) => {
+      mockTurns.push(text);
+      capturedSignal = signal;
+      // Не резолвим сразу — реальный fetch тоже остаётся в полёте до перебивания; settle() ниже
+      // отпускает промис, чтобы не оставить висящий таймер/промис после теста.
+      return new Promise<string>((resolve) => { settle = () => resolve('unused'); });
+    });
+
+    act(() => { tree = create(<Probe />); });
+    await flush(); await flush();
+    expect(api.state.phase).toBe('speaking');
+    expect(capturedSignal).toBeInstanceOf(AbortSignal);
+    expect(capturedSignal!.aborted).toBe(false);
+
+    // Тап по микрофону во время «Говорю» перебивает: stopSpeech должен абортить сигнал первого talkTurn.
+    act(() => api.onMic());
+    expect(capturedSignal!.aborted).toBe(true);
+
+    act(() => settle!());
+    await flush();
   });
 });

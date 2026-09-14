@@ -12,9 +12,39 @@ function run(events: TalkEvent[], from: TalkState = initialTalk()) {
 
 describe('talk machine', () => {
   it('opens with the buddy speaking, then waits', () => {
-    const { state, effects } = run([{ type: 'replyStart' }, { type: 'replyDelta', text: 'Привет. ' }, { type: 'replyDone', text: 'Привет. С чего начнём?' }, { type: 'speakDone' }]);
+    const { state, effects } = run([
+      { type: 'turnStart' },
+      { type: 'replyStart' },
+      { type: 'replyDelta', text: 'Привет. ' },
+      { type: 'replyDone', text: 'Привет. С чего начнём?' },
+      { type: 'speakDone' },
+    ]);
     expect(state.phase).toBe('waiting');
     expect(state.lines).toEqual([{ side: 'buddy', text: 'Привет. С чего начнём?', live: false }]);
+    expect(effects).toEqual([]);
+  });
+
+  it('turnStart moves waiting to thinking with no effects', () => {
+    const { state, effects } = run([{ type: 'turnStart' }]);
+    expect(state.phase).toBe('thinking');
+    expect(effects).toEqual([]);
+  });
+
+  it('turnStart is ignored outside of waiting', () => {
+    const listening = run([{ type: 'micTap' }]).state;
+    expect(reduceTalk(listening, { type: 'turnStart' }).state.phase).toBe('listening');
+  });
+
+  it('micTap is ignored while thinking', () => {
+    const thinking = run([{ type: 'micTap' }, { type: 'sttResult', text: 'x', final: true }, { type: 'sttEnd' }]).state;
+    expect(thinking.phase).toBe('thinking');
+    expect(reduceTalk(thinking, { type: 'micTap' })).toEqual({ state: thinking, effects: [] });
+  });
+
+  it('replyStart is ignored outside of thinking (e.g. still waiting for turnStart)', () => {
+    const waiting = initialTalk();
+    const { state, effects } = reduceTalk(waiting, { type: 'replyStart' });
+    expect(state).toEqual(waiting);
     expect(effects).toEqual([]);
   });
 
@@ -33,7 +63,7 @@ describe('talk machine', () => {
   });
 
   it('tap while speaking interrupts and starts listening, keeping the partial line', () => {
-    const { state, effects } = run([{ type: 'replyStart' }, { type: 'replyDelta', text: 'Отлично, por favor на месте.' }, { type: 'micTap' }]);
+    const { state, effects } = run([{ type: 'turnStart' }, { type: 'replyStart' }, { type: 'replyDelta', text: 'Отлично, por favor на месте.' }, { type: 'micTap' }]);
     expect(effects).toEqual(['stopSpeech', 'startStt']);
     expect(state.phase).toBe('listening');
     expect(state.lines[0]).toEqual({ side: 'buddy', text: 'Отлично, por favor на месте.', live: false });
