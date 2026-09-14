@@ -18,6 +18,8 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
     public const string WizardModel = "claude-sonnet-5";
     /// <summary>Извлечение и классификация: оценка ответа, глоссарий.</summary>
     public const string GradeModel = "claude-haiku-4-5";
+    /// <summary>Разговор с бадди: быстрый ответ, низкий effort, короткие реплики.</summary>
+    public const string TalkModel = "claude-sonnet-5";
 
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
     private static ILogger? Log;
@@ -138,6 +140,92 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         }, ct);
         var hits = Parse<GradeResponse>(response).Hits;
         return hits.Length == criteria.Count ? hits : criteria.Select((_, i) => i < hits.Length && hits[i]).ToArray();
+    }
+
+    public async Task<string> BuildDigestAsync(SubjectDraft draft, PlanStage stage, int stageIndex, IReadOnlyList<RecapRecord> records, IReadOnlyList<RefRowDto> glossary, CancellationToken ct)
+    {
+        var recs = records.Count == 0 ? "- записей пока нет" : string.Join("\n", records.Select(r => $"- урок {r.LessonNumber}, {(r.Ok ? "верно" : "ошибка")}: {r.Title} — {r.Note}"));
+        var gl = glossary.Count == 0 ? "- пока пуст" : string.Join("\n", glossary.Select(g => $"- {g.K}: {g.V}"));
+        var response = await client.Messages.Create(new MessageCreateParams
+        {
+            Model = GradeModel,
+            MaxTokens = 1200,
+            System = Prompts.Digest,
+            Messages = [new() { Role = Role.User, Content = $"""
+                Предмет: {draft.Title ?? draft.Topic}
+                Тема целиком: {draft.Topic}
+                Фокус: {draft.Focus}
+                Миссия: {draft.Mission}
+                Текущий этап {stageIndex + 1}: {stage.N} · {stage.T} — {stage.D}
+                Глоссарий:
+                {gl}
+                Записи разборов (по порядку):
+                {recs}
+                """ }],
+        }, ct);
+        var text = string.Concat(response.Content.Select(b => b.Value).OfType<TextBlock>().Select(t => t.Text)).Trim();
+        log.LogInformation("digest: in={In} out={Out} chars={Chars}", response.Usage.InputTokens, response.Usage.OutputTokens, text.Length);
+        return text.Length <= 2000 ? text : text[..2000];
+    }
+
+    public async Task<string> SummarizeTalkAsync(string? olderSummary, IReadOnlyList<TalkTurn> dropped, CancellationToken ct)
+    {
+        var response = await client.Messages.Create(new MessageCreateParams
+        {
+            Model = GradeModel,
+            MaxTokens = 300,
+            System = Prompts.FoldTalk,
+            Messages = [new() { Role = Role.User, Content = $"Прежняя свёртка: {olderSummary ?? "нет"}\n\nФрагмент:\n{TalkHistory.Transcript(dropped)}" }],
+        }, ct);
+        return string.Concat(response.Content.Select(b => b.Value).OfType<TextBlock>().Select(t => t.Text)).Trim();
+    }
+
+    public async IAsyncEnumerable<string> TalkAsync(string digest, string? olderSummary, IReadOnlyList<TalkTurn> history, string userText, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
+    {
+        // Слои кэша: персона (system) → дайджест (первое сообщение) → хвост диалога. Роли чередуются;
+        // MessageParam.Content — не строка, а список ContentBlockParam, поэтому склейка двух подряд
+        // идущих реплик одной роли делается на уровне списков блоков, а не строк.
+        var head = new List<ContentBlockParam>
+        {
+            new TextBlockParam { Text = $"Дайджест предмета:\n{digest}", CacheControl = new CacheControlEphemeral() },
+        };
+        if (olderSummary is not null) head.Add(new TextBlockParam { Text = $"Раньше в этом разговоре: {olderSummary}" });
+        head.Add(new TextBlockParam { Text = "(начни разговор)" });
+
+        var turns = new List<(Role Role, List<ContentBlockParam> Content)> { (Role.User, head) };
+        foreach (var t in history)
+            turns.Add((t.Role == "buddy" ? Role.Assistant : Role.User, [new TextBlockParam { Text = t.Text }]));
+        if (userText.Length > 0) turns.Add((Role.User, [new TextBlockParam { Text = userText }]));
+
+        // Две реплики одной роли подряд недопустимы (роли должны чередоваться, первое сообщение — user):
+        // склеиваем блоки соседних сообщений одной роли в одно сообщение.
+        for (var i = turns.Count - 1; i > 0; i--)
+            if (turns[i].Role == turns[i - 1].Role)
+            {
+                turns[i - 1].Content.AddRange(turns[i].Content);
+                turns.RemoveAt(i);
+            }
+        var messages = turns.Select(t => new MessageParam { Role = t.Role, Content = t.Content }).ToList();
+
+        var p = new MessageCreateParams
+        {
+            Model = TalkModel,
+            MaxTokens = 400,
+            System = new List<TextBlockParam> { new() { Text = Prompts.Buddy, CacheControl = new CacheControlEphemeral() } },
+            Messages = messages,
+            Thinking = new ThinkingConfigAdaptive(),
+            OutputConfig = new OutputConfig { Effort = Effort.Low },
+        };
+        var started = DateTimeOffset.UtcNow;
+        var first = true;
+        await foreach (var ev in client.Messages.CreateStreaming(p, ct))
+        {
+            if (ev.TryPickContentBlockDelta(out var delta) && delta.Delta.TryPickText(out var text))
+            {
+                if (first) { log.LogInformation("talk: first token after {Ms} ms", (DateTimeOffset.UtcNow - started).TotalMilliseconds); first = false; }
+                yield return text.Text;
+            }
+        }
     }
 
     /// <summary>Контекст предмета — стабильный префикс под кэш промпта.</summary>

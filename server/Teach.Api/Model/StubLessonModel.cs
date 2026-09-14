@@ -227,6 +227,35 @@ public sealed partial class StubLessonModel : ILessonModel
         return Task.FromResult(criteria.Select(c => c.Keys.Any(k => t.Contains(k.ToLowerInvariant()))).ToArray());
     }
 
+    public Task<string> BuildDigestAsync(SubjectDraft draft, PlanStage stage, int stageIndex, IReadOnlyList<RecapRecord> records, IReadOnlyList<RefRowDto> glossary, CancellationToken ct)
+    {
+        var wrong = records.Where(r => !r.Ok).Select(r => $"{r.Title} ({r.Note})").ToList();
+        var right = records.Where(r => r.Ok).Select(r => r.Title).ToList();
+        var text = $"""
+            Предмет: {draft.Title ?? draft.Topic}. Фокус: {draft.Focus}. Миссия: {draft.Mission}.
+            Этап {stage.N} · {stage.T}: {stage.D}.
+            Знает: {(glossary.Count == 0 ? "пока ничего" : string.Join(", ", glossary.Select(g => g.K)))}.
+            Путал: {(wrong.Count == 0 ? "ошибок ещё не было" : string.Join("; ", wrong))}.
+            Уверенно: {(right.Count == 0 ? "пока нечего отметить" : string.Join("; ", right))}.
+            """;
+        return Task.FromResult(text.Length <= 2000 ? text : text[..2000]);
+    }
+
+    public Task<string> SummarizeTalkAsync(string? olderSummary, IReadOnlyList<TalkTurn> dropped, CancellationToken ct) =>
+        Task.FromResult(($"{olderSummary} " + $"Свёрнуто {dropped.Count} реплик: {string.Join(" / ", dropped.Select(t => t.Text))}.").Trim());
+
+    public async IAsyncEnumerable<string> TalkAsync(string digest, string? olderSummary, IReadOnlyList<TalkTurn> history, string userText, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
+    {
+        var reply = userText.Length == 0
+            ? "Привет. Давай немного поговорим по теме. С чего начнём?"
+            : $"Ты сказал: «{userText}». Хорошо, продолжим. Что скажешь дальше?";
+        foreach (var word in reply.Split(' '))
+        {
+            await Task.Delay(5, ct);
+            yield return word + " ";
+        }
+    }
+
     [GeneratedRegex("истор|history|философ|литерат|искусств")] private static partial Regex HumanRx();
     [GeneratedRegex("англ|испан|немец|франц|язык|english|spanish")] private static partial Regex LangRx();
     [GeneratedRegex("sql|python|js|qa|тест|програм|данн|devops|код")] private static partial Regex TechRx();

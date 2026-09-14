@@ -22,4 +22,10 @@ public interface ILessonModel
     /// <summary>Урок N на этапе stage плана по записям об усвоенном: чуть выше границы, что показали ошибки.</summary>
     Task<Lesson> GenerateNextLessonAsync(SubjectDraft draft, IReadOnlyList<SourceCandidate> sources, int number, PlanStage stage, int stageIndex, IReadOnlyList<RecapRecord> records, int durationMinutes, CancellationToken ct);
     Task<bool[]> GradeFreeAsync(IReadOnlyList<Criterion> criteria, string text, string lang, CancellationToken ct);
+    /// <summary>Дайджест предмета для разговора с бадди (FR-67): ≤ 2000 символов, собирается после урока, не на реплику.</summary>
+    Task<string> BuildDigestAsync(SubjectDraft draft, PlanStage stage, int stageIndex, IReadOnlyList<RecapRecord> records, IReadOnlyList<RefRowDto> glossary, CancellationToken ct);
+    /// <summary>Свёртка выпавших из окна реплик разговора в две фразы; olderSummary — прежняя свёртка.</summary>
+    Task<string> SummarizeTalkAsync(string? olderSummary, IReadOnlyList<TalkTurn> dropped, CancellationToken ct);
+    /// <summary>Реплика бадди по кускам; userText "" — вступление.</summary>
+    IAsyncEnumerable<string> TalkAsync(string digest, string? olderSummary, IReadOnlyList<TalkTurn> history, string userText, CancellationToken ct);
 }
