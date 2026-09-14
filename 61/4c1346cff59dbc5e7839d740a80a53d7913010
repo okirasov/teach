@@ -1,0 +1,25 @@
+server/Teach.Api.Tests/TalkApiTests.cs
+  s_b3803869ea0de0::t_562d136e1e0084 1-51
+server/Teach.Api/Jobs/DigestService.cs
+  s_b3803869ea0de0::t_ef559098441406 1-35
+server/Teach.Api/Jobs/LessonWorker.cs
+  s_b3803869ea0de0::t_66a7c919cdb298 30,52,92,99,162-171,271
+server/Teach.Api/Program.cs
+  s_b3803869ea0de0::t_699a9f078ad959 38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "614c1346cff59dbc5e7839d740a80a53d7913010",
+  "prompts": {},
+  "sessions": {
+    "s_b3803869ea0de0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-ab8a5dcfb7ac25b24",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
