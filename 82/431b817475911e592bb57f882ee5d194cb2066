@@ -1,0 +1,25 @@
+mobile/app/(tabs)/today.tsx
+  s_643cc32932e967::t_fa8df9387fc309 11,30-31,67
+mobile/src/features/talk/useSttAvailable.ts
+  s_643cc32932e967::t_a7fdc764cc0957 1-14
+mobile/src/features/today/SubjectCard.tsx
+  s_643cc32932e967::t_a190f7a0d7c77f 2,6,30,33,82-98
+mobile/src/features/today/__tests__/SubjectCard.test.tsx
+  s_643cc32932e967::t_fe522c4f1bc057 1-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "82431b817475911e592bb57f882ee5d194cb2066",
+  "prompts": {},
+  "sessions": {
+    "s_643cc32932e967": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-afc694aea68e0593f",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
