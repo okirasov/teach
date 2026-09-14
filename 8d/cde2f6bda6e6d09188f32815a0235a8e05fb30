@@ -1,0 +1,19 @@
+server/Teach.Api/Model/ClaudeLessonModel.cs
+  s_45a5854b0f8202::t_345b4cda348695 215-218
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "8dcde2f6bda6e6d09188f32815a0235a8e05fb30",
+  "prompts": {},
+  "sessions": {
+    "s_45a5854b0f8202": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5df78986-61ec-4306-b8df-f639605999ab",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
