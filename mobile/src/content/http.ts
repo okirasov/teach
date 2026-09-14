@@ -150,18 +150,29 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
       const decoder = new TextDecoder();
       const parser = createSseParser();
       let reply: string | null = null;
-      for (;;) {
-        const { value, done } = await reader.read();
-        const events = parser.push(decoder.decode(value ?? new Uint8Array(), { stream: !done }));
-        for (const ev of events) {
-          if (ev.t === 'delta') onDelta(ev.text);
-          else if (ev.t === 'done') reply = ev.reply;
-          else throw new Error('talk model failed');
+      try {
+        for (;;) {
+          const { value, done } = await reader.read();
+          const events = parser.push(decoder.decode(value ?? new Uint8Array(), { stream: !done }));
+          for (const ev of events) {
+            if (ev.t === 'delta') onDelta(ev.text);
+            else if (ev.t === 'done') reply = ev.reply;
+            else throw new Error('talk model failed');
+          }
+          if (done) break;
         }
-        if (done) break;
+        if (reply === null) throw new Error('talk stream ended without done');
+        return reply;
+      } catch (e) {
+        await reader.cancel().catch(() => {});
+        throw e;
+      } finally {
+        try {
+          reader.releaseLock();
+        } catch {
+          // releaseLock после cancel может бросить в некоторых реализациях — соединение уже закрыто.
+        }
       }
-      if (reply === null) throw new Error('talk stream ended without done');
-      return reply;
     },
     async endTalk(talkId) {
       await call<{ status: string }>('POST', `/talks/${talkId}/end`, {});

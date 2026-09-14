@@ -178,4 +178,20 @@ describe('http content service', () => {
     const svc = createHttpContentService({ baseUrl: 'http://srv', fetchFn: fakeFetch(() => ({ status: 404, body: null })).fn, streamFetchFn: streamFn });
     await expect(svc.talkTurn('t1', 'x', () => {})).rejects.toThrow('talk model failed');
   });
+
+  it('talkTurn cancels the stream reader on an error event', async () => {
+    const cancelSpy = jest.fn();
+    const stream = new ReadableStream<Uint8Array>({
+      start(c) {
+        // Не закрываем поток сразу: у настоящего SSE-соединения error-событие не обязательно
+        // приходит одновременно с закрытием TCP-соединения — реализация должна сама отменить reader.
+        c.enqueue(new TextEncoder().encode('data: {"t":"error","message":"model failed"}\n\n'));
+      },
+      cancel: cancelSpy,
+    });
+    const streamFn = (async () => ({ ok: true, status: 200, body: stream }) as unknown as Response) as unknown as typeof fetch;
+    const svc = createHttpContentService({ baseUrl: 'http://srv', fetchFn: fakeFetch(() => ({ status: 404, body: null })).fn, streamFetchFn: streamFn });
+    await expect(svc.talkTurn('t1', 'x', () => {})).rejects.toThrow('talk model failed');
+    expect(cancelSpy).toHaveBeenCalled();
+  });
 });
