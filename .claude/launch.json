@@ -43,6 +43,16 @@
       ],
       "cwd": "mobile",
       "port": 8082
+    },
+    {
+      "name": "expo-web-talk",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "CI=1 EXPO_PUBLIC_AUTH_LOCAL=1 EXPO_PUBLIC_VOICE_SIM=1 EXPO_PUBLIC_CONTENT_URL=http://localhost:5180 npx expo start --web --port 8083 --clear"
+      ],
+      "cwd": "mobile",
+      "port": 8083
     }
   ]
 }
