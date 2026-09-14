@@ -212,7 +212,10 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
             new TextBlockParam { Text = $"Дайджест предмета:\n{digest}", CacheControl = new CacheControlEphemeral() },
         };
         if (olderSummary is not null) head.Add(new TextBlockParam { Text = $"Раньше в этом разговоре: {olderSummary}" });
-        head.Add(new TextBlockParam { Text = "(начни разговор)" });
+        // Маркер вступительной реплики — только на самом первом ходе разговора (нет истории и
+        // нет текста ученика); на всех остальных ходах он был бы лишним и не соответствовал бы
+        // действительности («начни разговор» после того как разговор уже идёт).
+        if (history.Count == 0 && userText.Length == 0) head.Add(new TextBlockParam { Text = "(начни разговор)" });
 
         var turns = new List<(Role Role, List<ContentBlockParam> Content)> { (Role.User, head) };
         foreach (var t in history)
