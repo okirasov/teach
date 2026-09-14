@@ -146,23 +146,33 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
     {
         var recs = records.Count == 0 ? "- записей пока нет" : string.Join("\n", records.Select(r => $"- урок {r.LessonNumber}, {(r.Ok ? "верно" : "ошибка")}: {r.Title} — {r.Note}"));
         var gl = glossary.Count == 0 ? "- пока пуст" : string.Join("\n", glossary.Select(g => $"- {g.K}: {g.V}"));
-        var response = await client.Messages.Create(new MessageCreateParams
+        var started = DateTimeOffset.UtcNow;
+        Message response;
+        try
         {
-            Model = GradeModel,
-            MaxTokens = 1200,
-            System = Prompts.Digest,
-            Messages = [new() { Role = Role.User, Content = $"""
-                Предмет: {draft.Title ?? draft.Topic}
-                Тема целиком: {draft.Topic}
-                Фокус: {draft.Focus}
-                Миссия: {draft.Mission}
-                Текущий этап {stageIndex + 1}: {stage.N} · {stage.T} — {stage.D}
-                Глоссарий:
-                {gl}
-                Записи разборов (по порядку):
-                {recs}
-                """ }],
-        }, ct);
+            response = await client.Messages.Create(new MessageCreateParams
+            {
+                Model = GradeModel,
+                MaxTokens = 1200,
+                System = Prompts.Digest,
+                Messages = [new() { Role = Role.User, Content = $"""
+                    Предмет: {draft.Title ?? draft.Topic}
+                    Тема целиком: {draft.Topic}
+                    Фокус: {draft.Focus}
+                    Миссия: {draft.Mission}
+                    Текущий этап {stageIndex + 1}: {stage.N} · {stage.T} — {stage.D}
+                    Глоссарий:
+                    {gl}
+                    Записи разборов (по порядку):
+                    {recs}
+                    """ }],
+            }, ct);
+        }
+        catch (Exception e)
+        {
+            log.LogError(e, "claude {Model} failed after {Sec:F0}s", GradeModel, (DateTimeOffset.UtcNow - started).TotalSeconds);
+            throw;
+        }
         var text = string.Concat(response.Content.Select(b => b.Value).OfType<TextBlock>().Select(t => t.Text)).Trim();
         log.LogInformation("digest: in={In} out={Out} chars={Chars}", response.Usage.InputTokens, response.Usage.OutputTokens, text.Length);
         return text.Length <= 2000 ? text : text[..2000];
@@ -170,14 +180,26 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
 
     public async Task<string> SummarizeTalkAsync(string? olderSummary, IReadOnlyList<TalkTurn> dropped, CancellationToken ct)
     {
-        var response = await client.Messages.Create(new MessageCreateParams
+        var started = DateTimeOffset.UtcNow;
+        Message response;
+        try
         {
-            Model = GradeModel,
-            MaxTokens = 300,
-            System = Prompts.FoldTalk,
-            Messages = [new() { Role = Role.User, Content = $"Прежняя свёртка: {olderSummary ?? "нет"}\n\nФрагмент:\n{TalkHistory.Transcript(dropped)}" }],
-        }, ct);
-        return string.Concat(response.Content.Select(b => b.Value).OfType<TextBlock>().Select(t => t.Text)).Trim();
+            response = await client.Messages.Create(new MessageCreateParams
+            {
+                Model = GradeModel,
+                MaxTokens = 300,
+                System = Prompts.FoldTalk,
+                Messages = [new() { Role = Role.User, Content = $"Прежняя свёртка: {olderSummary ?? "нет"}\n\nФрагмент:\n{TalkHistory.Transcript(dropped)}" }],
+            }, ct);
+        }
+        catch (Exception e)
+        {
+            log.LogError(e, "claude {Model} failed after {Sec:F0}s", GradeModel, (DateTimeOffset.UtcNow - started).TotalSeconds);
+            throw;
+        }
+        var text = string.Concat(response.Content.Select(b => b.Value).OfType<TextBlock>().Select(t => t.Text)).Trim();
+        log.LogInformation("fold: in={In} out={Out} chars={Chars}", response.Usage.InputTokens, response.Usage.OutputTokens, text.Length);
+        return text;
     }
 
     public async IAsyncEnumerable<string> TalkAsync(string digest, string? olderSummary, IReadOnlyList<TalkTurn> history, string userText, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
@@ -218,13 +240,34 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         };
         var started = DateTimeOffset.UtcNow;
         var first = true;
-        await foreach (var ev in client.Messages.CreateStreaming(p, ct))
+        // yield return не может стоять внутри try с catch — обходим ошибку потока через ручной перебор
+        // IAsyncEnumerator: MoveNextAsync логирует и перебрасывает исключение, yield остаётся снаружи try.
+        var enumerator = client.Messages.CreateStreaming(p, ct).GetAsyncEnumerator(ct);
+        try
         {
-            if (ev.TryPickContentBlockDelta(out var delta) && delta.Delta.TryPickText(out var text))
+            while (await MoveNextAsync(enumerator, TalkModel, started))
             {
-                if (first) { log.LogInformation("talk: first token after {Ms} ms", (DateTimeOffset.UtcNow - started).TotalMilliseconds); first = false; }
-                yield return text.Text;
+                var ev = enumerator.Current;
+                if (ev.TryPickContentBlockDelta(out var delta) && delta.Delta.TryPickText(out var text))
+                {
+                    if (first) { log.LogInformation("talk: first token after {Ms} ms", (DateTimeOffset.UtcNow - started).TotalMilliseconds); first = false; }
+                    yield return text.Text;
+                }
             }
+        }
+        finally
+        {
+            await enumerator.DisposeAsync();
+        }
+    }
+
+    private async Task<bool> MoveNextAsync<T>(IAsyncEnumerator<T> e, string model, DateTimeOffset started)
+    {
+        try { return await e.MoveNextAsync(); }
+        catch (Exception ex)
+        {
+            log.LogError(ex, "claude {Model} failed after {Sec:F0}s", model, (DateTimeOffset.UtcNow - started).TotalSeconds);
+            throw;
         }
     }
 
