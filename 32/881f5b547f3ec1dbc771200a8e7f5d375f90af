@@ -1,0 +1,19 @@
+docs/superpowers/plans/2026-09-14-buddy-talk.md
+  s_45a5854b0f8202::t_555fdacc71dc91 1-2095
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "32881f5b547f3ec1dbc771200a8e7f5d375f90af",
+  "prompts": {},
+  "sessions": {
+    "s_45a5854b0f8202": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5df78986-61ec-4306-b8df-f639605999ab",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
