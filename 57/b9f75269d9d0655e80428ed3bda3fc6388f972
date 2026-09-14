@@ -1,0 +1,29 @@
+mobile/src/features/session/BuddyDock.tsx
+  s_683269294ca22e::t_61ed3ab9bd5d36 2,5-6,58,60-65,70
+mobile/src/i18n/en.ts
+  s_683269294ca22e::t_aa1458ba579a94 48
+mobile/src/i18n/ru.ts
+  s_683269294ca22e::t_6d60216d7d8da5 49
+mobile/src/ui/BuddyDockView.tsx
+  s_683269294ca22e::t_84e07fe617e966 1-37
+mobile/src/ui/__tests__/BuddyDockView.test.tsx
+  s_683269294ca22e::t_c234b807e58814 1-30
+mobile/src/ui/index.ts
+  s_683269294ca22e::t_29ff1bbc2ab837 22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "57b9f75269d9d0655e80428ed3bda3fc6388f972",
+  "prompts": {},
+  "sessions": {
+    "s_683269294ca22e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-a8511a12fe0109cf7",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
