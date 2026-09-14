@@ -1,0 +1,21 @@
+mobile/src/features/talk/sentences.ts
+  s_d068974b3e47a3::t_58a271c6f17cc8 1-45
+mobile/src/features/talk/__tests__/sentences.test.ts
+  s_d068974b3e47a3::t_fcee75704347ac 1-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "fea0f1437a2aba2cb8ecbf01657462d9c79adc97",
+  "prompts": {},
+  "sessions": {
+    "s_d068974b3e47a3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-a012c898c764627db",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
