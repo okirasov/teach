@@ -72,3 +72,11 @@ public sealed record PrefetchAccepted(string Status);
 public sealed record LessonHistoryItem(int Number, Teach.Api.Domain.Lesson Lesson);
 
 public sealed record SubjectSummary(string Id, string Name, string Topic, string Focus, string Mission, int LessonNumber, int PlanStage, int PlanTotal, string Status, DateTimeOffset UpdatedAt);
+
+/// <summary>POST /subjects/{id}/talks → id разговора.</summary>
+public sealed record TalkCreated(string TalkId);
+
+/// <summary>POST /talks/{id}/turns: распознанная реплика ученика; пустая строка — просьба начать разговор.</summary>
+public sealed record TurnRequest(string Text);
+
+public sealed record TalkEnded(string Status);
