@@ -172,6 +172,27 @@ describe('http content service', () => {
     await expect(svc.endTalk('t1')).resolves.toBeUndefined();
   });
 
+  it('talkTurn passes voiceLang and routes say/text channels', async () => {
+    const enc = new TextEncoder();
+    const stream = new ReadableStream<Uint8Array>({
+      start(c) {
+        c.enqueue(enc.encode('data: {"t":"delta","ch":"say","text":"Hi! "}\n\ndata: {"t":"delta","ch":"text","text":"Привет. "}\n\ndata: {"t":"done","reply":"Привет.","say":"Hi!","turn":1}\n\n'));
+        c.close();
+      },
+    });
+    const calls: { url: string; init?: RequestInit }[] = [];
+    const streamFn = (async (url: string, init?: RequestInit) => {
+      calls.push({ url, init });
+      return { ok: true, status: 200, body: stream } as unknown as Response;
+    }) as unknown as typeof fetch;
+    const svc = createHttpContentService({ baseUrl: 'http://srv', fetchFn: fakeFetch(() => ({ status: 404, body: null })).fn, streamFetchFn: streamFn });
+    const got: [string, string][] = [];
+    const reply = await svc.talkTurn('t1', '', (d, ch) => got.push([ch, d]), undefined, 'en-US');
+    expect(JSON.parse(calls[0].init!.body as string)).toEqual({ text: '', voiceLang: 'en-US' });
+    expect(got).toEqual([['say', 'Hi! '], ['text', 'Привет. ']]);
+    expect(reply).toBe('Привет.');
+  });
+
   it('talkTurn rejects on an error event', async () => {
     const stream = new ReadableStream<Uint8Array>({
       start(c) {

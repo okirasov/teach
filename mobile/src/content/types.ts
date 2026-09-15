@@ -66,6 +66,12 @@ export interface LatestApp {
   ios: { build: number; url: string };
 }
 
+/**
+ * Канал куска ответа бадди: both — одноканальный ответ (текст и голос совпадают);
+ * say — только вслух (целиком на языке предмета); text — только в ленту (двуязычный текст).
+ */
+export type TalkDeltaChannel = 'both' | 'say' | 'text';
+
 /** Контекст разговора для предмета, которого нет на сервере (демо). */
 export interface TalkDraft {
   topic: string;
@@ -121,7 +127,7 @@ export interface ContentService {
    * Реплика ученика → реплика бадди. onDelta получает куски по мере генерации,
    * промис резолвится полным текстом. text "" — вступительная реплика бадди.
    */
-  talkTurn(talkId: string, text: string, onDelta: (text: string) => void, signal?: AbortSignal): Promise<string>;
+  talkTurn(talkId: string, text: string, onDelta: (text: string, channel: TalkDeltaChannel) => void, signal?: AbortSignal, voiceLang?: string): Promise<string>;
   endTalk(talkId: string): Promise<void>;
 }
 

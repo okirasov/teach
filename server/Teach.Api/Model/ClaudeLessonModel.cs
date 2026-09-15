@@ -202,7 +202,7 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         return text;
     }
 
-    public async IAsyncEnumerable<string> TalkAsync(string digest, string? olderSummary, IReadOnlyList<TalkTurn> history, string userText, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
+    public async IAsyncEnumerable<string> TalkAsync(string digest, string? olderSummary, IReadOnlyList<TalkTurn> history, string userText, string? voiceLang, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
     {
         // Слои кэша: персона (system) → дайджест (первое сообщение) → хвост диалога. Роли чередуются;
         // MessageParam.Content — не строка, а список ContentBlockParam, поэтому склейка двух подряд
@@ -236,7 +236,10 @@ public sealed class ClaudeLessonModel(AnthropicClient client, ILogger<ClaudeLess
         {
             Model = TalkModel,
             MaxTokens = 400,
-            System = new List<TextBlockParam> { new() { Text = Prompts.Buddy, CacheControl = new CacheControlEphemeral() } },
+            // Персона кэшируется; формат SAY/TEXT для языкового предмета идёт вторым блоком после точки кэша.
+            System = voiceLang is null
+                ? new List<TextBlockParam> { new() { Text = Prompts.Buddy, CacheControl = new CacheControlEphemeral() } }
+                : new List<TextBlockParam> { new() { Text = Prompts.Buddy, CacheControl = new CacheControlEphemeral() }, new() { Text = Prompts.BuddyBilingual.Replace("{LANG}", voiceLang) } },
             Messages = messages,
             Thinking = new ThinkingConfigAdaptive(),
             OutputConfig = new OutputConfig { Effort = Effort.Low },

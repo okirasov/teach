@@ -244,11 +244,15 @@ public sealed partial class StubLessonModel : ILessonModel
     public Task<string> SummarizeTalkAsync(string? olderSummary, IReadOnlyList<TalkTurn> dropped, CancellationToken ct) =>
         Task.FromResult(($"{olderSummary} " + $"Свёрнуто {dropped.Count} реплик: {string.Join(" / ", dropped.Select(t => t.Text))}.").Trim());
 
-    public async IAsyncEnumerable<string> TalkAsync(string digest, string? olderSummary, IReadOnlyList<TalkTurn> history, string userText, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
+    public async IAsyncEnumerable<string> TalkAsync(string digest, string? olderSummary, IReadOnlyList<TalkTurn> history, string userText, string? voiceLang, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
     {
-        var reply = userText.Length == 0
+        var text = userText.Length == 0
             ? "Привет. Давай немного поговорим по теме. С чего начнём?"
             : $"Ты сказал: «{userText}». Хорошо, продолжим. Что скажешь дальше?";
+        var say = userText.Length == 0
+            ? "Hi! Let's talk a little about the topic. Where shall we start?"
+            : $"You said: «{userText}». Good, let's go on. What comes next?";
+        var reply = voiceLang is null ? text : $"SAY: {say}\nTEXT: {text}";
         foreach (var word in reply.Split(' '))
         {
             await Task.Delay(5, ct);

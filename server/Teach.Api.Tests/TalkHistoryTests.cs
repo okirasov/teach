@@ -53,9 +53,9 @@ public class StubTalkTests
     [Fact]
     public async Task TalkOpensThenAnswersWithAQuestion()
     {
-        var opening = string.Concat(await Collect(_m.TalkAsync("digest", null, [], "", CancellationToken.None)));
+        var opening = string.Concat(await Collect(_m.TalkAsync("digest", null, [], "", null, CancellationToken.None)));
         Assert.Contains("?", opening);
-        var reply = string.Concat(await Collect(_m.TalkAsync("digest", null, [new("buddy", opening)], "Hola", CancellationToken.None)));
+        var reply = string.Concat(await Collect(_m.TalkAsync("digest", null, [new("buddy", opening)], "Hola", null, CancellationToken.None)));
         Assert.Contains("Hola", reply);
         Assert.EndsWith("?", reply.TrimEnd());
     }

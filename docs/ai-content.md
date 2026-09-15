@@ -185,7 +185,10 @@ POST /subjects/{id}/prefetch    → 202 { status: "queued" | "exists" | "running
 POST /grade/free                { criteria, text, lang }           → { hits: boolean[] }
 POST /talks                      { topic, focus, mission, title, stage, glossary, records } → 201 { talkId }  демо без серверного предмета
 POST /subjects/{id}/talks       → 201 { talkId }                   дайджест предмета собирается, если его ещё нет
-POST /talks/{id}/turns          { text }                           → text/event-stream: delta (кусок ответа), done (полный ответ и номер реплики), error
+POST /talks/{id}/turns          { text, voiceLang? }                         → text/event-stream: delta (кусок ответа), done (полный ответ и номер реплики), error
+   voiceLang (BCP-47 языка предмета) включает два канала: модель отвечает строками «SAY: …» (вслух, целиком на языке
+   предмета) и «TEXT: …» (для чтения, двуязычно); сервер режет поток (TalkChannels) и шлёт delta с ch: "say" | "text",
+   done несёт reply (текст) и say (голос). Без voiceLang канал один, delta без ch.
 POST /talks/{id}/end            → 202 { status: "ended" }
 ```
 

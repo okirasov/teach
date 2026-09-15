@@ -73,14 +73,31 @@ public static class TalkEndpoints
             res.Headers["X-Accel-Buffering"] = "no";
             await res.StartAsync(ct);
 
+            // Языковой предмет: голос (say) целиком на языке предмета, текст (text) двуязычный; иначе один канал.
+            var voiceLang = string.IsNullOrWhiteSpace(r.VoiceLang) ? null : r.VoiceLang.Trim();
             var reply = new StringBuilder();
+            var said = new StringBuilder();
+            var channels = new TalkChannels();
+            async Task EmitAsync(IReadOnlyList<(string Channel, string Text)> parts)
+            {
+                foreach (var (ch, part) in parts)
+                {
+                    if (ch == "say") { said.Append(part); await WriteEventAsync(res, new { t = "delta", ch, text = part }, ct); }
+                    else { reply.Append(part); await WriteEventAsync(res, new { t = "delta", ch, text = part }, ct); }
+                }
+            }
             try
             {
-                await foreach (var chunk in model.TalkAsync(digest, talk.OlderSummary, history, userText, ct))
+                await foreach (var chunk in model.TalkAsync(digest, talk.OlderSummary, history, userText, voiceLang, ct))
                 {
-                    reply.Append(chunk);
-                    await WriteEventAsync(res, new { t = "delta", text = chunk }, ct);
+                    if (voiceLang is null)
+                    {
+                        reply.Append(chunk);
+                        await WriteEventAsync(res, new { t = "delta", text = chunk }, ct);
+                    }
+                    else await EmitAsync(channels.Push(chunk));
                 }
+                if (voiceLang is not null) await EmitAsync(channels.Flush());
             }
             catch (Exception e) when (e is not OperationCanceledException)
             {
@@ -94,7 +111,7 @@ public static class TalkEndpoints
             history.Add(new TalkTurn("buddy", text));
             var turn = history.Count;
             // Сначала отдаём done — клиент уже озвучивает; свёртка старого хвоста идёт после ответа.
-            await WriteEventAsync(res, new { t = "done", reply = text, turn }, ct);
+            await WriteEventAsync(res, new { t = "done", reply = text, say = voiceLang is null ? null : said.ToString().Trim(), turn }, ct);
 
             var (kept, dropped) = TalkHistory.Trim(history);
             // Сворачиваем не при малейшем перевесе, а раз в целый обмен (2 реплики) — иначе

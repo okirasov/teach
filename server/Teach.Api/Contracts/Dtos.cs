@@ -80,6 +80,7 @@ public sealed record TalkCreated(string TalkId);
 public sealed record TalkDraft(string Topic, string Focus, string Mission, string? Title, PlanStage Stage, RefRowDto[]? Glossary = null, RecapRecord[]? Records = null);
 
 /// <summary>POST /talks/{id}/turns: распознанная реплика ученика; пустая строка — просьба начать разговор.</summary>
-public sealed record TurnRequest(string Text);
+/// <summary>VoiceLang — язык, на котором ученик слышит бадди (BCP-47 языка предмета); null — одноканальный ответ на языке ученика.</summary>
+public sealed record TurnRequest(string Text, string? VoiceLang = null);
 
 public sealed record TalkEnded(string Status);

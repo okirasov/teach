@@ -31,7 +31,7 @@ jest.mock('@/voice', () => ({
 }));
 const mockTurns: string[] = [];
 const mockStartDemoTalk = jest.fn(async (_d: unknown) => 'demo-1');
-const mockTalkTurn = jest.fn(async (_id: string, text: string, onDelta: (d: string) => void, _signal?: AbortSignal): Promise<string> => {
+const mockTalkTurn = jest.fn(async (_id: string, text: string, onDelta: (d: string, ch?: string) => void, _signal?: AbortSignal, _voiceLang?: string): Promise<string> => {
   mockTurns.push(text);
   const reply = text ? 'Sí. ¿Y la cuenta?' : 'Привет. С чего начнём?';
   for (const w of reply.split(' ')) onDelta(w + ' ');
@@ -41,7 +41,7 @@ jest.mock('@/content', () => ({
   content: {
     startTalk: async () => 't1',
     startDemoTalk: (d: unknown) => mockStartDemoTalk(d as never),
-    talkTurn: (id: string, text: string, onDelta: (d: string) => void, signal?: AbortSignal) => mockTalkTurn(id, text, onDelta, signal),
+    talkTurn: (id: string, text: string, onDelta: (d: string, ch?: string) => void, signal?: AbortSignal, voiceLang?: string) => mockTalkTurn(id, text, onDelta, signal, voiceLang),
     endTalk: jest.fn(async () => {}),
   },
 }));
@@ -90,12 +90,18 @@ describe('useTalk', () => {
     expect(api.state.lines[0]?.side).toBe('buddy');
   });
 
-  it('speaks only subject-language segments (subjectOnly)', async () => {
+  it('routes say deltas to speech only and text deltas to the transcript only', async () => {
+    mockTalkTurn.mockImplementationOnce(async (_id, _text, onDelta: (d: string, ch?: string) => void) => {
+      for (const w of "Hi! Let's start.".split(' ')) onDelta(w + ' ', 'say');
+      for (const w of 'Привет. Начнём с Present.'.split(' ')) onDelta(w + ' ', 'text');
+      return 'Привет. Начнём с Present.';
+    });
     act(() => { tree = create(<Probe />); });
-    await flush(); await flush();
-    expect(mockSpeak).toHaveBeenCalled();
-    // мок speak получает (text, lang, onDone, uiLang, opts): проверяем флаг у первого вызова
-    expect(mockSpeakOpts[0]).toEqual({ subjectOnly: true });
+    await flush(); await flush(); await flush();
+    expect(mockTalkTurn.mock.calls[0][4]).toBe('es-ES');
+    expect(mockSpeak.mock.calls.map((c) => c[0])).toEqual(['Hi!', "Let's start."]);
+    expect(api.state.lines[0]).toEqual({ side: 'buddy', text: 'Привет. Начнём с Present.', live: false });
+    expect(api.state.phase).toBe('waiting');
   });
 
   it('opens the talk with the buddy line, speaks it by sentences and waits', async () => {

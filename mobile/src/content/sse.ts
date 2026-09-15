@@ -1,5 +1,7 @@
 /** События потока реплики бадди (POST /talks/{id}/turns, text/event-stream). */
-export type SseTalkEvent = { t: 'delta'; text: string } | { t: 'done'; reply: string; turn: number } | { t: 'error'; message: string };
+export type TalkChannel = 'say' | 'text';
+/** delta без ch — одноканальный ответ (текст и голос одно и то же); ch — языковой предмет: say вслух, text в ленту. */
+export type SseTalkEvent = { t: 'delta'; text: string; ch?: TalkChannel } | { t: 'done'; reply: string; say?: string | null; turn: number } | { t: 'error'; message: string };
 
 /**
  * Разбор SSE по кускам: событие — строки до пустой строки, полезная нагрузка — JSON после `data: `.

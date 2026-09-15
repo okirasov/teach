@@ -26,6 +26,9 @@ public interface ILessonModel
     Task<string> BuildDigestAsync(SubjectDraft draft, PlanStage stage, int stageIndex, IReadOnlyList<RecapRecord> records, IReadOnlyList<RefRowDto> glossary, CancellationToken ct);
     /// <summary>Свёртка выпавших из окна реплик разговора в две фразы; olderSummary — прежняя свёртка.</summary>
     Task<string> SummarizeTalkAsync(string? olderSummary, IReadOnlyList<TalkTurn> dropped, CancellationToken ct);
-    /// <summary>Реплика бадди по кускам; userText "" — вступление.</summary>
-    IAsyncEnumerable<string> TalkAsync(string digest, string? olderSummary, IReadOnlyList<TalkTurn> history, string userText, CancellationToken ct);
+    /// <summary>
+    /// Реплика бадди по кускам; userText "" — вступление. voiceLang — язык предмета для голоса: тогда модель
+    /// отвечает двумя строками «SAY: …» (вслух, целиком на voiceLang) и «TEXT: …» (для чтения), см. TalkChannels.
+    /// </summary>
+    IAsyncEnumerable<string> TalkAsync(string digest, string? olderSummary, IReadOnlyList<TalkTurn> history, string userText, string? voiceLang, CancellationToken ct);
 }

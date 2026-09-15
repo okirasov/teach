@@ -190,11 +190,18 @@ export function createLocalContentService(opts: { stageMs?: number; planLater?: 
     async startDemoTalk() {
       return 'local-demo-talk';
     },
-    async talkTurn(_talkId, text, onDelta, _signal) {
+    async talkTurn(_talkId, text, onDelta, _signal, voiceLang) {
       const reply = text ? `Ты сказал: «${text}». Хорошо, продолжим. Что скажешь дальше?` : 'Привет. Давай немного поговорим по теме. С чего начнём?';
+      const say = text ? `You said: «${text}». Good, let's go on. What comes next?` : "Hi! Let's talk a little about the topic. Where shall we start?";
+      if (voiceLang) {
+        for (const w of say.split(' ')) {
+          await new Promise((r) => setTimeout(r, 60));
+          onDelta(w + ' ', 'say');
+        }
+      }
       for (const w of reply.split(' ')) {
         await new Promise((r) => setTimeout(r, 60));
-        onDelta(w + ' ');
+        onDelta(w + ' ', voiceLang ? 'text' : 'both');
       }
       return reply;
     },

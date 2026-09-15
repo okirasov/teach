@@ -142,11 +142,11 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
       const r = await call<{ talkId: string }>('POST', '/talks', draft);
       return r.talkId;
     },
-    async talkTurn(talkId, text, onDelta, signal) {
+    async talkTurn(talkId, text, onDelta, signal, voiceLang) {
       const res = await sf(`${base}/talks/${talkId}/turns`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream', ...(bearer() ? { Authorization: `Bearer ${bearer()}` } : {}) },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify(voiceLang ? { text, voiceLang } : { text }),
         ...(signal ? { signal } : {}),
       });
       if (!res.ok) throw new ContentHttpError(res.status, `POST /talks/${talkId}/turns → ${res.status}`);
@@ -162,7 +162,7 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
           const { value, done } = await reader.read();
           const events = parser.push(decoder.decode(value ?? new Uint8Array(), { stream: !done }));
           for (const ev of events) {
-            if (ev.t === 'delta') onDelta(ev.text);
+            if (ev.t === 'delta') onDelta(ev.text, ev.ch ?? 'both');
             else if (ev.t === 'done') {
               reply = ev.reply;
               break outer;

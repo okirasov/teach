@@ -122,6 +122,28 @@ public class TalkApiTests(ApiFactory f) : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task LanguageTalkStreamsSayAndTextChannels()
+    {
+        var id = await ReadySubjectAsync();
+        var talkId = (await (await _http.PostAsJsonAsync($"/subjects/{id}/talks", new { })).Content.ReadFromJsonAsync<TalkCreated>(Json))!.TalkId;
+        var events = await ReadEventsAsync(await _http.PostAsJsonAsync($"/talks/{talkId}/turns", new TurnRequest("", "en-US")));
+        var say = string.Concat(events.Where(e => e.GetProperty("t").GetString() == "delta" && e.GetProperty("ch").GetString() == "say").Select(e => e.GetProperty("text").GetString()));
+        var text = string.Concat(events.Where(e => e.GetProperty("t").GetString() == "delta" && e.GetProperty("ch").GetString() == "text").Select(e => e.GetProperty("text").GetString()));
+        Assert.StartsWith("Hi! Let's talk", say);
+        Assert.StartsWith("Привет. Давай", text);
+        var done = events.Last();
+        Assert.Equal(text.Trim(), done.GetProperty("reply").GetString());
+        Assert.Equal(say.Trim(), done.GetProperty("say").GetString());
+        // История хранит текст для чтения, не голос.
+        using var scope = f.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<TeachDb>();
+        var row = await db.Talks.AsNoTracking().FirstAsync(t => t.Id == Guid.Parse(talkId));
+        var turns = JsonSerializer.Deserialize<Teach.Api.Domain.TalkTurn[]>(row.TurnsJson, Json)!;
+        Assert.StartsWith("Привет. Давай", turns[0].Text);
+        Assert.DoesNotContain("SAY:", turns[0].Text);
+    }
+
+    [Fact]
     public async Task EndedTalkRejectsTurnsAndStrangersGet404()
     {
         var id = await ReadySubjectAsync();

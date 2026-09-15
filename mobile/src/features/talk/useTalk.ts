@@ -71,11 +71,11 @@ export function useTalk(options: UseTalkOptions) {
       return;
     }
     speakingNow.current = true;
-    // Бадди говорит на языке предмета; русская подсказка остаётся текстом (решение владельца 2026-09-15).
+    // Канал say приходит целиком на языке предмета (сервер), поэтому фильтр по языку не нужен.
     speak(next, ttsLang, () => {
       speakingNow.current = false;
       pump();
-    }, opts.current.uiLang, { subjectOnly: true });
+    }, opts.current.uiLang);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
@@ -98,12 +98,17 @@ export function useTalk(options: UseTalkOptions) {
     streamOpen.current = true;
     dispatch({ type: 'replyStart' });
     try {
-      const reply = await content.talkTurn(id, text, (delta) => {
+      // Языковой предмет: голос (say) целиком на языке предмета, лента (text) двуязычная — решение владельца 2026-09-15.
+      const { ttsLang, uiLang } = opts.current;
+      const voiceLang = ttsLang && ttsLang.toLowerCase() !== uiLang.toLowerCase() ? ttsLang : undefined;
+      const reply = await content.talkTurn(id, text, (delta, channel) => {
         if (my !== gen.current) return; // хвост устаревшего стрима — не трогаем чужой ход
-        dispatch({ type: 'replyDelta', text: delta });
-        queue.current.push(...splitter.push(delta));
-        pump();
-      }, ac.signal);
+        if (channel !== 'say') dispatch({ type: 'replyDelta', text: delta });
+        if (channel !== 'text') {
+          queue.current.push(...splitter.push(delta));
+          pump();
+        }
+      }, ac.signal, voiceLang);
       if (my !== gen.current) return;
       queue.current.push(...splitter.flush());
       dispatch({ type: 'replyDone', text: reply });
