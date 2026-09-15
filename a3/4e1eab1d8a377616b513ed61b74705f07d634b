@@ -1,0 +1,21 @@
+mobile/README.md
+  s_45a5854b0f8202::t_6067c109c32a56 97
+server/Teach.Api/Model/Prompts.cs
+  s_45a5854b0f8202::t_1926bbefaab5cc 40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "a34e1eab1d8a377616b513ed61b74705f07d634b",
+  "prompts": {},
+  "sessions": {
+    "s_45a5854b0f8202": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5df78986-61ec-4306-b8df-f639605999ab",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
