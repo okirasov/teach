@@ -1,0 +1,31 @@
+server/Teach.Api.Tests/TalkApiTests.cs
+  s_45a5854b0f8202::t_6410c70f341406 104-123
+server/Teach.Api/Contracts/Dtos.cs
+  s_45a5854b0f8202::t_ad3b206a733b00 79-81
+server/Teach.Api/Data/SchemaUpgrader.cs
+  s_45a5854b0f8202::t_649c158085e7e8 30,58
+server/Teach.Api/Data/TeachDb.cs
+  s_45a5854b0f8202::t_90384ed09590cd 101-102
+server/Teach.Api/Endpoints/TalkEndpoints.cs
+  s_45a5854b0f8202::t_afc9b049b95f5c 36-48,63-65
+server/Teach.Api/Model/Prompts.cs
+  s_45a5854b0f8202::t_6041f36aef0bea 40
+server/Teach.Api/wwwroot/docs/index.html
+  s_45a5854b0f8202::t_016990550aecf1 225
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "476ce0eb5301adacf8eb41c3ee596bedd25463f2",
+  "prompts": {},
+  "sessions": {
+    "s_45a5854b0f8202": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5df78986-61ec-4306-b8df-f639605999ab",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
