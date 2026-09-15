@@ -1,0 +1,57 @@
+docs/ai-content.md
+  s_a25011e32efe4b::t_c98be90edebe8b 188-191
+mobile/README.md
+  s_a25011e32efe4b::t_dc66802fd074f3 97
+mobile/src/content/__tests__/http.test.ts
+  s_a25011e32efe4b::t_42b412d0238aa1 175-195
+mobile/src/content/http.ts
+  s_a25011e32efe4b::t_2fece32b55ef8a 145,149,165
+mobile/src/content/local.ts
+  s_a25011e32efe4b::t_53cf084d79ce66 193,195-201,204
+mobile/src/content/sse.ts
+  s_a25011e32efe4b::t_fe1d9763e45b53 2-4
+mobile/src/content/types.ts
+  s_a25011e32efe4b::t_c6e78cd2e6b171 69-74,130
+mobile/src/features/talk/__tests__/useTalk.test.tsx
+  s_a25011e32efe4b::t_a557def5cb1d37 34,44,93-98,100-104
+mobile/src/features/talk/useTalk.ts
+  s_a25011e32efe4b::t_10614a89e50c38 74,78,101-104,106-111
+server/Teach.Api.Tests/TalkApiTests.cs
+  s_a25011e32efe4b::t_8a184222cb9990 124-145
+server/Teach.Api.Tests/TalkChannelsTests.cs
+  s_a25011e32efe4b::t_2fee67fd710444 1-43
+server/Teach.Api.Tests/TalkHistoryTests.cs
+  s_a25011e32efe4b::t_db25306455c265 56,58
+server/Teach.Api/Contracts/Dtos.cs
+  s_a25011e32efe4b::t_42588c737ab974 83-84
+server/Teach.Api/Domain/TalkChannels.cs
+  s_a25011e32efe4b::t_d36c9b80118b7f 1-77
+server/Teach.Api/Endpoints/TalkEndpoints.cs
+  s_a25011e32efe4b::t_c0aee59f0b256b 76-77,79-88,91,93-98,100,114
+server/Teach.Api/Model/ClaudeLessonModel.cs
+  s_a25011e32efe4b::t_1c8033264ddc21 205,239-242
+server/Teach.Api/Model/ILessonModel.cs
+  s_a25011e32efe4b::t_2fcfb7fa7650a8 29-33
+server/Teach.Api/Model/Prompts.cs
+  s_a25011e32efe4b::t_e3044baf499aaa 46-52
+server/Teach.Api/Model/StubLessonModel.cs
+  s_a25011e32efe4b::t_f1a6cee385d8c1 247,249,252-255
+server/Teach.Api/wwwroot/docs/index.html
+  s_a25011e32efe4b::t_2704f5724712e1 226
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "eb13dfb302699d919a46a04a74172a6374c4dd0f",
+  "prompts": {},
+  "sessions": {
+    "s_a25011e32efe4b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ac545c2b-aa5c-42fc-8708-f04ccbeb2d2f",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
