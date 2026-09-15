@@ -64,7 +64,7 @@ export default function TodayScreen() {
                 }
                 router.push({ pathname: '/session/[id]', params: { id: m.id } });
               }}
-              onTalk={sttOk && !m.demo && !m.prepFailed && m.prepStage === undefined && subjectsById[m.id]?.remoteId ? () => router.push({ pathname: '/talk/[id]', params: { id: m.id } }) : undefined}
+              onTalk={sttOk && !m.prepFailed && m.prepStage === undefined && (m.demo || subjectsById[m.id]?.remoteId) ? () => router.push({ pathname: '/talk/[id]', params: { id: m.id } }) : undefined}
             />
           ))}
         </View>

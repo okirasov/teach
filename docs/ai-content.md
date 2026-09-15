@@ -183,6 +183,7 @@ GET  /subjects/{id}/lessons     → [{ number, lesson }]              все у�
 POST /sessions/{id}/recap       { records }                        → 202 { status: "preparing" | "stored" }
 POST /subjects/{id}/prefetch    → 202 { status: "queued" | "exists" | "running" | "skipped" }
 POST /grade/free                { criteria, text, lang }           → { hits: boolean[] }
+POST /talks                      { topic, focus, mission, title, stage, glossary, records } → 201 { talkId }  демо без серверного предмета
 POST /subjects/{id}/talks       → 201 { talkId }                   дайджест предмета собирается, если его ещё нет
 POST /talks/{id}/turns          { text }                           → text/event-stream: delta (кусок ответа), done (полный ответ и номер реплики), error
 POST /talks/{id}/end            → 202 { status: "ended" }

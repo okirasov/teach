@@ -5,8 +5,15 @@ import { Text } from 'react-native';
 import { useTalk } from '../useTalk';
 
 const mockSpeak = jest.fn();
+const mockAudio = { activate: jest.fn(), deactivate: jest.fn() };
+jest.mock('@/voice/audioSession', () => ({
+  activateTalkAudio: () => mockAudio.activate(),
+  deactivateTalkAudio: () => mockAudio.deactivate(),
+}));
+const mockSpeakOpts: unknown[] = [];
 jest.mock('@/voice/tts', () => ({
-  speak: (text: string, _lang: string, onDone: () => void) => {
+  speak: (text: string, _lang: string, onDone: () => void, _ui: string, opts: unknown) => {
+    mockSpeakOpts.push(opts);
     mockSpeak(text);
     setTimeout(onDone, 0);
   },
@@ -23,6 +30,7 @@ jest.mock('@/voice', () => ({
   },
 }));
 const mockTurns: string[] = [];
+const mockStartDemoTalk = jest.fn(async (_d: unknown) => 'demo-1');
 const mockTalkTurn = jest.fn(async (_id: string, text: string, onDelta: (d: string) => void, _signal?: AbortSignal): Promise<string> => {
   mockTurns.push(text);
   const reply = text ? 'Sí. ¿Y la cuenta?' : 'Привет. С чего начнём?';
@@ -32,14 +40,15 @@ const mockTalkTurn = jest.fn(async (_id: string, text: string, onDelta: (d: stri
 jest.mock('@/content', () => ({
   content: {
     startTalk: async () => 't1',
+    startDemoTalk: (d: unknown) => mockStartDemoTalk(d as never),
     talkTurn: (id: string, text: string, onDelta: (d: string) => void, signal?: AbortSignal) => mockTalkTurn(id, text, onDelta, signal),
     endTalk: jest.fn(async () => {}),
   },
 }));
 
 let api: ReturnType<typeof useTalk>;
-function Probe() {
-  api = useTalk({ remoteId: 'abc', sttLang: 'es-ES', ttsLang: 'es-ES', uiLang: 'ru-RU' });
+function Probe({ draft }: { draft?: import('@/content').TalkDraft } = {}) {
+  api = useTalk({ remoteId: draft ? undefined : 'abc', draft, sttLang: 'es-ES', ttsLang: 'es-ES', uiLang: 'ru-RU' });
   return <Text>{api.state.phase}</Text>;
 }
 const flush = () => act(async () => { await new Promise((r) => setTimeout(r, 0)); });
@@ -49,6 +58,7 @@ describe('useTalk', () => {
 
   beforeEach(() => {
     mockSpeak.mockClear();
+    mockSpeakOpts.length = 0;
     mockTurns.length = 0;
     mockTalkTurn.mockClear();
   });
@@ -56,6 +66,36 @@ describe('useTalk', () => {
   afterEach(() => {
     act(() => { tree?.unmount(); });
     tree = null;
+  });
+
+  it('activates the talk audio session on mount and releases it on unmount', async () => {
+    mockAudio.activate.mockClear();
+    mockAudio.deactivate.mockClear();
+    act(() => { tree = create(<Probe />); });
+    await flush(); await flush();
+    expect(mockAudio.activate).toHaveBeenCalledTimes(1);
+    expect(mockAudio.deactivate).not.toHaveBeenCalled();
+    act(() => { tree?.unmount(); });
+    tree = null;
+    expect(mockAudio.deactivate).toHaveBeenCalledTimes(1);
+  });
+
+  it('starts a demo talk from a draft instead of a server subject', async () => {
+    mockStartDemoTalk.mockClear();
+    const draft = { topic: 'Английский', focus: 'Рассказ о себе', mission: 'собеседования', stage: { n: '01', t: 'Каркас', d: '' } };
+    act(() => { tree = create(<Probe draft={draft} />); });
+    await flush(); await flush(); await flush();
+    expect(mockStartDemoTalk).toHaveBeenCalledWith(draft);
+    expect(mockTurns).toEqual(['']);
+    expect(api.state.lines[0]?.side).toBe('buddy');
+  });
+
+  it('speaks only subject-language segments (subjectOnly)', async () => {
+    act(() => { tree = create(<Probe />); });
+    await flush(); await flush();
+    expect(mockSpeak).toHaveBeenCalled();
+    // мок speak получает (text, lang, onDone, uiLang, opts): проверяем флаг у первого вызова
+    expect(mockSpeakOpts[0]).toEqual({ subjectOnly: true });
   });
 
   it('opens the talk with the buddy line, speaks it by sentences and waits', async () => {

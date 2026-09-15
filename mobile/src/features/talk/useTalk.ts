@@ -1,14 +1,18 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 
-import { content } from '@/content';
+import { content, type TalkDraft } from '@/content';
 import type { BuddyState } from '@/features/session/buddyState';
 import { recognizer, type SpeechSession } from '@/voice';
+import { activateTalkAudio, deactivateTalkAudio } from '@/voice/audioSession';
 import { speak, stopSpeaking } from '@/voice/tts';
 import { createSentenceSplitter } from './sentences';
 import { initialTalk, reduceTalk, type TalkEffect, type TalkEvent, type TalkState } from './talkMachine';
 
 export interface UseTalkOptions {
-  remoteId: string;
+  /** Id предмета на сервере; для демо вместо него передаётся draft. */
+  remoteId?: string;
+  /** Контекст демо-предмета: разговор создаётся через POST /talks без серверного предмета. */
+  draft?: TalkDraft;
   /** BCP-47 для распознавания (язык предмета или интерфейса — как в сессии). */
   sttLang: string;
   /** Язык озвучки; null — озвучки нет, реплики только текстом. */
@@ -67,10 +71,11 @@ export function useTalk(options: UseTalkOptions) {
       return;
     }
     speakingNow.current = true;
+    // Бадди говорит на языке предмета; русская подсказка остаётся текстом (решение владельца 2026-09-15).
     speak(next, ttsLang, () => {
       speakingNow.current = false;
       pump();
-    }, opts.current.uiLang);
+    }, opts.current.uiLang, { subjectOnly: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
@@ -86,7 +91,7 @@ export function useTalk(options: UseTalkOptions) {
     const my = ++gen.current;
     const ac = new AbortController();
     controller.current = ac;
-    const id = talkId.current ?? (talkId.current = await content.startTalk(opts.current.remoteId));
+    const id = talkId.current ?? (talkId.current = opts.current.draft ? await content.startDemoTalk(opts.current.draft) : await content.startTalk(opts.current.remoteId ?? ''));
     if (my !== gen.current) return; // перебили во время старта талка — этот ход больше не актуален
     const splitter = createSentenceSplitter();
     queue.current = [];
@@ -154,9 +159,14 @@ export function useTalk(options: UseTalkOptions) {
 
   // Вступление бадди и таймер.
   useEffect(() => {
+    // Сессия playAndRecord на громкий динамик: иначе переключатель «Без звука» глушит бадди.
+    activateTalkAudio();
     void send('');
     const t = setInterval(() => setSeconds((s) => s + 1), 1000);
-    return () => clearInterval(t);
+    return () => {
+      clearInterval(t);
+      deactivateTalkAudio();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

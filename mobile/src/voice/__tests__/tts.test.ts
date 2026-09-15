@@ -21,6 +21,20 @@ describe('tts', () => {
     expect(await hasVoiceFor('en-GB')).toBe(true);
     expect(await hasVoiceFor('ja-JP')).toBe(false);
   });
+  test('subjectOnly skips the interface-language segments and still completes', () => {
+    (Speech.speak as jest.Mock).mockClear();
+    const done = jest.fn();
+    speak('Buongiorno — добрый день', 'it-IT', done, 'ru-RU', { subjectOnly: true });
+    expect(Speech.speak).toHaveBeenCalledTimes(1);
+    expect(Speech.speak).toHaveBeenCalledWith('Buongiorno —', expect.objectContaining({ language: 'it-IT' }));
+    expect(done).toHaveBeenCalledTimes(1);
+    (Speech.speak as jest.Mock).mockClear();
+    const done2 = jest.fn();
+    speak('только русский текст', 'it-IT', done2, 'ru-RU', { subjectOnly: true });
+    expect(Speech.speak).not.toHaveBeenCalled();
+    expect(done2).toHaveBeenCalledTimes(1);
+  });
+
   test('speak stops the previous utterance and reports completion', () => {
     const done = jest.fn();
     speak('Buongiorno — добрый день', 'it-IT', done, 'ru-RU');

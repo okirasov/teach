@@ -66,6 +66,17 @@ export interface LatestApp {
   ios: { build: number; url: string };
 }
 
+/** Контекст разговора для предмета, которого нет на сервере (демо). */
+export interface TalkDraft {
+  topic: string;
+  focus: string;
+  mission: string;
+  title?: string;
+  stage: PlanStage;
+  glossary?: { k: string; v: string }[];
+  records?: { title: string; note: string; ok: boolean; stepIndex: number; lessonNumber: number }[];
+}
+
 export interface ContentService {
   /** Последняя сборка для подсказки «есть новая версия»; null — сервер её не знает (заглушка). */
   latestApp(): Promise<LatestApp | null>;
@@ -104,6 +115,8 @@ export interface ContentService {
   resumeLesson(remoteId: string | undefined, number: number, onStage: (stage: PrepStage) => void): Promise<PreparedLesson>;
   /** Разговор с бадди (FR-66): создать разговор по предмету на сервере → talkId. */
   startTalk(remoteId: string): Promise<string>;
+  /** Разговор без серверного предмета (демо): контекст в теле, дайджест собирает сервер. */
+  startDemoTalk(draft: TalkDraft): Promise<string>;
   /**
    * Реплика ученика → реплика бадди. onDelta получает куски по мере генерации,
    * промис резолвится полным текстом. text "" — вступительная реплика бадди.

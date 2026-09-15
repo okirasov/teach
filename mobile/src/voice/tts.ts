@@ -32,10 +32,19 @@ export async function hasVoiceFor(lang: string): Promise<boolean> {
   return false;
 }
 
+export interface SpeakOptions {
+  /**
+   * Озвучивать только куски на языке предмета: в разговоре бадди говорит по-итальянски,
+   * а русская подсказка остаётся написанной. Без эффекта, если язык озвучки и есть язык интерфейса.
+   */
+  subjectOnly?: boolean;
+}
+
 /** Озвучить текст: куски на языке предмета и на языке интерфейса читаются по очереди своими голосами. */
-export function speak(text: string, lang: string, onDone: () => void, uiLang = 'ru-RU'): void {
+export function speak(text: string, lang: string, onDone: () => void, uiLang = 'ru-RU', opts: SpeakOptions = {}): void {
   Speech.stop();
-  const segments = splitByLanguage(text, lang, uiLang);
+  const all = splitByLanguage(text, lang, uiLang);
+  const segments = opts.subjectOnly && lang.toLowerCase() !== uiLang.toLowerCase() ? all.filter((s) => s.lang !== uiLang) : all;
   let stopped = false;
   const next = (i: number) => {
     if (stopped || i >= segments.length) {

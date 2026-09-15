@@ -138,6 +138,10 @@ export function createHttpContentService(opts: HttpContentOptions): ContentServi
       const r = await call<{ talkId: string }>('POST', `/subjects/${remoteId}/talks`, {});
       return r.talkId;
     },
+    async startDemoTalk(draft) {
+      const r = await call<{ talkId: string }>('POST', '/talks', draft);
+      return r.talkId;
+    },
     async talkTurn(talkId, text, onDelta, signal) {
       const res = await sf(`${base}/talks/${talkId}/turns`, {
         method: 'POST',
