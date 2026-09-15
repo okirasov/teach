@@ -27,6 +27,7 @@ public static class SchemaUpgrader
         ("Subjects", "OwnerId", "ALTER TABLE Subjects ADD COLUMN OwnerId TEXT NOT NULL DEFAULT 'shared'"),
         ("Subjects", "DigestText", "ALTER TABLE Subjects ADD COLUMN DigestText TEXT NULL"),
         ("Subjects", "DigestLesson", "ALTER TABLE Subjects ADD COLUMN DigestLesson INTEGER NOT NULL DEFAULT 0"),
+        ("Talks", "DigestText", "ALTER TABLE Talks ADD COLUMN DigestText TEXT NULL"),
     ];
 
     private static readonly (string Table, string Ddl)[] Tables =
@@ -54,7 +55,7 @@ public static class SchemaUpgrader
         ("Talks", """
             CREATE TABLE IF NOT EXISTS Talks (
               Id TEXT NOT NULL CONSTRAINT PK_Talks PRIMARY KEY,
-              SubjectId TEXT NOT NULL, OwnerId TEXT NOT NULL, TurnsJson TEXT NOT NULL, OlderSummary TEXT NULL,
+              SubjectId TEXT NOT NULL, OwnerId TEXT NOT NULL, TurnsJson TEXT NOT NULL, OlderSummary TEXT NULL, DigestText TEXT NULL,
               Ended INTEGER NOT NULL DEFAULT 0, StartedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL);
             CREATE INDEX IF NOT EXISTS IX_Talks_SubjectId ON Talks (SubjectId);
             """),

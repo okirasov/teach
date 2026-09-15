@@ -102,6 +102,26 @@ public class TalkApiTests(ApiFactory f) : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task DemoTalkWithoutAServerSubjectUsesTheInlineDigest()
+    {
+        var draft = new TalkDraft("Английский", "Рассказ о себе", "проходить собеседования на английском", "Английский",
+            new("01", "Каркас и термины", "базовые фразы о себе"), [new("to be", "глагол-связка")], [new("Present Simple", "форма 3-го лица", false, 1, 2)]);
+        var created = await _http.PostAsJsonAsync("/talks", draft);
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var talkId = (await created.Content.ReadFromJsonAsync<TalkCreated>(Json))!.TalkId;
+        var opening = await ReadEventsAsync(await _http.PostAsJsonAsync($"/talks/{talkId}/turns", new TurnRequest("")));
+        Assert.Equal("done", opening.Last().GetProperty("t").GetString());
+        using var scope = f.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<TeachDb>();
+        var row = await db.Talks.AsNoTracking().FirstAsync(t => t.Id == Guid.Parse(talkId));
+        Assert.Equal(Guid.Empty, row.SubjectId);
+        Assert.Contains("Английский", row.DigestText);
+        Assert.Contains("Present Simple", row.DigestText);
+        Assert.Contains("to be", row.DigestText);
+        Assert.Equal(HttpStatusCode.BadRequest, (await _http.PostAsJsonAsync("/talks", draft with { Topic = " " })).StatusCode);
+    }
+
+    [Fact]
     public async Task EndedTalkRejectsTurnsAndStrangersGet404()
     {
         var id = await ReadySubjectAsync();

@@ -33,6 +33,19 @@ public static class TalkEndpoints
             return Results.Created($"/talks/{talk.Id}", new TalkCreated(talk.Id.ToString()));
         }).WithSummary("Начать разговор с бадди по предмету. Дайджест предмета собирается, если его ещё нет.").WithTags("Разговор");
 
+        // Разговор без серверного предмета (демо-предметы живут только в клиенте): контекст приходит в теле,
+        // дайджест собирается один раз и хранится в самом разговоре.
+        app.MapPost("/talks", async (TalkDraft d, HttpContext ctx, TeachDb db, ILessonModel model, CancellationToken ct) =>
+        {
+            if (string.IsNullOrWhiteSpace(d.Topic)) return Results.BadRequest("topic is required");
+            var draft = new SubjectDraft(d.Topic.Trim(), (d.Focus ?? "").Trim(), (d.Mission ?? "").Trim(), [], Title: d.Title);
+            var digest = await model.BuildDigestAsync(draft, d.Stage, 0, d.Records ?? [], d.Glossary ?? [], ct);
+            var talk = new TalkRow { Id = Guid.NewGuid(), SubjectId = Guid.Empty, OwnerId = AuthEndpoints.Caller(ctx).Owner, TurnsJson = "[]", DigestText = digest, StartedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow };
+            db.Talks.Add(talk);
+            await db.SaveChangesAsync(ct);
+            return Results.Created($"/talks/{talk.Id}", new TalkCreated(talk.Id.ToString()));
+        }).WithSummary("Начать разговор без серверного предмета (демо): тема, фокус, миссия, этап, глоссарий и записи в теле.").WithTags("Разговор");
+
         app.MapPost("/talks/{id:guid}/turns", async (Guid id, TurnRequest r, HttpContext ctx, TeachDb db, ILessonModel model, ILogger<TalkRow> log, CancellationToken ct) =>
         {
             var talk = await db.Talks.FindAsync([id], ct);
@@ -47,8 +60,9 @@ public static class TalkEndpoints
                 await ctx.Response.WriteAsJsonAsync(new { error = "talk ended" }, Json, ct);
                 return;
             }
-            var subject = await db.Subjects.AsNoTracking().FirstAsync(x => x.Id == talk.SubjectId, ct);
-            var digest = subject.DigestText ?? $"Предмет: {subject.Title ?? subject.Topic}. Фокус: {subject.Focus}. Миссия: {subject.Mission}.";
+            var subject = talk.SubjectId == Guid.Empty ? null : await db.Subjects.AsNoTracking().FirstOrDefaultAsync(x => x.Id == talk.SubjectId, ct);
+            var digest = talk.DigestText ?? subject?.DigestText
+                ?? (subject is null ? "Предмет не задан." : $"Предмет: {subject.Title ?? subject.Topic}. Фокус: {subject.Focus}. Миссия: {subject.Mission}.");
             var history = JsonSerializer.Deserialize<List<TalkTurn>>(talk.TurnsJson, Json) ?? [];
             var userText = (r.Text ?? "").Trim();
 

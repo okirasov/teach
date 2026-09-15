@@ -98,6 +98,8 @@ public sealed class TalkRow
     /// <summary>JSON-массив Domain.TalkTurn (role: user | buddy).</summary>
     public required string TurnsJson { get; set; }
     public string? OlderSummary { get; set; }
+    /// <summary>Дайджест разговора без серверного предмета (демо): SubjectId = Guid.Empty.</summary>
+    public string? DigestText { get; set; }
     public bool Ended { get; set; }
     public DateTimeOffset StartedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }

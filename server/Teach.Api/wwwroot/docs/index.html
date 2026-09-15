@@ -222,6 +222,7 @@
           <tr><td class="m">POST /subjects/{id}/prefetch</td><td>заготовить следующий урок → 202 <code>{ status: "queued" | "exists" | "running" | "skipped" }</code>.</td></tr>
           <tr><td class="m">POST /grade/free</td><td><code>{ criteria: [{ t, keys }], text, lang }</code> → <code>{ hits: boolean[] }</code>.</td></tr>
           <tr><td class="m">POST /subjects/{id}/talks</td><td>Начать разговор с бадди → 201 <code>{ talkId }</code>. Дайджест предмета собирается, если его ещё нет.</td></tr>
+          <tr><td class="m">POST /talks</td><td>Разговор без серверного предмета (демо): <code>{ topic, focus, mission, title, stage, glossary, records }</code> → 201 <code>{ talkId }</code>; дайджест собирается из тела и хранится в разговоре.</td></tr>
           <tr><td class="m">POST /talks/{id}/turns</td><td><code>{ text }</code> → <code>text/event-stream</code>: события <code>delta</code> (кусок ответа), <code>done</code> (полный ответ и номер реплики), <code>error</code>. Пустой <code>text</code> — вступление бадди.</td></tr>
           <tr><td class="m">POST /talks/{id}/end</td><td>Завершить разговор → 202 <code>{ status: "ended" }</code>.</td></tr>
         </tbody>

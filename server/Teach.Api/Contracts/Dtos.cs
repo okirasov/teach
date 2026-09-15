@@ -76,6 +76,9 @@ public sealed record SubjectSummary(string Id, string Name, string Topic, string
 /// <summary>POST /subjects/{id}/talks → id разговора.</summary>
 public sealed record TalkCreated(string TalkId);
 
+/// <summary>POST /talks: разговор без серверного предмета (демо): дайджест собирается из переданного контекста.</summary>
+public sealed record TalkDraft(string Topic, string Focus, string Mission, string? Title, PlanStage Stage, RefRowDto[]? Glossary = null, RecapRecord[]? Records = null);
+
 /// <summary>POST /talks/{id}/turns: распознанная реплика ученика; пустая строка — просьба начать разговор.</summary>
 public sealed record TurnRequest(string Text);
 
