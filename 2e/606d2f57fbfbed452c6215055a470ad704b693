@@ -1,0 +1,19 @@
+docs/qa/make_qa_doc.py
+  s_a25011e32efe4b::t_652466c631714c 66,440
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "2e606d2f57fbfbed452c6215055a470ad704b693",
+  "prompts": {},
+  "sessions": {
+    "s_a25011e32efe4b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ac545c2b-aa5c-42fc-8708-f04ccbeb2d2f",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
