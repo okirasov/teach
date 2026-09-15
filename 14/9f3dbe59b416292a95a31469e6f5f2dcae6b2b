@@ -1,0 +1,23 @@
+mobile/README.md
+  s_45a5854b0f8202::t_2ff67344937f03 97
+mobile/src/voice/__tests__/tts.test.ts
+  s_45a5854b0f8202::t_7d85c4f3484136 38-52
+mobile/src/voice/tts.ts
+  s_45a5854b0f8202::t_47c4b085aa825e 37-40,45-55,60-61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "149f3dbe59b416292a95a31469e6f5f2dcae6b2b",
+  "prompts": {},
+  "sessions": {
+    "s_45a5854b0f8202": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5df78986-61ec-4306-b8df-f639605999ab",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
