@@ -34,17 +34,31 @@ export async function hasVoiceFor(lang: string): Promise<boolean> {
 
 export interface SpeakOptions {
   /**
-   * Озвучивать только куски на языке предмета: в разговоре бадди говорит по-итальянски,
-   * а русская подсказка остаётся написанной. Без эффекта, если язык озвучки и есть язык интерфейса.
+   * Озвучивать только речь на языке предмета: в разговоре бадди говорит по-итальянски,
+   * а русская подсказка остаётся написанной. Текст (одно предложение) звучит, только если буквы
+   * языка предмета в нём преобладают; отдельные термины внутри русской фразы («ты путал costa и
+   * costano») не озвучиваются. Без эффекта, если язык озвучки и есть язык интерфейса.
    */
   subjectOnly?: boolean;
+}
+
+const LETTER_RX = /\p{L}/gu;
+const CYRILLIC_RX = /\p{Script=Cyrillic}/gu;
+
+/** Доля букв языка предмета среди всех букв текста (кириллица считается языком интерфейса). */
+export function subjectShare(text: string): number {
+  const letters = text.match(LETTER_RX)?.length ?? 0;
+  if (letters === 0) return 0;
+  const cyrillic = text.match(CYRILLIC_RX)?.length ?? 0;
+  return (letters - cyrillic) / letters;
 }
 
 /** Озвучить текст: куски на языке предмета и на языке интерфейса читаются по очереди своими голосами. */
 export function speak(text: string, lang: string, onDone: () => void, uiLang = 'ru-RU', opts: SpeakOptions = {}): void {
   Speech.stop();
   const all = splitByLanguage(text, lang, uiLang);
-  const segments = opts.subjectOnly && lang.toLowerCase() !== uiLang.toLowerCase() ? all.filter((s) => s.lang !== uiLang) : all;
+  const subjectOnly = !!opts.subjectOnly && lang.toLowerCase() !== uiLang.toLowerCase();
+  const segments = !subjectOnly ? all : subjectShare(text) >= 0.5 ? all.filter((s) => s.lang !== uiLang) : [];
   let stopped = false;
   const next = (i: number) => {
     if (stopped || i >= segments.length) {

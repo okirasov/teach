@@ -35,6 +35,21 @@ describe('tts', () => {
     expect(done2).toHaveBeenCalledTimes(1);
   });
 
+  test('subjectOnly keeps terms inside a Russian sentence silent but voices a mostly-foreign sentence', () => {
+    (Speech.speak as jest.Mock).mockClear();
+    const done = jest.fn();
+    speak('В уроке 4 ты путал costa и costano, здесь один кофе.', 'it-IT', done, 'ru-RU', { subjectOnly: true });
+    expect(Speech.speak).not.toHaveBeenCalled();
+    expect(done).toHaveBeenCalledTimes(1);
+    (Speech.speak as jest.Mock).mockClear();
+    speak('Ответь: Tell me a little about yourself.', 'en-US', jest.fn(), 'ru-RU', { subjectOnly: true });
+    expect(Speech.speak).toHaveBeenCalledTimes(1);
+    expect(Speech.speak).toHaveBeenCalledWith('Tell me a little about yourself.', expect.objectContaining({ language: 'en-US' }));
+    (Speech.speak as jest.Mock).mockClear();
+    speak('Present, Past, Future — три формы, которые ты уже знаешь.', 'en-US', jest.fn(), 'ru-RU', { subjectOnly: true });
+    expect(Speech.speak).not.toHaveBeenCalled();
+  });
+
   test('speak stops the previous utterance and reports completion', () => {
     const done = jest.fn();
     speak('Buongiorno — добрый день', 'it-IT', done, 'ru-RU');
