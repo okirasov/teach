@@ -79,6 +79,15 @@ describe('talk machine', () => {
     expect(state.lines).toEqual([{ side: 'user', text: 'x', live: false }]);
   });
 
+  it('cancel while listening drops the transcript and returns to waiting without sending', () => {
+    const { state, effects } = run([{ type: 'micTap' }, { type: 'sttResult', text: 'оговорка', final: false }, { type: 'cancelStt' }, { type: 'sttResult', text: 'оговорка да', final: true }, { type: 'sttEnd' }]);
+    expect(effects).toEqual(['startStt', 'stopStt']);
+    expect(state.phase).toBe('waiting');
+    expect(state.lines).toEqual([]);
+    expect(state.discard).toBe(false);
+    expect(reduceTalk(state, { type: 'cancelStt' }).effects).toEqual([]);
+  });
+
   it('close stops everything and ends', () => {
     const { state, effects } = run([{ type: 'micTap' }, { type: 'close' }]);
     expect(effects).toEqual(['startStt', 'stopStt', 'stopSpeech', 'end']);

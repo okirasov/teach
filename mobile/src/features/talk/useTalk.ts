@@ -176,6 +176,7 @@ export function useTalk(options: UseTalkOptions) {
   }, []);
 
   const onMic = useCallback(() => dispatch({ type: 'micTap' }), [dispatch]);
+  const cancel = useCallback(() => dispatch({ type: 'cancelStt' }), [dispatch]);
   const close = useCallback(() => dispatch({ type: 'close' }), [dispatch]);
   useEffect(() => () => {
     stt.current?.stop();
@@ -186,5 +187,5 @@ export function useTalk(options: UseTalkOptions) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { state, buddyState: PHASE_TO_BUDDY[state.phase], onMic, close, seconds };
+  return { state, buddyState: PHASE_TO_BUDDY[state.phase], onMic, cancel, close, seconds };
 }

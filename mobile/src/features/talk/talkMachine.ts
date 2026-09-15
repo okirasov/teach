@@ -14,6 +14,8 @@ export interface TalkLine {
 
 export interface TalkState {
   phase: TalkPhase;
+  /** Запись отменена: ближайший sttEnd не отправляет реплику, а возвращает «Ваш ход». */
+  discard: boolean;
   lines: TalkLine[];
   error: string | null;
   ended: boolean;
@@ -22,6 +24,8 @@ export interface TalkState {
 export type TalkEvent =
   | { type: 'turnStart' }
   | { type: 'micTap' }
+  /** «Отменить» во время записи: STT останавливается, транскрипт выбрасывается, отправки нет. */
+  | { type: 'cancelStt' }
   | { type: 'sttResult'; text: string; final: boolean }
   | { type: 'sttEnd' }
   | { type: 'replyStart' }
@@ -34,7 +38,7 @@ export type TalkEvent =
 export type TalkEffect = 'startStt' | 'stopStt' | 'send' | 'stopSpeech' | 'end';
 
 export function initialTalk(): TalkState {
-  return { phase: 'waiting', lines: [], error: null, ended: false };
+  return { phase: 'waiting', lines: [], error: null, ended: false, discard: false };
 }
 
 const last = (s: TalkState) => s.lines[s.lines.length - 1];
@@ -62,10 +66,12 @@ export function reduceTalk(s: TalkState, e: TalkEvent): { state: TalkState; effe
       return ok(s);
     case 'sttResult':
       return s.phase === 'listening' ? ok({ ...s, lines: setLast(s, { text: e.text }) }) : ok(s);
+    case 'cancelStt':
+      return s.phase === 'listening' && !s.discard ? ok({ ...s, discard: true }, 'stopStt') : ok(s);
     case 'sttEnd': {
       if (s.phase !== 'listening') return ok(s);
       const text = last(s)?.text.trim() ?? '';
-      if (!text) return ok({ ...s, phase: 'waiting', lines: s.lines.slice(0, -1) });
+      if (!text || s.discard) return ok({ ...s, phase: 'waiting', discard: false, lines: s.lines.slice(0, -1) });
       return ok({ ...s, phase: 'thinking', lines: setLast(s, { text, live: false }) }, 'send');
     }
     case 'replyStart':

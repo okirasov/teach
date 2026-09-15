@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
 
 import { currentDemoLesson, subjectLanguage, useProgress, subjectConfig, subjectName } from '@/store/progress';
@@ -85,7 +85,14 @@ export default function TalkScreen() {
       <BuddyDockView state={talk.buddyState} word={word} reduceMotion={reduceMotion} accessible accessibilityRole="text" accessibilityLabel={word} accessibilityLiveRegion="polite" />
       <View style={{ alignItems: 'center', marginTop: 16 }}>
         <MicButton recording={talk.state.phase === 'listening'} onPress={talk.onMic} size={size.micLg} />
-        <Txt t="tiny" color="mut" style={{ marginTop: 8, textAlign: 'center', minHeight: 17 }}>{hint}</Txt>
+        {talk.state.phase === 'listening' ? (
+          // Оговорился — «Отменить» выбрасывает запись; отправка по-прежнему автоматическая по концу записи.
+          <Pressable testID="talk-cancel" accessibilityRole="button" onPress={talk.cancel} hitSlop={10} style={{ marginTop: 8, minHeight: 17 }}>
+            <Txt t="tiny" color="mintInk" style={{ textAlign: 'center' }}>{t.talk.cancel}</Txt>
+          </Pressable>
+        ) : (
+          <Txt t="tiny" color="mut" style={{ marginTop: 8, textAlign: 'center', minHeight: 17 }}>{hint}</Txt>
+        )}
       </View>
     </Screen>
   );

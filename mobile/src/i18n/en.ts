@@ -45,7 +45,7 @@ export const en: Dict = {
   why: 'WHY', example: 'EXAMPLE', noHints: 'No hints — the breakdown opens after your attempt', howRight: 'CORRECT ANSWER',
   micIdle: 'Or answer by voice — the transcript lands in the field', micRec: 'Listening… tap again to finish',
   buddy: { reading: 'Read on', waiting: 'Your turn', listening: 'Listening', speaking: 'Reading the example', thinking: 'Thinking', right: 'Correct', partial: 'Partly', wrong: 'Not quite', accepted: 'Noted' },
-  talk: { talking: 'Speaking', kicker: (n) => 'Talk · stage ' + n, entry: 'Talk to the buddy', entryNote: '3–5 minutes on the current stage, by voice', hintWaiting: 'Tap and speak', hintListening: 'Tap when you are done', hintSpeaking: 'Tap to interrupt', hintDone: 'Talk finished', errorNet: 'No connection to the server. Earlier lines are kept; try again.', end: 'Finish' },
+  talk: { talking: 'Speaking', kicker: (n) => 'Talk · stage ' + n, entry: 'Talk to the buddy', entryNote: '3–5 minutes on the current stage, by voice', hintWaiting: 'Tap and speak', hintListening: 'Tap when you are done', cancel: 'Cancel', hintSpeaking: 'Tap to interrupt', hintDone: 'Talk finished', errorNet: 'No connection to the server. Earlier lines are kept; try again.', end: 'Finish' },
   toPractice: 'To practice', answer: 'Answer', next: 'Next', toRecap: 'To recap', toCurrent: 'Back to current step', viewingPast: 'Completed step — swipe right for earlier, left for later', done: 'Done',
   setupNext: 'Next', setupBuild: 'Build plan',
   newSubjChip: 'NEW SUBJECT', recapChip: 'RECAP', toReviews: 'GOES TO REVIEWS', baselineKicker: 'BASELINE', baselineNote: 'Not taught yet — we are finding your starting line. A miss here is not a mistake.', baselineRecap: 'STARTING POINT',
