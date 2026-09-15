@@ -1,0 +1,19 @@
+mobile/app.json
+  s_a25011e32efe4b::t_fc14f4e84f661d 23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "4fb24ea7afbae749e5da132e55871ec9492887d0",
+  "prompts": {},
+  "sessions": {
+    "s_a25011e32efe4b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ac545c2b-aa5c-42fc-8708-f04ccbeb2d2f",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
