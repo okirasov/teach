@@ -1,3 +1,4 @@
+import os
 from docx import Document
 from docx.shared import Pt, Cm, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -545,3 +546,6 @@ table(['Термин', 'Значение'], [
 ], widths=[4, 13])
 
 doc.save(OUT); print('saved', OUT)
+# Копия для тестировщиков без доступа к репозиторию: отдаётся сервером рядом с tech page (/docs/qa.docx).
+SERVED = os.path.join(os.path.dirname(OUT), '..', '..', 'server', 'Teach.Api', 'wwwroot', 'docs', 'qa.docx')
+doc.save(SERVED); print('saved', os.path.normpath(SERVED))
