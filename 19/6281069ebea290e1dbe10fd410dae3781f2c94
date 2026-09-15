@@ -1,0 +1,35 @@
+docs/qa/README.md
+  s_a25011e32efe4b::t_447468c52b320d 3
+docs/qa/make_qa_doc.py
+  s_a25011e32efe4b::t_944e1f66fbd05c 65,242-244,493-498
+mobile/app/talk/[id].tsx
+  s_a25011e32efe4b::t_f6c6d9308b7793 3,88-95
+mobile/src/features/talk/__tests__/talkMachine.test.ts
+  s_a25011e32efe4b::t_3b2ff8f3f8d600 82-90
+mobile/src/features/talk/talkMachine.ts
+  s_a25011e32efe4b::t_0c70a5931fa147 17-18,27-28,41,69-70,74
+mobile/src/features/talk/useTalk.ts
+  s_a25011e32efe4b::t_db9994a6c5676e 179,190
+mobile/src/i18n/en.ts
+  s_a25011e32efe4b::t_1e64efb092179b 48
+mobile/src/i18n/ru.ts
+  s_a25011e32efe4b::t_be3667a2ba7e53 49
+server/Teach.Api/Model/Prompts.cs
+  s_a25011e32efe4b::t_2e61b5039abb8b 28,41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "196281069ebea290e1dbe10fd410dae3781f2c94",
+  "prompts": {},
+  "sessions": {
+    "s_a25011e32efe4b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ac545c2b-aa5c-42fc-8708-f04ccbeb2d2f",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
