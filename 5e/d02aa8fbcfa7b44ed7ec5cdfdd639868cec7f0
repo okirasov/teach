@@ -1,0 +1,29 @@
+docs/qa/README.md
+  s_45a5854b0f8202::t_a0cab229b57950 3
+docs/qa/make_qa_doc.py
+  s_5c6fe98d1c15db::t_5d65d03b050b09 65,481-489,521
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "5ed02aa8fbcfa7b44ed7ec5cdfdd639868cec7f0",
+  "prompts": {},
+  "sessions": {
+    "s_45a5854b0f8202": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5df78986-61ec-4306-b8df-f639605999ab",
+        "model": "unknown"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    },
+    "s_5c6fe98d1c15db": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03285-3780-7953-8181-a8b2bfdc5e7d",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
