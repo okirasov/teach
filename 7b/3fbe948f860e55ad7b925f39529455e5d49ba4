@@ -1,0 +1,41 @@
+docs/ai-content.md
+  s_45a5854b0f8202::t_c41a709409e70a 186
+mobile/README.md
+  s_45a5854b0f8202::t_d6c91af7793e71 97-98
+mobile/app/(tabs)/today.tsx
+  s_45a5854b0f8202::t_f8e3b321da29e1 67
+mobile/app/talk/[id].tsx
+  s_45a5854b0f8202::t_09cd77aff49f66 6-9,31-48,50-51,60,72
+mobile/src/content/http.ts
+  s_45a5854b0f8202::t_56332790757a65 141-144
+mobile/src/content/local.ts
+  s_45a5854b0f8202::t_b8f3800acb8787 190-192
+mobile/src/content/types.ts
+  s_45a5854b0f8202::t_a28832efcef7f2 69-79,118-119
+mobile/src/features/talk/__tests__/useTalk.test.tsx
+  s_45a5854b0f8202::t_b8198da4dc2b31 8-13,15-16,33,43,50-51,61,71-100
+mobile/src/features/talk/useTalk.ts
+  s_45a5854b0f8202::t_5869023d0450e0 3,6,12-15,74,78,94,162-163,166-169
+mobile/src/voice/__tests__/tts.test.ts
+  s_45a5854b0f8202::t_d9101518534ea1 24-37
+mobile/src/voice/audioSession.ts
+  s_45a5854b0f8202::t_4022599b11b494 1-40
+mobile/src/voice/tts.ts
+  s_45a5854b0f8202::t_780d3b882c8c44 35-42,44,46-47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "7b3fbe948f860e55ad7b925f39529455e5d49ba4",
+  "prompts": {},
+  "sessions": {
+    "s_45a5854b0f8202": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5df78986-61ec-4306-b8df-f639605999ab",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Oleg Kirasov <okirasov@gmail.com>"
+    }
+  }
+}
